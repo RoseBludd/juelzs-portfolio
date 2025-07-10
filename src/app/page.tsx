@@ -365,8 +365,10 @@ export default async function Home() {
                           <path d="M8 5v14l11-7z"/>
                         </svg>
                       </div>
-                      <p className="text-gray-400 text-sm">Video will be embedded here</p>
-                      <p className="text-gray-500 text-xs mt-1">{video.duration}</p>
+                      <p className="text-gray-400 text-sm font-medium">{video.title}</p>
+                      <p className="text-gray-500 text-xs mt-1">
+                        {video.keyMoments.length > 0 ? `${video.keyMoments.length} key moments analyzed` : video.duration}
+                      </p>
                     </div>
                   </div>
                   

@@ -350,14 +350,35 @@ export const VideoPlayerSection: React.FC<VideoPlayerSectionProps> = ({ videos }
                   Your browser does not support the video tag.
                 </video>
               ) : (
-                <div className="text-center">
+                <div className="text-center p-8">
                   <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 002 2v8a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <p className="text-gray-400 mb-2">Video integration in progress</p>
-                  <p className="text-gray-500 text-sm">S3 video loading will be implemented here</p>
+                  <h4 className="text-lg font-semibold text-white mb-2">{video.title}</h4>
+                  <p className="text-gray-400 mb-3">Leadership Analysis Complete</p>
+                  {video.analysis && (
+                    <div className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg p-4 mb-3">
+                      <div className="flex items-center justify-center space-x-4 text-sm">
+                        <div className="text-center">
+                          <div className="text-xl font-bold text-blue-400">{video.analysis.overallRating}/10</div>
+                          <div className="text-gray-400">Overall Rating</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-xl font-bold text-green-400">{video.analysis.strengths.length}</div>
+                          <div className="text-gray-400">Strengths</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-xl font-bold text-orange-400">{video.analysis.areasForImprovement.length}</div>
+                          <div className="text-gray-400">Growth Areas</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <p className="text-gray-500 text-sm">
+                    {video.analysis ? 'AI Analysis Available' : 'Transcript & Analysis in Progress'}
+                  </p>
                 </div>
               )}
             </div>

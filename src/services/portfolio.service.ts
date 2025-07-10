@@ -342,28 +342,22 @@ class PortfolioService {
             if (transcriptContent && transcriptContent.length > 100) {
               console.log(`🔍 Analyzing leadership performance for: ${group.title}`);
               
-              // Add timeout to prevent blocking
-              const analysis = await Promise.race([
-                this.analysisService.analyzeMeetingLeadership({
-                  id: group.id,
-                  title: group.title,
-                  transcript: transcriptContent,
-                  participants: group.participants,
-                  duration: insights?.duration || '0:00',
-                  type: this.mapCategoryToType(group.category),
-                  dateRecorded: group.dateRecorded
-                }),
-                new Promise<null>((resolve) => 
-                  setTimeout(() => {
-                    console.log(`⏱️ Analysis timeout for: ${group.title}, skipping`);
-                    resolve(null);
-                  }, 10000) // 10 second timeout
-                )
-              ]);
+              // Perform analysis without timeout to ensure completion
+              const analysis = await this.analysisService.analyzeMeetingLeadership({
+                id: group.id,
+                title: group.title,
+                transcript: transcriptContent,
+                participants: group.participants,
+                duration: insights?.duration || '0:00',
+                type: this.mapCategoryToType(group.category),
+                dateRecorded: group.dateRecorded
+              });
               
               if (analysis) {
                 video.analysis = analysis;
                 console.log(`✅ Analysis completed for: ${group.title} - Overall Rating: ${analysis.overallRating}/10`);
+              } else {
+                console.log(`⚠️ Analysis returned null for: ${group.title} - OpenAI may be unavailable`);
               }
             }
           } catch (error) {

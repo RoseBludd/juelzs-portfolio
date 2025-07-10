@@ -12,7 +12,10 @@ export const metadata: Metadata = {
 
 export default async function LeadershipPage() {
   const portfolioService = PortfolioService.getInstance();
-  const videos = await portfolioService.getLeadershipVideos();
+  
+  // Request videos WITH analysis for the leadership page
+  console.log('📊 Loading leadership videos with full analysis...');
+  const videos = await portfolioService.getLeadershipVideosWithAnalysis();
 
   const momentTypes = [
     { type: 'architecture', label: 'Architecture Reviews', color: 'bg-blue-500/20 text-blue-300' },

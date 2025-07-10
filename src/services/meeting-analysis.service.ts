@@ -78,10 +78,10 @@ class MeetingAnalysisService {
   }
 
   /**
-   * Check if OpenAI API is available and configured
+   * Check if OpenAI API is available
    */
-  public isApiAvailable(): boolean {
-    return this.openai !== null && this.apiKeyValid;
+  isApiAvailable(): boolean {
+    return this.openai !== null;
   }
 
   /**
@@ -131,66 +131,52 @@ class MeetingAnalysisService {
       return null;
     }
 
-    // Validate API key if not already checked
-    if (!this.apiKeyChecked) {
-      const isValid = await this.validateApiKey();
-      if (!isValid) {
-        console.log(`❌ API key invalid, analysis unavailable for: ${context.title}`);
-        return null;
-      }
-    }
-
     try {
+      console.log(`📊 Analyzing meeting transcript with OpenAI...`);
+      console.log(`Meeting: ${context.title}`);
+      console.log(`Duration: ${context.duration}`);
+      console.log(`🔑 API Available: ${this.isApiAvailable()}`);
+      
+      const startTime = Date.now();
       const prompt = this.buildAnalysisPrompt(context);
       
-      // Add timeout to prevent blocking
-      const response = await Promise.race([
-        this.openai!.chat.completions.create({
-          model: 'gpt-4o',
-          messages: [
-            {
-              role: 'system',
-              content: `You are an expert leadership coach and organizational psychologist specializing in technical leadership analysis. 
-              You analyze meeting transcripts to provide detailed, actionable feedback on leadership performance.
-              
-              Focus on:
-              - Technical leadership skills
-              - Communication effectiveness
-              - Team dynamics management
-              - Decision-making processes
-              - Coaching and mentoring abilities
-              - Systems thinking demonstration
-              
-              Provide specific, evidence-based feedback with concrete examples from the transcript.
-              Rate all scores from 1-10 where 10 is exceptional leadership.`
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.3,
-          max_tokens: 2000,
-          response_format: { type: 'json_object' }
-        }),
-        new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Analysis timeout')), 15000)
-        )
-      ]);
+      const response = await this.openai!.chat.completions.create({
+        model: 'gpt-4o-mini', // Use the more reliable model
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 2000,
+        temperature: 0.3,
+        response_format: { type: "json_object" }
+      });
 
-      const analysis = JSON.parse(response.choices[0].message.content!);
-      console.log(`✅ OpenAI analysis completed for: ${context.title}`);
-      return this.validateAndStructureAnalysis(analysis);
-      
-    } catch (error) {
-      console.error(`❌ Error analyzing meeting leadership for "${context.title}":`, error instanceof Error ? error.message : 'Unknown error');
-      
-      // Mark API as invalid if it's an auth error
-      if (error instanceof Error && error.message.includes('401')) {
-        this.apiKeyValid = false;
+      const duration = Date.now() - startTime;
+      console.log(`⏱️ Analysis took: ${duration}ms`);
+
+      const content = response.choices[0]?.message?.content;
+      if (!content) {
+        console.log(`❌ No content returned from OpenAI for: ${context.title}`);
+        return null;
+      }
+
+      try {
+        const analysis = JSON.parse(content) as LeadershipAnalysis;
+        
+        // Validate the analysis has required fields
+        if (!analysis.overallRating || !analysis.strengths || !analysis.areasForImprovement) {
+          console.log(`❌ Invalid analysis structure for: ${context.title}`);
+          return null;
+        }
+        
+        console.log(`✅ Successfully analyzed: ${context.title} - Rating: ${analysis.overallRating}/10`);
+        return analysis;
+        
+      } catch (parseError) {
+        console.error(`❌ Error parsing analysis JSON for ${context.title}:`, parseError);
+        return null;
       }
       
-      return null; // Return null instead of fallback
+    } catch (error) {
+      console.error(`❌ Error during analysis for ${context.title}:`, error instanceof Error ? error.message : 'Unknown error');
+      return null;
     }
   }
 
