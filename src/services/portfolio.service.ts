@@ -92,19 +92,29 @@ class PortfolioService {
   }
 
   /**
-   * Get all system projects (manual only - no GitHub dependency)
+   * Get all system projects (manual + GitHub repositories)
    */
   async getSystemProjects(): Promise<SystemProject[]> {
     try {
-      console.log('🎯 Loading curated systems portfolio...');
-      const manualProjects = await this.getManualProjects();
+      console.log('🎯 Loading full systems portfolio (manual + GitHub)...');
+      const [manualProjects, githubProjects] = await Promise.all([
+        this.getManualProjects(),
+        this.getGithubProjects()
+      ]);
       
-      console.log(`✅ Loaded ${manualProjects.length} curated systems`);
-      return manualProjects;
+      // Merge and deduplicate projects
+      const allProjects = [...manualProjects, ...githubProjects];
+      const deduplicatedProjects = this.deduplicateProjects(allProjects);
+      
+      console.log(`✅ Loaded ${manualProjects.length} manual + ${githubProjects.length} GitHub = ${deduplicatedProjects.length} total projects`);
+      return deduplicatedProjects;
     } catch (error) {
       console.error('Error fetching system projects:', error);
       this.syncStatus.errors.push(`Error fetching projects: ${error}`);
-      return [];
+      
+      // Fallback to manual projects only
+      console.log('🔄 Falling back to manual projects only...');
+      return await this.getManualProjects();
     }
   }
 
@@ -219,20 +229,84 @@ class PortfolioService {
   }
 
   /**
-   * Get GitHub projects (DEPRECATED - Removed for curated systems focus)
+   * Get GitHub projects and transform them into SystemProject format
    */
   private async getGithubProjects(): Promise<SystemProject[]> {
-    // No longer fetching GitHub projects - focusing on curated systems portfolio
-    console.log('🎯 GitHub projects disabled - using curated systems only');
-    return [];
+    try {
+      console.log('🐙 Fetching GitHub repositories...');
+      const repos = await this.githubService.getRepositories();
+      
+      const projects: SystemProject[] = repos.map((repo: import('./github.service').GitHubRepository) => {
+        // Determine category based on topics and description
+        let category: 'ai' | 'architecture' | 'leadership' | 'systems' = 'systems';
+        
+        const description = repo.description?.toLowerCase() || '';
+        const topics = repo.topics || [];
+        
+        if (topics.includes('ai') || topics.includes('machine-learning') || topics.includes('artificial-intelligence') || description.includes('ai') || description.includes('machine learning')) {
+          category = 'ai';
+        } else if (topics.includes('architecture') || topics.includes('microservices') || topics.includes('system-design') || description.includes('architecture') || description.includes('design pattern')) {
+          category = 'architecture';
+        } else if (topics.includes('leadership') || topics.includes('management') || topics.includes('coaching') || description.includes('leadership') || description.includes('team')) {
+          category = 'leadership';
+        }
+        
+        // Extract tech stack from topics and language
+        const techStack: string[] = [
+          repo.language,
+          ...topics.filter((topic: string) => 
+            ['typescript', 'javascript', 'react', 'nextjs', 'nodejs', 'python', 'docker', 'kubernetes', 'aws', 'postgresql', 'redis', 'mongodb'].includes(topic.toLowerCase())
+          )
+        ].filter((item): item is string => Boolean(item));
+        
+        return {
+          id: repo.name,
+          title: repo.name.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+          description: repo.description || 'A production system showcasing advanced architectural patterns and development practices.',
+          role: 'Lead Developer & Architect',
+          techStack,
+          uniqueDecisions: [
+            'Implemented modern development practices with automated testing and CI/CD',
+            'Designed scalable architecture following industry best practices',
+            'Focused on maintainability and code quality with comprehensive documentation'
+          ],
+          category,
+          stars: repo.stargazers_count,
+          forks: repo.forks_count,
+          lastUpdated: repo.updated_at,
+          topics: repo.topics,
+          language: repo.language || 'Mixed',
+          createdAt: repo.created_at,
+          githubUrl: repo.html_url,
+          source: 'github'
+        };
+      });
+      
+      console.log(`✅ Fetched ${projects.length} GitHub projects`);
+      return projects;
+    } catch (error) {
+      console.error('❌ Error fetching GitHub projects:', error);
+      return [];
+    }
   }
 
   /**
-   * Deduplicate projects (DEPRECATED - No longer needed with manual-only approach)
+   * Deduplicate projects by ID, preferring manual projects over GitHub ones
    */
   private deduplicateProjects(projects: SystemProject[]): SystemProject[] {
-    // No longer needed since we only use manual projects
-    return projects;
+    const projectMap = new Map<string, SystemProject>();
+    
+    // Add all projects, with manual projects overriding GitHub ones if they have the same ID
+    projects.forEach(project => {
+      const existingProject = projectMap.get(project.id);
+      
+      // If no existing project, or this is a manual project overriding a GitHub one
+      if (!existingProject || (project.source === 'manual' && existingProject.source === 'github')) {
+        projectMap.set(project.id, project);
+      }
+    });
+    
+    return Array.from(projectMap.values());
   }
 
   async getSystemById(id: string): Promise<SystemProject | null> {
