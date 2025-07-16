@@ -113,6 +113,10 @@ export default async function Home() {
                     <span className="w-3 h-3 bg-orange-400 rounded-full mr-3"></span>
                     <span className="text-gray-300">Platform Founder & Builder</span>
                   </div>
+                  <div className="flex items-center">
+                    <span className="w-3 h-3 bg-cyan-400 rounded-full mr-3"></span>
+                    <span className="text-gray-300">Managing 10+ developers across multiple countries</span>
+                  </div>
                 </div>
               </Card>
               
