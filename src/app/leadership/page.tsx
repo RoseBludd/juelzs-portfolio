@@ -15,35 +15,97 @@ export default async function LeadershipPage() {
   const portfolioService = PortfolioService.getInstance();
   
   // Request videos WITH analysis for the leadership page
-  console.log('📊 Loading leadership videos with full analysis...');
-  const rawVideos = await portfolioService.getLeadershipVideosWithAnalysis();
-
-  // Ensure proper serialization by creating clean objects
-  const videos = rawVideos.map(video => ({
-    id: video.id,
-    title: video.title,
-    description: video.description,
-    videoUrl: video.videoUrl,
-    duration: video.duration,
-    type: video.type,
-    keyMoments: video.keyMoments || [],
-    participants: video.participants || [],
-    dateRecorded: video.dateRecorded,
-    transcript: video.transcript,
-    recap: video.recap,
-    analysis: video.analysis ? {
-      overallRating: video.analysis.overallRating,
-      strengths: video.analysis.strengths || [],
-      areasForImprovement: video.analysis.areasForImprovement || [],
-      standoutMoments: video.analysis.standoutMoments || [],
-      communicationStyle: video.analysis.communicationStyle,
-      leadershipQualities: video.analysis.leadershipQualities,
-      keyInsights: video.analysis.keyInsights || [],
-      recommendations: video.analysis.recommendations || [],
-      summary: video.analysis.summary || ''
-    } : undefined,
-    source: video.source
-  }));
+  console.log('🚀 LeadershipPage: Starting video fetch...');
+  console.log('🌍 Environment:', process.env.NODE_ENV);
+  console.log('🔑 AWS credentials available:', !!process.env.AWS_ACCESS_KEY_ID && !!process.env.AWS_SECRET_ACCESS_KEY);
+  console.log('🔑 AWS S3 bucket:', process.env.AWS_S3_BUCKET);
+  console.log('🔑 OpenAI key available:', !!process.env.OPENAI_API_KEY);
+  
+  let videos = [];
+  
+  try {
+    const rawVideos = await portfolioService.getLeadershipVideosWithAnalysis();
+    console.log(`📊 Leadership Page: Raw videos loaded: ${rawVideos.length}`);
+    
+    if (rawVideos.length === 0) {
+      console.error('❌ No videos returned from getLeadershipVideosWithAnalysis');
+      console.log('🔍 Debugging: Check AWS S3 connection and video analysis');
+      
+      // Try to get videos without analysis as fallback
+      console.log('🔄 Attempting fallback: getting videos without analysis...');
+      const fallbackVideos = await portfolioService.getLeadershipVideos(false);
+      console.log(`📊 Fallback videos: ${fallbackVideos.length}`);
+      
+      if (fallbackVideos.length > 0) {
+        console.log('✅ Fallback successful - using videos without analysis filtering');
+        videos = fallbackVideos.map(video => ({
+          id: video.id,
+          title: video.title,
+          description: video.description,
+          videoUrl: video.videoUrl,
+          duration: video.duration,
+          type: video.type,
+          keyMoments: video.keyMoments || [],
+          participants: video.participants || [],
+          dateRecorded: video.dateRecorded,
+          transcript: video.transcript,
+          recap: video.recap,
+          analysis: undefined, // No analysis in fallback
+          source: video.source
+        }));
+      }
+    } else {
+      console.log('✅ Videos with analysis loaded successfully');
+      // Ensure proper serialization by creating clean objects
+      videos = rawVideos.map(video => ({
+        id: video.id,
+        title: video.title,
+        description: video.description,
+        videoUrl: video.videoUrl,
+        duration: video.duration,
+        type: video.type,
+        keyMoments: video.keyMoments || [],
+        participants: video.participants || [],
+        dateRecorded: video.dateRecorded,
+        transcript: video.transcript,
+        recap: video.recap,
+        analysis: video.analysis ? {
+          overallRating: video.analysis.overallRating,
+          strengths: video.analysis.strengths || [],
+          areasForImprovement: video.analysis.areasForImprovement || [],
+          standoutMoments: video.analysis.standoutMoments || [],
+          communicationStyle: video.analysis.communicationStyle,
+          leadershipQualities: video.analysis.leadershipQualities,
+          keyInsights: video.analysis.keyInsights || [],
+          recommendations: video.analysis.recommendations || [],
+          summary: video.analysis.summary || ''
+        } : undefined,
+        source: video.source
+      }));
+    }
+    
+    console.log(`🎬 Final video count for rendering: ${videos.length}`);
+    if (videos.length > 0) {
+      console.log(`📊 Video sources: ${videos.map(v => `${v.title} (${v.source})`).join(', ')}`);
+      console.log(`📊 Videos with analysis: ${videos.filter(v => v.analysis).length}`);
+    }
+    
+  } catch (error) {
+    console.error('❌ Error loading leadership videos:', error);
+    console.error('❌ Error details:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
+    
+    // Emergency fallback - try getting videos without analysis
+    console.log('🚨 Emergency fallback: trying videos without analysis...');
+    try {
+      const emergencyVideos = await portfolioService.getLeadershipVideos(false);
+      videos = emergencyVideos || [];
+      console.log(`🚨 Emergency fallback result: ${videos.length} videos`);
+    } catch (fallbackError) {
+      console.error('❌ Emergency fallback also failed:', fallbackError);
+      videos = [];
+    }
+  }
 
   const momentTypes = [
     { type: 'architecture', label: 'Architecture Reviews', color: 'bg-blue-500/20 text-blue-300' },
@@ -131,7 +193,7 @@ export default async function LeadershipPage() {
                     
                     {/* Moment Type Tags */}
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {Array.from(new Set(video.keyMoments.map(m => m.type))).map((type) => (
+                      {Array.from(new Set(video.keyMoments.map((m: any) => m.type))).map((type: string) => (
                         <span key={type} className={`inline-block px-2 py-1 rounded text-xs font-medium ${
                           momentTypes.find(t => t.type === type)?.color || 'bg-gray-500/20 text-gray-300'
                         }`}>

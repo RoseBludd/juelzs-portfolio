@@ -47,8 +47,14 @@ export default async function ProjectsPage() {
   let projects: SystemProject[] = [];
   
   try {
+    console.log('🚀 ProjectsPage: Starting data fetch...');
+    console.log('🌍 Environment:', process.env.NODE_ENV);
+    console.log('🔑 GitHub token available:', !!process.env.GITHUB_TOKEN);
+    console.log('🔑 GitHub org:', process.env.GITHUB_ORGANIZATION);
+    
     const rawProjects = await portfolioService.getSystemProjects();
     console.log(`🎯 Projects Page: Loaded ${rawProjects.length} projects`);
+    console.log(`📊 Project sources breakdown:`, rawProjects.map(p => `${p.title} (${p.source})`));
     
     // Ensure proper serialization by creating clean objects
     projects = rawProjects.map(project => ({
@@ -73,12 +79,18 @@ export default async function ProjectsPage() {
     }));
     
     if (projects.length === 0) {
-      console.warn('⚠️ No projects loaded from any source');
+      console.error('⚠️ No projects loaded from any source');
+    } else if (projects.length <= 3) {
+      console.warn('⚠️ Only got fallback projects - GitHub service likely failed');
+      console.log('🔍 Debugging: Check if GitHub API is accessible in production');
     } else {
+      console.log(`✅ Successfully loaded ${projects.length} projects`);
       console.log(`📊 Project sources: ${projects.map(p => p.source).join(', ')}`);
     }
   } catch (error) {
     console.error('❌ Error loading projects:', error);
+    console.error('❌ Error details:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack');
     // Use empty array as fallback
     projects = [];
   }
