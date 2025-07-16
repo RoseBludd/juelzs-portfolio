@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import ProjectLinkingService from '@/services/project-linking.service';
 import PortfolioService from '@/services/portfolio.service';
 import ArchitectureAnalysisService from '@/services/architecture-analysis.service';
+import ProjectOverviewService from '@/services/project-overview.service';
 import Button from '@/components/ui/Button';
 import ProjectPageClient from '@/components/ui/ProjectPageClient';
 import Link from 'next/link';
@@ -34,6 +35,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
   const projectLinkingService = ProjectLinkingService.getInstance();
   const portfolioService = PortfolioService.getInstance();
   const architectureService = ArchitectureAnalysisService.getInstance();
+  const overviewService = ProjectOverviewService.getInstance();
   
   const { id } = await params;
   const project = await portfolioService.getSystemById(id);
@@ -42,37 +44,39 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
     notFound();
   }
 
-  // Load project resources
-  const projectResources = await projectLinkingService.getProjectResources(id);
-  
-  // Only analyze architecture if this is a GitHub project with required data
-  let architectureAnalysis = null;
-  if (project.source === 'github' && project.githubUrl) {
-    try {
-      // Convert SystemProject to GitHubProject format for architecture analysis
-      const githubProject = {
-        id: project.id,
-        title: project.title,
-        description: project.description,
-        role: project.role,
-        techStack: project.techStack,
-        githubUrl: project.githubUrl,
-        liveUrl: project.liveUrl,
-        uniqueDecisions: project.uniqueDecisions,
-        category: project.category,
-        stars: project.stars || 0,
-        forks: project.forks || 0,
-        lastUpdated: project.lastUpdated || new Date().toISOString(),
-        topics: project.topics || [],
-        language: project.language || 'Unknown',
-        createdAt: project.createdAt || new Date().toISOString(),
-      };
-      architectureAnalysis = await architectureService.analyzeProjectArchitecture(githubProject);
-    } catch (error) {
-      console.warn('Failed to analyze architecture for project:', project.id, error);
-      architectureAnalysis = null;
-    }
-  }
+  // Load project resources and analyses in parallel
+  const [projectResources, projectOverview, architectureAnalysis] = await Promise.all([
+    projectLinkingService.getProjectResources(id),
+    overviewService.analyzeProjectOverview(project),
+    project.source === 'github' && project.githubUrl 
+      ? (async () => {
+          try {
+            // Convert SystemProject to GitHubProject format for architecture analysis
+            const githubProject = {
+              id: project.id,
+              title: project.title,
+              description: project.description,
+              role: project.role,
+              techStack: project.techStack,
+              githubUrl: project.githubUrl!,
+              liveUrl: project.liveUrl,
+              uniqueDecisions: project.uniqueDecisions,
+              category: project.category,
+              stars: project.stars || 0,
+              forks: project.forks || 0,
+              lastUpdated: project.lastUpdated || new Date().toISOString(),
+              topics: project.topics || [],
+              language: project.language || 'Unknown',
+              createdAt: project.createdAt || new Date().toISOString(),
+            };
+            return await architectureService.analyzeProjectArchitecture(githubProject);
+          } catch (error) {
+            console.warn('Failed to analyze architecture for project:', project.id, error);
+            return null;
+          }
+        })()
+      : Promise.resolve(null)
+  ]);
 
   const linkedVideos = await Promise.all(
     projectResources.linkedVideos.map(async (link) => {
@@ -173,19 +177,10 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       <section className="pt-4 pb-16 px-4">
         <div className="max-w-6xl mx-auto">
           <ProjectPageClient 
-            project={{
-              ...project,
-              language: project.language || 'Unknown',
-              lastUpdated: project.lastUpdated || new Date().toISOString(),
-              createdAt: project.createdAt || new Date().toISOString(),
-              githubUrl: project.githubUrl || '',
-              stars: project.stars || 0,
-              forks: project.forks || 0,
-              topics: project.topics || []
-            }}
             photos={projectResources.photos.map(p => ({ ...p, url: p.url ?? null }))}
             linkedVideos={linkedVideos}
             architectureAnalysis={architectureAnalysis}
+            projectOverview={projectOverview}
           />
         </div>
       </section>

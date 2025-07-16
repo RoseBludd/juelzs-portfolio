@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Card from './Card';
 import Button from './Button';
 import Link from 'next/link';
+import type { ProjectOverview } from '@/services/project-overview.service';
 
 interface ProjectPhoto {
   id: string;
@@ -91,14 +92,15 @@ interface ProjectPageClientProps {
   photos: ProjectPhoto[];
   linkedVideos: LinkedVideo[];
   architectureAnalysis: ArchitectureAnalysis | null;
+  projectOverview: ProjectOverview | null;
 }
 
 export default function ProjectPageClient({ 
-  project, 
   photos, 
   linkedVideos, 
-  architectureAnalysis 
-}: ProjectPageClientProps) {
+  architectureAnalysis,
+  projectOverview 
+}: Omit<ProjectPageClientProps, 'project'>) {
   const [activeTab, setActiveTab] = useState('overview');
 
   const tabs = [
@@ -172,7 +174,7 @@ export default function ProjectPageClient({
       {/* Tab Content */}
       <div className="mt-8">
         {activeTab === 'overview' && (
-          <ProjectOverviewTab project={project} />
+          <ProjectOverviewTab projectOverview={projectOverview} />
         )}
         
         {activeTab === 'showcase' && (
@@ -196,78 +198,109 @@ export default function ProjectPageClient({
 }
 
 // Tab Content Components
-function ProjectOverviewTab({ project }: { project: Project }) {
+function ProjectOverviewTab({ projectOverview }: { projectOverview: ProjectOverview | null }) {
+  if (!projectOverview) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-gray-400 mb-4">🔍</div>
+        <p className="text-gray-400">Project overview analysis not available</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-      {/* Project Stats */}
+    <div className="space-y-8">
+      {/* System Purpose & Overview */}
       <Card className="p-8">
         <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-          <span className="text-blue-400">📈</span>
-          Project Stats
+          <span className="text-blue-400">🎯</span>
+          What This System Does
         </h2>
-        <div className="grid grid-cols-2 gap-4 text-center mb-6">
+        <div className="space-y-6">
           <div>
-            <div className="text-2xl font-bold text-green-400 mb-1">{project.stars}</div>
-            <div className="text-sm text-gray-400">Stars</div>
+            <h3 className="text-lg font-semibold text-green-400 mb-3">System Purpose</h3>
+            <p className="text-gray-300 leading-relaxed">{projectOverview.systemPurpose}</p>
           </div>
           <div>
-            <div className="text-2xl font-bold text-blue-400 mb-1">{project.forks}</div>
-            <div className="text-sm text-gray-400">Forks</div>
+            <h3 className="text-lg font-semibold text-blue-400 mb-3">Functionality</h3>
+            <p className="text-gray-300 leading-relaxed">{projectOverview.whatItDoes}</p>
           </div>
-        </div>
-        <div className="text-center">
-          <div className="text-sm text-gray-400 mb-1">Created</div>
-          <div className="text-white">{new Date(project.createdAt).toLocaleDateString()}</div>
         </div>
       </Card>
 
-      {/* Technical Stack */}
-      <Card className="p-8">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-          <span className="text-purple-400">⚙️</span>
-          Technical Stack
-        </h2>
-        <div className="space-y-3 mb-6">
-          {project.techStack.slice(0, 5).map((tech, idx) => (
-            <div key={idx} className="flex items-center justify-between">
-              <span className="text-white font-medium">{tech}</span>
-              <span className="px-2 py-1 bg-gray-700 text-gray-300 rounded text-sm">
-                {idx === 0 ? 'Primary' : 'Secondary'}
-              </span>
+      {/* Key Features & Use Case */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card className="p-8">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+            <span className="text-green-400">✨</span>
+            Key Features
+          </h2>
+          <ul className="space-y-3">
+            {projectOverview.keyFeatures.map((feature, idx) => (
+              <li key={idx} className="flex items-start gap-3">
+                <span className="text-green-400 mt-1">•</span>
+                <span className="text-gray-300">{feature}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card className="p-8">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+            <span className="text-purple-400">🎪</span>
+            Use Case & Users
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-medium text-purple-400 mb-2">Primary Use Case</h3>
+              <p className="text-gray-300 text-sm leading-relaxed">{projectOverview.useCase}</p>
             </div>
-          ))}
-        </div>
-        <div className="text-sm text-gray-400">
-          Primary Language: <span className="text-white">{project.language}</span>
-        </div>
-        {project.topics.length > 0 && (
-          <div className="mt-4">
-            <div className="text-sm text-gray-400 mb-2">Topics</div>
-            <div className="flex flex-wrap gap-2">
-              {project.topics.map((topic, idx) => (
-                <span key={idx} className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs">
-                  {topic}
-                </span>
-              ))}
+            <div>
+              <h3 className="text-sm font-medium text-purple-400 mb-2">Target Users</h3>
+              <p className="text-gray-300 text-sm leading-relaxed">{projectOverview.targetUsers}</p>
             </div>
           </div>
-        )}
-      </Card>
+        </Card>
+      </div>
 
-      {/* Key Decisions */}
-      <Card className="p-8 lg:col-span-2">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-          <span className="text-orange-400">🔧</span>
-          Key Technical Decisions
+      {/* Business Value & Technical Highlights */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card className="p-8">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+            <span className="text-yellow-400">💼</span>
+            Business Value
+          </h2>
+          <p className="text-gray-300 leading-relaxed">{projectOverview.businessValue}</p>
+        </Card>
+
+        <Card className="p-8">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+            <span className="text-orange-400">🛠️</span>
+            Technical Highlights
+          </h2>
+          <ul className="space-y-3">
+            {projectOverview.technicalHighlights.map((highlight, idx) => (
+              <li key={idx} className="flex items-start gap-3">
+                <span className="text-orange-400 mt-1">•</span>
+                <span className="text-gray-300">{highlight}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
+
+      {/* Project Quality Score */}
+      <Card className="p-8 text-center">
+        <h2 className="text-2xl font-bold mb-4 flex items-center justify-center gap-3">
+          <span className="text-blue-400">📊</span>
+          Project Quality Score
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {project.uniqueDecisions.map((decision, idx) => (
-            <div key={idx} className="flex items-start gap-3">
-              <span className="text-green-400 mt-1">✓</span>
-              <span className="text-gray-300">{decision}</span>
-            </div>
-          ))}
+        <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold text-2xl mb-4">
+          {projectOverview.score}/10
         </div>
+        <p className="text-gray-400 text-sm">
+          Based on complexity, utility, and apparent quality
+        </p>
       </Card>
     </div>
   );
