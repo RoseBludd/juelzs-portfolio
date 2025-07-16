@@ -63,6 +63,15 @@ export default function ServiceRecommendation() {
   };
 
   const requestMeeting = async (serviceType: string, serviceName: string) => {
+    // Collect contact information
+    const name = prompt('What&apos;s your name?');
+    if (!name) return;
+    
+    const email = prompt('What&apos;s your email address?');
+    if (!email) return;
+    
+    const company = prompt('Company name (optional):') || '';
+    
     try {
       const response = await fetch('/api/services/request-meeting', {
         method: 'POST',
@@ -73,7 +82,12 @@ export default function ServiceRecommendation() {
           serviceType,
           serviceName,
           userDescription: userInput,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          contactInfo: {
+            name,
+            email,
+            company
+          }
         }),
       });
 

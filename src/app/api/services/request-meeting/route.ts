@@ -3,9 +3,9 @@ import EmailService from '@/services/email.service';
 
 export async function POST(request: NextRequest) {
   try {
-    const { serviceType, serviceName, userDescription, timestamp } = await request.json();
+    const { serviceType, serviceName, userDescription, timestamp, contactInfo } = await request.json();
 
-    if (!serviceType || !serviceName || !userDescription) {
+    if (!serviceType || !serviceName || !userDescription || !contactInfo?.name || !contactInfo?.email) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -19,6 +19,12 @@ export async function POST(request: NextRequest) {
     const emailContent = `
 <h2>New Service Meeting Request</h2>
 
+<h3>Contact Information:</h3>
+<p><strong>Name:</strong> ${contactInfo.name}</p>
+<p><strong>Email:</strong> ${contactInfo.email}</p>
+${contactInfo.company ? `<p><strong>Company:</strong> ${contactInfo.company}</p>` : ''}
+
+<h3>Service Details:</h3>
 <p><strong>Service Requested:</strong> ${serviceName}</p>
 <p><strong>Service Type:</strong> ${serviceType}</p>
 <p><strong>Request Time:</strong> ${new Date(timestamp).toLocaleString()}</p>
@@ -32,7 +38,7 @@ ${userDescription.replace(/\n/g, '<br>')}
 <ol>
 <li>Review the client's description above</li>
 <li>Prepare consultation materials for ${serviceName}</li>
-<li>Reach out to schedule the consultation within 24 hours</li>
+<li>Reply to <strong>${contactInfo.email}</strong> within 24 hours to schedule</li>
 </ol>
 
 <p><em>This request was generated automatically from your portfolio's AI service recommendation system.</em></p>
@@ -42,7 +48,7 @@ ${userDescription.replace(/\n/g, '<br>')}
       to: 'support@juelzs.com',
       from: 'support@juelzs.com',
       subject: emailSubject,
-      textBody: `New Service Meeting Request - ${serviceName}\n\nService Type: ${serviceType}\nRequest Time: ${new Date(timestamp).toLocaleString()}\n\nClient Description:\n${userDescription}`,
+      textBody: `New Service Meeting Request - ${serviceName}\n\nContact Information:\nName: ${contactInfo.name}\nEmail: ${contactInfo.email}\n${contactInfo.company ? `Company: ${contactInfo.company}\n` : ''}\nService Type: ${serviceType}\nRequest Time: ${new Date(timestamp).toLocaleString()}\n\nClient Description:\n${userDescription}`,
       htmlBody: emailContent,
       replyTo: 'support@juelzs.com'
     });
