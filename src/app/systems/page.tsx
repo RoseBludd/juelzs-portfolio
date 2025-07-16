@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default async function SystemsPage() {
   const portfolioService = PortfolioService.getInstance();
-  const projects = await portfolioService.getSystemProjects();
+  const projects = await portfolioService.getSystemArchitectures();
 
   const categories = ['all', 'ai', 'architecture', 'leadership', 'systems'];
   const categoryLabels = {

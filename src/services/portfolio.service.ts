@@ -92,30 +92,45 @@ class PortfolioService {
   }
 
   /**
-   * Get all system projects (manual + GitHub repositories)
+   * Get actual projects (GitHub repositories only) - for /projects page
+   */
+  async getActualProjects(): Promise<SystemProject[]> {
+    try {
+      console.log('🚀 Loading actual projects (GitHub repositories)...');
+      const githubProjects = await this.getGithubProjects();
+      
+      console.log(`✅ Loaded ${githubProjects.length} GitHub projects`);
+      return githubProjects;
+    } catch (error) {
+      console.error('Error fetching actual projects:', error);
+      this.syncStatus.errors.push(`Error fetching projects: ${error}`);
+      return [];
+    }
+  }
+
+  /**
+   * Get system architectures (manual curated systems only) - for /systems page
+   */
+  async getSystemArchitectures(): Promise<SystemProject[]> {
+    try {
+      console.log('🏗️ Loading system architectures (curated examples)...');
+      const manualProjects = await this.getManualProjects();
+      
+      console.log(`✅ Loaded ${manualProjects.length} system architectures`);
+      return manualProjects;
+    } catch (error) {
+      console.error('Error fetching system architectures:', error);
+      this.syncStatus.errors.push(`Error fetching architectures: ${error}`);
+      return [];
+    }
+  }
+
+  /**
+   * DEPRECATED: Use getActualProjects() or getSystemArchitectures() instead
    */
   async getSystemProjects(): Promise<SystemProject[]> {
-    try {
-      console.log('🎯 Loading full systems portfolio (manual + GitHub)...');
-      const [manualProjects, githubProjects] = await Promise.all([
-        this.getManualProjects(),
-        this.getGithubProjects()
-      ]);
-      
-      // Merge and deduplicate projects
-      const allProjects = [...manualProjects, ...githubProjects];
-      const deduplicatedProjects = this.deduplicateProjects(allProjects);
-      
-      console.log(`✅ Loaded ${manualProjects.length} manual + ${githubProjects.length} GitHub = ${deduplicatedProjects.length} total projects`);
-      return deduplicatedProjects;
-    } catch (error) {
-      console.error('Error fetching system projects:', error);
-      this.syncStatus.errors.push(`Error fetching projects: ${error}`);
-      
-      // Fallback to manual projects only
-      console.log('🔄 Falling back to manual projects only...');
-      return await this.getManualProjects();
-    }
+    console.warn('⚠️ getSystemProjects() is deprecated. Use getActualProjects() or getSystemArchitectures() instead.');
+    return this.getActualProjects();
   }
 
   /**
@@ -310,8 +325,14 @@ class PortfolioService {
   }
 
   async getSystemById(id: string): Promise<SystemProject | null> {
-    const systems = await this.getSystemProjects();
-    return systems.find(system => system.id === id) || null;
+    // Check both actual projects and system architectures
+    const [actualProjects, systemArchitectures] = await Promise.all([
+      this.getActualProjects(),
+      this.getSystemArchitectures()
+    ]);
+    
+    const allProjects = [...actualProjects, ...systemArchitectures];
+    return allProjects.find(system => system.id === id) || null;
   }
 
   /**

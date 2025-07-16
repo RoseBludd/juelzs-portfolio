@@ -52,7 +52,7 @@ export default async function ProjectsPage() {
     console.log('🔑 GitHub token available:', !!process.env.GITHUB_TOKEN);
     console.log('🔑 GitHub org:', process.env.GITHUB_ORGANIZATION);
     
-    const rawProjects = await portfolioService.getSystemProjects();
+    const rawProjects = await portfolioService.getActualProjects();
     console.log(`🎯 Projects Page: Loaded ${rawProjects.length} projects`);
     console.log(`📊 Project sources breakdown:`, rawProjects.map(p => `${p.title} (${p.source})`));
     
