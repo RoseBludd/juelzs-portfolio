@@ -1,4 +1,4 @@
-import GitHubService, { GitHubProject } from '@/services/github.service';
+import PortfolioService, { SystemProject } from '@/services/portfolio.service';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
@@ -42,14 +42,30 @@ const categories = [
 ];
 
 export default async function ProjectsPage() {
-  const gitHubService = GitHubService.getInstance();
-  const projects = await gitHubService.getPortfolioProjects();
+  const portfolioService = PortfolioService.getInstance();
+  
+  let projects: SystemProject[] = [];
+  
+  try {
+    projects = await portfolioService.getSystemProjects();
+    console.log(`🎯 Projects Page: Loaded ${projects.length} projects`);
+    
+    if (projects.length === 0) {
+      console.warn('⚠️ No projects loaded from any source');
+    } else {
+      console.log(`📊 Project sources: ${projects.map(p => p.source).join(', ')}`);
+    }
+  } catch (error) {
+    console.error('❌ Error loading projects:', error);
+    // Use empty array as fallback
+    projects = [];
+  }
   
   // Group projects by category
   const projectsByCategory = categories.reduce((acc, category) => {
-    acc[category.id] = projects.filter(p => p.category === category.id);
+    acc[category.id] = projects.filter((p: SystemProject) => p.category === category.id);
     return acc;
-  }, {} as Record<string, GitHubProject[]>);
+  }, {} as Record<string, SystemProject[]>);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -118,7 +134,7 @@ export default async function ProjectsPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {categoryProjects.map((project) => (
+                  {categoryProjects.map((project: SystemProject) => (
                     <Card key={project.id} className="group hover:scale-105 transition-transform duration-300">
                       <div className="p-6">
                         {/* Project Header */}
@@ -149,15 +165,15 @@ export default async function ProjectsPage() {
                         <div className="mb-4 flex items-center gap-4 text-sm text-gray-400">
                           <div className="flex items-center gap-1">
                             <span>⭐</span>
-                            <span>{project.stars}</span>
+                            <span>{project.stars || 0}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <span>🍴</span>
-                            <span>{project.forks}</span>
+                            <span>{project.forks || 0}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <span>📅</span>
-                            <span>{project.lastUpdated}</span>
+                            <span>{project.lastUpdated || 'Recently'}</span>
                           </div>
                         </div>
 
@@ -165,7 +181,7 @@ export default async function ProjectsPage() {
                         <div className="mb-6">
                           <h4 className="text-sm font-medium text-purple-400 mb-2">Tech Stack</h4>
                           <div className="flex flex-wrap gap-2">
-                            {project.techStack.slice(0, 4).map((tech, idx) => (
+                            {project.techStack.slice(0, 4).map((tech: string, idx: number) => (
                               <span 
                                 key={idx}
                                 className="px-2 py-1 bg-gray-800 text-gray-300 rounded text-xs"
@@ -185,7 +201,7 @@ export default async function ProjectsPage() {
                         <div className="mb-6">
                           <h4 className="text-sm font-medium text-green-400 mb-2">Key Decisions</h4>
                           <ul className="text-xs text-gray-400 space-y-1">
-                            {project.uniqueDecisions.slice(0, 2).map((decision, idx) => (
+                            {project.uniqueDecisions.slice(0, 2).map((decision: string, idx: number) => (
                               <li key={idx} className="flex items-start">
                                 <span className="text-green-400 mr-2">•</span>
                                 <span className="line-clamp-1">{decision}</span>
