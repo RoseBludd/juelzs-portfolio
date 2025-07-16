@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import GitHubService from '@/services/github.service';
 import ProjectLinkingService from '@/services/project-linking.service';
 import PortfolioService from '@/services/portfolio.service';
 import ArchitectureAnalysisService from '@/services/architecture-analysis.service';
@@ -13,9 +12,9 @@ interface ProjectDetailPageProps {
 }
 
 export async function generateMetadata({ params }: ProjectDetailPageProps): Promise<Metadata> {
-  const gitHubService = GitHubService.getInstance();
+  const portfolioService = PortfolioService.getInstance();
   const { id } = await params;
-  const project = await gitHubService.getProjectById(id);
+  const project = await portfolioService.getSystemById(id);
 
   if (!project) {
     return {
@@ -32,23 +31,48 @@ export async function generateMetadata({ params }: ProjectDetailPageProps): Prom
 }
 
 export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
-  const gitHubService = GitHubService.getInstance();
   const projectLinkingService = ProjectLinkingService.getInstance();
   const portfolioService = PortfolioService.getInstance();
   const architectureService = ArchitectureAnalysisService.getInstance();
   
   const { id } = await params;
-  const project = await gitHubService.getProjectById(id);
+  const project = await portfolioService.getSystemById(id);
 
   if (!project) {
     notFound();
   }
 
-  // Load project resources and architecture analysis
-  const [projectResources, architectureAnalysis] = await Promise.all([
-    projectLinkingService.getProjectResources(id),
-    architectureService.analyzeProjectArchitecture(project)
-  ]);
+  // Load project resources
+  const projectResources = await projectLinkingService.getProjectResources(id);
+  
+  // Only analyze architecture if this is a GitHub project with required data
+  let architectureAnalysis = null;
+  if (project.source === 'github' && project.githubUrl) {
+    try {
+      // Convert SystemProject to GitHubProject format for architecture analysis
+      const githubProject = {
+        id: project.id,
+        title: project.title,
+        description: project.description,
+        role: project.role,
+        techStack: project.techStack,
+        githubUrl: project.githubUrl,
+        liveUrl: project.liveUrl,
+        uniqueDecisions: project.uniqueDecisions,
+        category: project.category,
+        stars: project.stars || 0,
+        forks: project.forks || 0,
+        lastUpdated: project.lastUpdated || new Date().toISOString(),
+        topics: project.topics || [],
+        language: project.language || 'Unknown',
+        createdAt: project.createdAt || new Date().toISOString(),
+      };
+      architectureAnalysis = await architectureService.analyzeProjectArchitecture(githubProject);
+    } catch (error) {
+      console.warn('Failed to analyze architecture for project:', project.id, error);
+      architectureAnalysis = null;
+    }
+  }
 
   const linkedVideos = await Promise.all(
     projectResources.linkedVideos.map(async (link) => {
@@ -72,11 +96,13 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
     'systems': 'bg-orange-500/20 text-orange-300'
   };
 
-  const lastUpdated = new Date(project.lastUpdated).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  const lastUpdated = project.lastUpdated 
+    ? new Date(project.lastUpdated).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    : 'Unknown';
 
 
 
@@ -115,11 +141,13 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <Button variant="primary" size="lg">
-                <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                  View on GitHub →
-                </Link>
-              </Button>
+              {project.githubUrl && (
+                <Button variant="primary" size="lg">
+                  <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                    View on GitHub →
+                  </Link>
+                </Button>
+              )}
               {project.liveUrl && (
                 <Button variant="outline" size="lg">
                   <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
@@ -145,7 +173,16 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       <section className="pt-4 pb-16 px-4">
         <div className="max-w-6xl mx-auto">
           <ProjectPageClient 
-            project={project}
+            project={{
+              ...project,
+              language: project.language || 'Unknown',
+              lastUpdated: project.lastUpdated || new Date().toISOString(),
+              createdAt: project.createdAt || new Date().toISOString(),
+              githubUrl: project.githubUrl || '',
+              stars: project.stars || 0,
+              forks: project.forks || 0,
+              topics: project.topics || []
+            }}
             photos={projectResources.photos.map(p => ({ ...p, url: p.url ?? null }))}
             linkedVideos={linkedVideos}
             architectureAnalysis={architectureAnalysis}
