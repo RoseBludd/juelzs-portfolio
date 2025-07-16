@@ -6,7 +6,7 @@ import VideoPageClient from '@/components/ui/VideoPageClient';
 import PortfolioService from '@/services/portfolio.service';
 
 interface LeadershipDetailPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: LeadershipDetailPageProps): Promise<Metadata> {

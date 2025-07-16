@@ -2,13 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import GitHubService, { GitHubProject } from '@/services/github.service';
-import AWSS3Service, { PhotoUploadResult } from '@/services/aws-s3.service';
-import ProjectLinkingService, { ProjectPhoto, ProjectResources } from '@/services/project-linking.service';
+import AWSS3Service from '@/services/aws-s3.service';
+import ProjectLinkingService, { ProjectPhoto } from '@/services/project-linking.service';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
 interface PhotoWithProject extends ProjectPhoto {
   project: GitHubProject;
+}
+
+interface UploadResult {
+  success: boolean;
+  filename: string;
+  error?: string;
 }
 
 export default function AdminPhotosPage() {
@@ -110,7 +116,7 @@ export default function AdminPhotosPage() {
         } else {
           results.push({ success: false, filename: file.name, error: result.error });
         }
-      } catch (error) {
+      } catch {
         results.push({ success: false, filename: file.name, error: 'Upload failed' });
       }
     }
@@ -392,7 +398,7 @@ export default function AdminPhotosPage() {
 // Bulk Upload Modal Component
 interface BulkUploadModalProps {
   projects: GitHubProject[];
-  onUpload: (projectId: string, files: File[], category: ProjectPhoto['category']) => Promise<any[]>;
+  onUpload: (projectId: string, files: File[], category: ProjectPhoto['category']) => Promise<UploadResult[]>;
   onClose: () => void;
 }
 
@@ -402,7 +408,7 @@ function BulkUploadModal({ projects, onUpload, onClose }: BulkUploadModalProps) 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploadResults, setUploadResults] = useState<any[]>([]);
+  const [uploadResults, setUploadResults] = useState<UploadResult[]>([]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);

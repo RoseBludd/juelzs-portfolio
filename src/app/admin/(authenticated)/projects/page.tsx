@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import GitHubService, { GitHubProject } from '@/services/github.service';
-import AWSS3Service, { PhotoUploadResult } from '@/services/aws-s3.service';
+import AWSS3Service from '@/services/aws-s3.service';
 import ProjectLinkingService, { ProjectPhoto, ProjectVideoLink, ProjectResources } from '@/services/project-linking.service';
 import PortfolioService, { LeadershipVideo } from '@/services/portfolio.service';
 import Card from '@/components/ui/Card';

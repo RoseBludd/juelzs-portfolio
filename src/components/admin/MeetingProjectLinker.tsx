@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { SystemProject } from '@/services/portfolio.service';
 import PortfolioService from '@/services/portfolio.service';
 import ProjectLinkingService, { ProjectVideoLink } from '@/services/project-linking.service';
@@ -37,14 +37,7 @@ export default function MeetingProjectLinker({
   const [projects, setProjects] = useState<SystemProject[]>([]);
   const [existingLinks, setExistingLinks] = useState<ProjectVideoLink[]>([]);
 
-  // Load projects and existing links when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      loadData();
-    }
-  }, [isOpen, meetingId]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsLoadingData(true);
     try {
       // Load real projects from PortfolioService
@@ -74,10 +67,17 @@ export default function MeetingProjectLinker({
     } finally {
       setIsLoadingData(false);
     }
-  };
+  }, [meetingId]);
+
+  // Load projects and existing links when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      loadData();
+    }
+  }, [isOpen, meetingId, loadData]);
 
   // Auto-detect link type based on meeting title/content
-  const detectLinkType = (projectId: string): string => {
+  const detectLinkType = useCallback((projectId: string): string => {
     const project = projects.find(p => p.id === projectId);
     if (!project) return 'technical-discussion';
 
@@ -115,7 +115,7 @@ export default function MeetingProjectLinker({
 
     // Default to technical discussion
     return 'technical-discussion';
-  };
+  }, [projects, meetingTitle]);
 
   // Auto-set link type when project is selected
   useEffect(() => {
@@ -123,7 +123,7 @@ export default function MeetingProjectLinker({
       const autoType = detectLinkType(selectedProject);
       setSelectedLinkType(autoType);
     }
-  }, [selectedProject, meetingTitle]);
+  }, [selectedProject, detectLinkType]);
 
   const handleLinkProject = async () => {
     if (!selectedProject || !selectedLinkType) return;

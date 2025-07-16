@@ -5,7 +5,7 @@ import Card from '@/components/ui/Card';
 import PortfolioService from '@/services/portfolio.service';
 
 interface PhilosophyDetailPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({ params }: PhilosophyDetailPageProps): Promise<Metadata> {

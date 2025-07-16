@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import { Metadata } from 'next';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
@@ -45,7 +46,7 @@ export default async function PhilosophyPage() {
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">Core Philosophy</h2>
             <blockquote className="text-2xl font-medium text-blue-300 mb-6 italic">
-              "If it needs to be done, do it. If it's done, make it modular. If it's modular, make it reusable. If it's reusable, make it teachable."
+              &ldquo;If it needs to be done, do it. If it&rsquo;s done, make it modular. If it&rsquo;s modular, make it reusable. If it&rsquo;s reusable, make it teachable.&rdquo;
             </blockquote>
             <p className="text-gray-300 text-lg leading-relaxed">
               I believe in <span className="text-white font-semibold">execution-led refinement</span>. I take what needs to be done and bring it to life using AI, team expertise, and microservices that snap together to form long-term architecture. 

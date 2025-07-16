@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import AWSS3Service from '@/services/aws-s3.service';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = params;
+    const { id } = await params;
     
     if (!id) {
       return NextResponse.json({ error: 'Video ID is required' }, { status: 400 });
