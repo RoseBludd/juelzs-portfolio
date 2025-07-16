@@ -1,6 +1,7 @@
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { VideoThumbnail } from '@/components/ui/VideoComponents';
+import AnalysisToggle from '@/components/ui/AnalysisToggle';
 import PortfolioService from '@/services/portfolio.service';
 import Image from 'next/image';
 
@@ -8,6 +9,20 @@ export default async function Home() {
   const portfolioService = PortfolioService.getInstance();
   const featuredProjects = await portfolioService.getFeatureProjects();
   const latestVideos = await portfolioService.getLeadershipVideosWithAnalysis();
+
+  // Sort videos by rating (highest first) and take top 2
+  const sortedVideos = latestVideos
+    .filter(video => video.analysis && video.analysis.overallRating)
+    .sort((a, b) => (b.analysis?.overallRating || 0) - (a.analysis?.overallRating || 0))
+    .slice(0, 2);
+
+  // Define moment types for video thumbnails
+  const momentTypes = [
+    { type: 'architecture', label: 'Architecture Reviews', color: 'bg-blue-500/20 text-blue-300' },
+    { type: 'leadership', label: 'Leadership Moments', color: 'bg-purple-500/20 text-purple-300' },
+    { type: 'mentoring', label: 'Mentoring Sessions', color: 'bg-green-500/20 text-green-300' },
+    { type: 'technical', label: 'Technical Discussions', color: 'bg-orange-500/20 text-orange-300' }
+  ];
 
   return (
     <div className="min-h-screen">
@@ -359,92 +374,74 @@ export default async function Home() {
             </p>
           </div>
           
-          {/* Moment Types for VideoThumbnail */}
-          {(() => {
-            const momentTypes = [
-              { type: 'architecture', label: 'Architecture Reviews', color: 'bg-blue-500/20 text-blue-300' },
-              { type: 'leadership', label: 'Leadership Moments', color: 'bg-purple-500/20 text-purple-300' },
-              { type: 'mentoring', label: 'Mentoring Sessions', color: 'bg-green-500/20 text-green-300' },
-              { type: 'technical', label: 'Technical Discussions', color: 'bg-orange-500/20 text-orange-300' }
-            ];
-            
-            return (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {latestVideos.slice(0, 2).map((video) => (
-                  <Card key={video.id} className="h-full bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-700/50 hover:border-purple-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10">
-                    <div className="flex flex-col h-full">
-                      {/* Enhanced Video Thumbnail */}
-                      <VideoThumbnail video={video} momentTypes={momentTypes} />
+            {/* Moment Types for VideoThumbnail */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {sortedVideos.map((video) => (
+                <Card key={video.id} className="h-full bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-700/50 hover:border-purple-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10">
+                  <div className="flex flex-col h-full">
+                    {/* Enhanced Video Thumbnail */}
+                    <VideoThumbnail video={video} momentTypes={momentTypes} />
 
-                      {/* Video Info */}
-                      <div className="flex-grow p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-grow">
-                            <h3 className="text-lg font-bold text-white mb-2 leading-tight">{video.title}</h3>
-                            <div className="flex items-center gap-2 text-xs text-gray-400">
-                              <span>{video.dateRecorded}</span>
-                              <span>•</span>
-                              <span>{video.duration}</span>
-                            </div>
+                    {/* Video Info */}
+                    <div className="flex-grow p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-grow">
+                          <h3 className="text-lg font-bold text-white mb-2 leading-tight">{video.title}</h3>
+                          <div className="flex items-center gap-2 text-xs text-gray-400">
+                            <span>{video.dateRecorded}</span>
+                            <span>•</span>
+                            <span>{video.duration}</span>
                           </div>
                         </div>
-                        
-                        <p className="text-gray-400 text-sm mb-4 leading-relaxed">{video.description}</p>
+                      </div>
+                      
+                      <p className="text-gray-400 text-sm mb-4 leading-relaxed">{video.description}</p>
 
-                        {/* AI Analysis Preview */}
-                        {video.analysis && (
-                          <div className="mb-4">
-                            <h4 className="text-sm font-medium text-gray-300 mb-2">AI Leadership Rating:</h4>
-                            <div className="bg-gray-800/50 rounded-lg p-3">
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs text-gray-400">Overall Performance</span>
-                                <span className={`font-bold ${
-                                  video.analysis.overallRating >= 8 ? 'text-green-400' :
-                                  video.analysis.overallRating >= 6 ? 'text-yellow-400' : 'text-red-400'
-                                }`}>
-                                  {video.analysis.overallRating}/10
-                                </span>
-                              </div>
-                              <div className="grid grid-cols-2 gap-1 text-xs">
-                                <div className="flex justify-between">
-                                  <span className="text-gray-500">Technical:</span>
-                                  <span className="text-blue-400">{video.analysis.leadershipQualities.technicalGuidance}/10</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-gray-500">Clarity:</span>
-                                  <span className="text-green-400">{video.analysis.communicationStyle.clarity}/10</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                      {/* AI Leadership Analysis Preview */}
+                      {video.analysis && (
+                        <AnalysisToggle analysis={video.analysis} />
+                      )}
 
-                        <div className="mb-4">
-                          <h4 className="text-sm font-medium text-gray-300 mb-2">Key Moments:</h4>
-                          <ul className="text-sm text-gray-400 space-y-1">
-                            {video.keyMoments.slice(0, 2).map((moment, index) => (
-                              <li key={index} className="flex items-start">
-                                <span className="text-blue-400 mr-2 font-mono">{moment.timestamp}</span>
-                                <span>{moment.description}</span>
-                              </li>
-                            ))}
-                          </ul>
+                      {/* Key Moments Summary */}
+                      <div className="mb-6">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-sm font-medium text-gray-300">Key Moments</h4>
+                          <span className="text-xs text-gray-500 bg-gray-800/50 px-2 py-1 rounded">
+                            {video.keyMoments.length} moments
+                          </span>
                         </div>
                         
-                        <div className="flex flex-wrap gap-2 mt-auto">
-                          {video.keyMoments.slice(0, 3).map((moment) => (
-                            <span key={moment.timestamp} className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs">
-                              {moment.type}
+                        {/* Moment Type Tags */}
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {Array.from(new Set(video.keyMoments.map((m) => m.type))).map((type) => (
+                            <span key={type} className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                              momentTypes.find(t => t.type === type)?.color || 'bg-gray-500/20 text-gray-300'
+                            }`}>
+                              {type}
                             </span>
                           ))}
                         </div>
                       </div>
                     </div>
-                  </Card>
-                ))}
-              </div>
-            );
-          })()}
+
+                    {/* Actions */}
+                    <div className="p-6 pt-0">
+                      <div className="flex gap-3">
+                        <Button href={`/leadership/${video.id}`} variant="primary" size="sm" className="flex-1">
+                          <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                          Watch Video
+                        </Button>
+                        <Button href="/contact?topic=coaching" variant="outline" size="sm">
+                          Book Session
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
           
           <div className="text-center mt-12">
             <Button href="/leadership" variant="outline" size="lg">
