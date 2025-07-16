@@ -277,7 +277,12 @@ export default function ContactPage() {
                     <h3 className="font-semibold text-white mb-2">{service.title}</h3>
                     <p className="text-gray-400 text-sm mb-2">{service.description}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-blue-400 text-sm">{service.duration}</span>
+                      <div className="flex flex-col">
+                        <span className="text-blue-400 text-sm">{service.duration}</span>
+                        {service.pricing && (
+                          <span className="text-green-400 text-sm font-medium">{service.pricing}</span>
+                        )}
+                      </div>
                       <Button 
                         href={`/contact?service=${service.type}`} 
                         variant="outline" 

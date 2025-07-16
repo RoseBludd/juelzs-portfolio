@@ -44,16 +44,19 @@ const Footer = () => {
         { name: 'Registry', href: '/registry' },
         { name: 'Leadership', href: '/leadership' },
         { name: 'Philosophy', href: '/philosophy' },
+        { name: 'Services', href: '/services' },
         { name: 'Contact', href: '/contact' },
       ],
     },
     {
       title: 'Services',
       links: [
-        { name: 'Architecture Review', href: '/contact?service=architecture' },
-        { name: 'Team Coaching', href: '/contact?service=coaching' },
-        { name: 'System Design', href: '/contact?service=design' },
-        { name: 'AI Strategy', href: '/contact?service=ai' },
+        { name: 'Architecture Review', href: '/contact?service=architecture-review' },
+        { name: 'AI Strategy & Implementation', href: '/contact?service=ai-implementation' },
+        { name: 'Team Coaching', href: '/contact?service=team-coaching' },
+        { name: 'System Design', href: '/contact?service=system-design' },
+        { name: 'Technical Leadership', href: '/contact?service=leadership-coaching' },
+        { name: 'Technical Audit', href: '/contact?service=technical-audit' },
       ],
     },
     {
