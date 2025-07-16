@@ -70,7 +70,14 @@ export default function ServiceRecommendation() {
     const email = prompt('What&apos;s your email address?');
     if (!email) return;
     
+    const phone = prompt('What&apos;s your phone number?');
+    if (!phone) return;
+    
     const company = prompt('Company name (optional):') || '';
+    const website = prompt('Company website (optional):') || '';
+    
+    // Find the AI reasoning for this service
+    const serviceRecommendation = recommendation?.primary.type === serviceType ? recommendation.primary : recommendation?.alternative;
     
     try {
       const response = await fetch('/api/services/request-meeting', {
@@ -83,10 +90,13 @@ export default function ServiceRecommendation() {
           serviceName,
           userDescription: userInput,
           timestamp: new Date().toISOString(),
+          aiReasoning: serviceRecommendation?.reasoning || '',
           contactInfo: {
             name,
             email,
-            company
+            phone,
+            company,
+            website
           }
         }),
       });
