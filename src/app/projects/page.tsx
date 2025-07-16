@@ -47,8 +47,30 @@ export default async function ProjectsPage() {
   let projects: SystemProject[] = [];
   
   try {
-    projects = await portfolioService.getSystemProjects();
-    console.log(`🎯 Projects Page: Loaded ${projects.length} projects`);
+    const rawProjects = await portfolioService.getSystemProjects();
+    console.log(`🎯 Projects Page: Loaded ${rawProjects.length} projects`);
+    
+    // Ensure proper serialization by creating clean objects
+    projects = rawProjects.map(project => ({
+      id: project.id,
+      title: project.title,
+      description: project.description,
+      role: project.role,
+      techStack: project.techStack || [],
+      architectureDiagram: project.architectureDiagram || '',
+      videoUrl: project.videoUrl || '',
+      githubUrl: project.githubUrl || '',
+      liveUrl: project.liveUrl || '',
+      uniqueDecisions: project.uniqueDecisions || [],
+      category: project.category,
+      stars: project.stars || 0,
+      forks: project.forks || 0,
+      lastUpdated: project.lastUpdated || '',
+      topics: project.topics || [],
+      language: project.language || '',
+      createdAt: project.createdAt || '',
+      source: project.source
+    }));
     
     if (projects.length === 0) {
       console.warn('⚠️ No projects loaded from any source');

@@ -16,7 +16,34 @@ export default async function LeadershipPage() {
   
   // Request videos WITH analysis for the leadership page
   console.log('📊 Loading leadership videos with full analysis...');
-  const videos = await portfolioService.getLeadershipVideosWithAnalysis();
+  const rawVideos = await portfolioService.getLeadershipVideosWithAnalysis();
+
+  // Ensure proper serialization by creating clean objects
+  const videos = rawVideos.map(video => ({
+    id: video.id,
+    title: video.title,
+    description: video.description,
+    videoUrl: video.videoUrl,
+    duration: video.duration,
+    type: video.type,
+    keyMoments: video.keyMoments || [],
+    participants: video.participants || [],
+    dateRecorded: video.dateRecorded,
+    transcript: video.transcript,
+    recap: video.recap,
+    analysis: video.analysis ? {
+      overallRating: video.analysis.overallRating,
+      strengths: video.analysis.strengths || [],
+      areasForImprovement: video.analysis.areasForImprovement || [],
+      standoutMoments: video.analysis.standoutMoments || [],
+      communicationStyle: video.analysis.communicationStyle,
+      leadershipQualities: video.analysis.leadershipQualities,
+      keyInsights: video.analysis.keyInsights || [],
+      recommendations: video.analysis.recommendations || [],
+      summary: video.analysis.summary || ''
+    } : undefined,
+    source: video.source
+  }));
 
   const momentTypes = [
     { type: 'architecture', label: 'Architecture Reviews', color: 'bg-blue-500/20 text-blue-300' },
