@@ -296,7 +296,7 @@ class MeetingAnalysisService {
   }
 
   private buildAnalysisPrompt(context: MeetingContext): string {
-    return `Analyze this meeting transcript for leadership performance:
+    return `Analyze this meeting transcript to showcase JUSTIN'S leadership skills and capabilities:
 
 **Meeting Context:**
 - Title: ${context.title}
@@ -305,35 +305,43 @@ class MeetingAnalysisService {
 - Participants: ${context.participants.join(', ')}
 - Date: ${context.dateRecorded}
 
+**ANALYSIS GOAL: This analysis will be used to showcase Justin's leadership capabilities to potential clients and employers. Focus on highlighting his strengths, decision-making abilities, technical expertise, and leadership impact.**
+
 **Transcript:**
 ${context.transcript}
 
-**Analysis Requirements:**
-Please provide a comprehensive leadership analysis in JSON format with the following structure:
+**Analysis Framework:**
+Analyze JUSTIN'S leadership performance to highlight his professional capabilities. Provide a comprehensive skills showcase in JSON format:
 
 {
-  "overallRating": <1-10 score>,
-  "strengths": [<list of specific strengths observed>],
-  "areasForImprovement": [<list of specific areas to improve>],
-  "standoutMoments": [<list of exceptional leadership moments>],
+  "overallRating": <7-10 score - focus on showcasing Justin's strong performance>,
+  "strengths": [<highlight Justin's specific leadership strengths and capabilities>],
+  "areasForImprovement": [<frame as growth opportunities and advanced skill development>],
+  "standoutMoments": [<specific examples of Justin's exceptional leadership, technical decisions, or team guidance>],
   "communicationStyle": {
-    "clarity": <1-10 score>,
-    "engagement": <1-10 score>,
-    "empathy": <1-10 score>,
-    "decisiveness": <1-10 score>
+    "clarity": <7-10 score - showcase communication skills>,
+    "engagement": <7-10 score - highlight team engagement>,
+    "empathy": <7-10 score - show people-focused leadership>,
+    "decisiveness": <7-10 score - demonstrate decision-making capability>
   },
   "leadershipQualities": {
-    "technicalGuidance": <1-10 score>,
-    "teamBuilding": <1-10 score>,
-    "problemSolving": <1-10 score>,
-    "visionCasting": <1-10 score>
+    "technicalGuidance": <8-10 score - highlight technical expertise>,
+    "teamBuilding": <7-10 score - show team development skills>,
+    "problemSolving": <8-10 score - showcase analytical and solution-oriented thinking>,
+    "visionCasting": <7-10 score - demonstrate strategic thinking>
   },
-  "keyInsights": [<list of key insights about leadership style>],
-  "recommendations": [<list of specific improvement recommendations>],
-  "summary": "<overall summary of leadership performance>"
+  "keyInsights": [<positive insights about Justin's leadership approach and impact>],
+  "recommendations": [<frame as advanced skill development and leadership expansion opportunities>],
+  "summary": "<compelling summary that positions Justin as a skilled technical leader and valuable team asset>"
 }
 
-Focus on specific examples from the transcript to support your analysis.`;
+**CRITICAL INSTRUCTIONS:**
+1. All scores should reflect professional competency (7-10 range)
+2. Frame "areas for improvement" as "advanced development opportunities"
+3. Focus on specific examples of leadership impact and technical decision-making
+4. Highlight problem-solving approach and team guidance
+5. Showcase communication effectiveness and strategic thinking
+6. Present Justin as a skilled leader worth working with**`;
   }
 
   private buildTrendsAnalysisPrompt(contexts: MeetingContext[], analyses: LeadershipAnalysis[]): string {

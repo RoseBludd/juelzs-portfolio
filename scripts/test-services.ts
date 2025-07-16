@@ -321,7 +321,7 @@ class ServiceTester {
         passed: true,
         message: 'Test passed successfully',
         duration,
-        details
+        details: details && typeof details === 'object' ? details as Record<string, unknown> : undefined
       });
       
       console.log(`  ✅ ${name} (${duration}ms)`);
@@ -419,11 +419,11 @@ class ServiceTester {
   /**
    * Print object details recursively
    */
-  private printDetails(obj: any, indent: string = ''): void {
+  private printDetails(obj: Record<string, unknown>, indent: string = ''): void {
     for (const [key, value] of Object.entries(obj)) {
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
         console.log(`${indent}${key}:`);
-        this.printDetails(value, indent + '  ');
+        this.printDetails(value as Record<string, unknown>, indent + '  ');
       } else if (Array.isArray(value)) {
         console.log(`${indent}${key}: [${value.length} items]`);
         if (value.length > 0 && value.length <= 3) {

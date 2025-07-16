@@ -1,6 +1,9 @@
-import { S3Client, ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, ListObjectsV2Command, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import TranscriptAnalysisService, { MeetingInsights } from './transcript-analysis.service';
+import { LeadershipAnalysis } from './meeting-analysis.service';
+import { ArchitectureAnalysis } from './architecture-analysis.service';
+import { ProjectPhoto } from './project-linking.service';
 
 export interface MeetingFile {
   id: string;
@@ -26,6 +29,12 @@ export interface MeetingGroup {
   insights?: MeetingInsights;
   category?: string;
   isPortfolioRelevant?: boolean;
+}
+
+export interface PhotoUploadResult {
+  success: boolean;
+  photo?: ProjectPhoto;
+  error?: string;
 }
 
 class AWSS3Service {
@@ -147,84 +156,127 @@ class AWSS3Service {
    * Group meeting files by meeting session and analyze for portfolio relevance
    */
   async getMeetingGroups(): Promise<MeetingGroup[]> {
-    const files = await this.listMeetingFiles();
-    const groups = new Map<string, MeetingGroup>();
-
-    for (const file of files) {
-      const meetingKey = this.generateMeetingKey(file.filename);
+    try {
+      console.log('🔍 Starting getMeetingGroups...');
+      const files = await this.listMeetingFiles();
+      console.log(`📁 Found ${files.length} meeting files`);
       
-      if (!groups.has(meetingKey)) {
-        groups.set(meetingKey, {
-          id: meetingKey,
-          title: file.meetingTitle || 'Untitled Meeting',
-          dateRecorded: file.dateRecorded || new Date().toISOString(),
-          participants: file.participants || [],
-        });
-      }
+      const groups = new Map<string, MeetingGroup>();
 
-      const group = groups.get(meetingKey)!;
-      
-      // Add file URL
-      file.url = await this.getFileUrl(file.s3Key);
-      
-      // Assign file to appropriate property
-      switch (file.type) {
-        case 'video':
-          group.video = file;
-          break;
-        case 'transcript':
-          group.transcript = file;
-          break;
-        case 'recap':
-          group.recap = file;
-          break;
-      }
-    }
-
-    // Analyze transcripts for portfolio relevance
-    const analyzedGroups: MeetingGroup[] = [];
-    
-    for (const group of groups.values()) {
-      if (group.transcript) {
+      for (const file of files) {
         try {
-          // Get transcript content
-          const transcriptContent = await this.getFileContent(group.transcript.s3Key);
+          const meetingKey = this.generateMeetingKey(file.filename);
           
-          // Analyze the transcript
-          const insights = await this.transcriptAnalysis.analyzeTranscript(
-            transcriptContent, 
-            group.transcript.filename
-          );
+          if (!groups.has(meetingKey)) {
+            groups.set(meetingKey, {
+              id: meetingKey,
+              title: file.meetingTitle || 'Untitled Meeting',
+              dateRecorded: file.dateRecorded || new Date().toISOString(),
+              participants: file.participants || [],
+            });
+          }
+
+          const group = groups.get(meetingKey)!;
           
-          // Only include portfolio-relevant meetings
-          if (insights.isPortfolioRelevant) {
-            group.insights = insights;
-            group.title = insights.title;
-            group.participants = insights.participants.length > 0 ? insights.participants : group.participants;
-            group.category = insights.category.type;
-            group.isPortfolioRelevant = true;
+          // Add file URL with error handling
+          try {
+            file.url = await this.getFileUrl(file.s3Key);
+          } catch (urlError) {
+            console.warn(`⚠️ Failed to generate URL for ${file.filename}:`, urlError);
+            file.url = ''; // Fallback to empty URL
+          }
+          
+          // Assign file to appropriate property
+          switch (file.type) {
+            case 'video':
+              group.video = file;
+              break;
+            case 'transcript':
+              group.transcript = file;
+              break;
+            case 'recap':
+              group.recap = file;
+              break;
+          }
+        } catch (fileError) {
+          console.error(`❌ Error processing file ${file.filename}:`, fileError);
+          // Continue with next file instead of failing completely
+          continue;
+        }
+      }
+
+      console.log(`📊 Grouped into ${groups.size} meeting groups`);
+
+      // Analyze transcripts for portfolio relevance
+      const analyzedGroups: MeetingGroup[] = [];
+      
+      for (const group of groups.values()) {
+        // First check for manual portfolio settings (these override AI analysis)
+        const manualSettings = await this.getMeetingPortfolioSettings(group.id);
+        
+        if (group.transcript) {
+          try {
+            // Get transcript content with timeout and error handling
+            console.log(`🔍 Analyzing transcript for ${group.title}...`);
+            const transcriptContent = await this.getFileContent(group.transcript.s3Key);
+            
+            if (transcriptContent && transcriptContent.length > 50) {
+              // Analyze the transcript with timeout protection
+              const insights = await Promise.race([
+                this.transcriptAnalysis.analyzeTranscript(transcriptContent, group.transcript.filename),
+                new Promise((_, reject) => 
+                  setTimeout(() => reject(new Error('Analysis timeout')), 30000) // 30 second timeout
+                )
+              ]) as MeetingInsights;
+              
+              // Include all meetings with analysis results
+              group.insights = insights;
+              group.title = insights.title;
+              group.participants = insights.participants.length > 0 ? insights.participants : group.participants;
+              group.category = insights.category.type;
+              
+              // Manual settings override AI analysis
+              group.isPortfolioRelevant = manualSettings ? manualSettings.isPortfolioRelevant : insights.isPortfolioRelevant;
+              
+              console.log(`✅ Successfully analyzed: ${group.title} (relevant: ${group.isPortfolioRelevant}${manualSettings ? ' - manual override' : ''})`);
+            } else {
+              console.log(`⚠️ Transcript too short or empty for ${group.title}, marking as non-relevant`);
+              group.isPortfolioRelevant = manualSettings ? manualSettings.isPortfolioRelevant : false;
+            }
+            
+            analyzedGroups.push(group);
+          } catch (error) {
+            console.error(`❌ Error analyzing meeting ${group.id}:`, error instanceof Error ? error.message : 'Unknown error');
+            // Include without analysis if there's an error - don't lose the meeting
+            group.isPortfolioRelevant = manualSettings ? manualSettings.isPortfolioRelevant : false;
+            group.category = 'uncategorized';
             analyzedGroups.push(group);
           }
-        } catch (error) {
-          console.error(`Error analyzing meeting ${group.id}:`, error);
-          // Include without analysis if there's an error
-          group.isPortfolioRelevant = false;
+        } else {
+          // Include meetings with videos but no transcripts (user can decide)
+          console.log(`📹 Including meeting without transcript: ${group.title}`);
+          group.isPortfolioRelevant = manualSettings ? manualSettings.isPortfolioRelevant : false;
+          group.category = 'uncategorized';
+          analyzedGroups.push(group);
         }
-      } else {
-        // Include meetings with videos but no transcripts (user can decide)
-        group.isPortfolioRelevant = false; // Mark as uncertain
       }
-    }
 
-    // Sort by portfolio relevance and date
-    return analyzedGroups
-      .sort((a, b) => {
-        // First sort by portfolio relevance
-        if (a.isPortfolioRelevant && !b.isPortfolioRelevant) return -1;
-        if (!a.isPortfolioRelevant && b.isPortfolioRelevant) return 1;
-        // Then by date
-        return new Date(b.dateRecorded).getTime() - new Date(a.dateRecorded).getTime();
-      });
+      console.log(`✅ Successfully processed ${analyzedGroups.length} meeting groups`);
+
+      // Sort by portfolio relevance and date
+      return analyzedGroups
+        .sort((a, b) => {
+          // First sort by portfolio relevance
+          if (a.isPortfolioRelevant && !b.isPortfolioRelevant) return -1;
+          if (!a.isPortfolioRelevant && b.isPortfolioRelevant) return 1;
+          // Then by date
+          return new Date(b.dateRecorded).getTime() - new Date(a.dateRecorded).getTime();
+        });
+    } catch (error) {
+      console.error('❌ Fatal error in getMeetingGroups:', error);
+      // Return empty array instead of throwing to prevent 500 errors
+      return [];
+    }
   }
 
   /**
@@ -263,6 +315,349 @@ class AWSS3Service {
   }
 
   /**
+   * Store leadership analysis results in S3
+   */
+  async storeAnalysisResult(meetingId: string, analysis: LeadershipAnalysis): Promise<void> {
+    try {
+      const analysisKey = `${this.meetingsPath}/analysis/${meetingId}_analysis.json`;
+      
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: analysisKey,
+        Body: JSON.stringify(analysis, null, 2),
+        ContentType: 'application/json',
+        Metadata: {
+          'meeting-id': meetingId,
+          'analysis-version': '1.0',
+          'created-at': new Date().toISOString()
+        }
+      });
+
+      await this.s3Client.send(command);
+      console.log(`✅ Analysis stored for meeting: ${meetingId}`);
+    } catch (error) {
+      console.error(`❌ Error storing analysis for ${meetingId}:`, error);
+    }
+  }
+
+  /**
+   * Get cached leadership analysis from S3
+   */
+  async getCachedAnalysis(meetingId: string): Promise<LeadershipAnalysis | null> {
+    try {
+      const analysisKey = `${this.meetingsPath}/analysis/${meetingId}_analysis.json`;
+      
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: analysisKey,
+      });
+
+      const response = await this.s3Client.send(command);
+      
+      if (!response.Body) {
+        return null;
+      }
+
+      const analysisContent = await response.Body.transformToString();
+      const analysis = JSON.parse(analysisContent) as LeadershipAnalysis;
+      
+      console.log(`✅ Retrieved cached analysis for: ${meetingId}`);
+      return analysis;
+    } catch (error) {
+      // Analysis doesn't exist yet, that's fine
+      if (error instanceof Error && error.name === 'NoSuchKey') {
+        console.log(`📄 No cached analysis found for: ${meetingId}`);
+        return null;
+      }
+      console.error(`❌ Error retrieving cached analysis for ${meetingId}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Check if analysis exists for a meeting
+   */
+  async hasAnalysis(meetingId: string): Promise<boolean> {
+    const analysis = await this.getCachedAnalysis(meetingId);
+    return analysis !== null;
+  }
+
+  /**
+   * Store meeting portfolio settings in S3
+   */
+  async storeMeetingPortfolioSettings(meetingId: string, isRelevant: boolean, showcaseDescription?: string): Promise<void> {
+    try {
+      const settingsKey = `${this.meetingsPath}/portfolio-settings/${meetingId}_settings.json`;
+      
+      const settings = {
+        meetingId,
+        isPortfolioRelevant: isRelevant,
+        showcaseDescription,
+        updatedAt: new Date().toISOString()
+      };
+      
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: settingsKey,
+        Body: JSON.stringify(settings, null, 2),
+        ContentType: 'application/json',
+        Metadata: {
+          'meeting-id': meetingId,
+          'updated-at': new Date().toISOString()
+        }
+      });
+
+      await this.s3Client.send(command);
+      console.log(`✅ Portfolio settings stored for meeting: ${meetingId} (relevant: ${isRelevant})`);
+    } catch (error) {
+      console.error(`❌ Error storing portfolio settings for ${meetingId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get meeting portfolio settings from S3
+   */
+  async getMeetingPortfolioSettings(meetingId: string): Promise<{isPortfolioRelevant: boolean, showcaseDescription?: string} | null> {
+    try {
+      const settingsKey = `${this.meetingsPath}/portfolio-settings/${meetingId}_settings.json`;
+      
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: settingsKey,
+      });
+
+      const response = await this.s3Client.send(command);
+      
+      if (!response.Body) {
+        return null;
+      }
+
+      const settingsContent = await response.Body.transformToString();
+      const settings = JSON.parse(settingsContent);
+      
+      console.log(`✅ Retrieved portfolio settings for: ${meetingId} (relevant: ${settings.isPortfolioRelevant})`);
+      return {
+        isPortfolioRelevant: settings.isPortfolioRelevant,
+        showcaseDescription: settings.showcaseDescription
+      };
+    } catch (error) {
+      // Settings don't exist yet, that's fine
+      if (error instanceof Error && error.name === 'NoSuchKey') {
+        console.log(`📄 No portfolio settings found for: ${meetingId}`);
+        return null;
+      }
+      console.error(`❌ Error retrieving portfolio settings for ${meetingId}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Store architecture analysis results in S3
+   */
+  async storeArchitectureAnalysis(projectId: string, analysis: ArchitectureAnalysis): Promise<void> {
+    try {
+      const analysisKey = `architecture-analysis/${projectId}_analysis.json`;
+      
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: analysisKey,
+        Body: JSON.stringify(analysis, null, 2),
+        ContentType: 'application/json',
+        Metadata: {
+          'project-id': projectId,
+          'analysis-version': '1.0',
+          'created-at': new Date().toISOString()
+        }
+      });
+
+      await this.s3Client.send(command);
+      console.log(`✅ Architecture analysis stored for project: ${projectId}`);
+    } catch (error) {
+      console.error(`❌ Error storing architecture analysis for ${projectId}:`, error);
+    }
+  }
+
+  /**
+   * Get cached architecture analysis from S3
+   */
+  async getCachedArchitectureAnalysis(projectId: string): Promise<ArchitectureAnalysis | null> {
+    try {
+      const analysisKey = `architecture-analysis/${projectId}_analysis.json`;
+      
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: analysisKey,
+      });
+
+      const response = await this.s3Client.send(command);
+      
+      if (!response.Body) {
+        return null;
+      }
+
+      const analysisContent = await response.Body.transformToString();
+      const analysis = JSON.parse(analysisContent);
+      
+      console.log(`✅ Retrieved cached architecture analysis for: ${projectId}`);
+      return analysis;
+    } catch (error) {
+      // Analysis doesn't exist yet, that's fine
+      if (error instanceof Error && error.name === 'NoSuchKey') {
+        console.log(`📄 No cached architecture analysis found for: ${projectId}`);
+        return null;
+      }
+      console.error(`❌ Error retrieving cached architecture analysis for ${projectId}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Check if architecture analysis exists for a project
+   */
+  async hasArchitectureAnalysis(projectId: string): Promise<boolean> {
+    const analysis = await this.getCachedArchitectureAnalysis(projectId);
+    return analysis !== null;
+  }
+
+  /**
+   * Upload photo to S3 for project gallery
+   */
+  async uploadProjectPhoto(projectId: string, file: File, category: ProjectPhoto['category']): Promise<PhotoUploadResult> {
+    try {
+      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+      if (!['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(fileExtension || '')) {
+        return { success: false, error: 'Invalid file type. Please upload JPG, PNG, WebP, or GIF files.' };
+      }
+
+      const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const s3Key = `projects/${projectId}/photos/${fileName}`;
+
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: s3Key,
+        Body: file,
+        ContentType: file.type,
+        Metadata: {
+          'project-id': projectId,
+          'category': category,
+          'original-name': file.name,
+          'uploaded-at': new Date().toISOString()
+        }
+      });
+
+      await this.s3Client.send(command);
+      
+      // Get the URL for the uploaded photo
+      const url = await this.getFileUrl(s3Key);
+
+      const photo: ProjectPhoto = {
+        id: this.generatePhotoId(projectId, fileName),
+        projectId,
+        filename: fileName,
+        s3Key,
+        url,
+        category,
+        order: 0, // Will be updated by project linking service
+        uploadedAt: new Date(),
+        size: file.size,
+      };
+
+      return { success: true, photo };
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      return { success: false, error: 'Failed to upload photo. Please try again.' };
+    }
+  }
+
+  /**
+   * Delete photo from S3
+   */
+  async deleteProjectPhoto(s3Key: string): Promise<boolean> {
+    try {
+      const command = new DeleteObjectCommand({
+        Bucket: this.bucketName,
+        Key: s3Key,
+      });
+
+      await this.s3Client.send(command);
+      return true;
+    } catch (error) {
+      console.error('Error deleting photo:', error);
+      return false;
+    }
+  }
+
+  /**
+   * List all photos for a project
+   */
+  async listProjectPhotos(projectId: string): Promise<ProjectPhoto[]> {
+    try {
+      const command = new ListObjectsV2Command({
+        Bucket: this.bucketName,
+        Prefix: `projects/${projectId}/photos/`,
+      });
+
+      const response = await this.s3Client.send(command);
+      
+      if (!response.Contents) {
+        return [];
+      }
+
+      const photos: ProjectPhoto[] = [];
+      
+      for (const object of response.Contents) {
+        if (!object.Key || !object.LastModified) continue;
+
+        const filename = object.Key.split('/').pop() || '';
+        const category = this.extractPhotoCategory(filename);
+        
+        if (category) {
+          const url = await this.getFileUrl(object.Key);
+          
+          photos.push({
+            id: this.generatePhotoId(projectId, filename),
+            projectId,
+            filename,
+            s3Key: object.Key,
+            url,
+            category,
+            order: 0,
+            uploadedAt: object.LastModified,
+            size: object.Size || 0,
+          });
+        }
+      }
+
+      return photos;
+    } catch (error) {
+      console.error('Error listing project photos:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get presigned URL for photo upload (for direct browser uploads)
+   */
+  async getPhotoUploadUrl(projectId: string, filename: string, contentType: string): Promise<string> {
+    try {
+      const s3Key = `projects/${projectId}/photos/${Date.now()}_${filename.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: s3Key,
+        ContentType: contentType,
+      });
+
+      const signedUrl = await getSignedUrl(this.s3Client, command, { expiresIn: 300 }); // 5 minutes
+      return signedUrl;
+    } catch (error) {
+      console.error('Error generating upload URL:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Private helper methods
    */
   private getFileType(filename: string): 'video' | 'transcript' | 'recap' | null {
@@ -287,7 +682,7 @@ class AWSS3Service {
     // Extract base meeting name (remove extensions and suffixes)
     const baseName = filename
       .replace(/\.(mp4|txt)$/i, '')
-      .replace(/_?(transcript|recap|summary)$/i, '')
+      .replace(/_?(transcript|recap|summary|video)$/i, '') // Added 'video' to suffixes
       .replace(/[^a-zA-Z0-9\-_]/g, '_');
     
     return baseName;
@@ -313,6 +708,24 @@ class AWSS3Service {
     
     // Default to current date if no date found
     return new Date().toISOString().split('T')[0];
+  }
+
+  private generatePhotoId(projectId: string, filename: string): string {
+    return `photo_${projectId}_${filename.replace(/[^a-zA-Z0-9]/g, '_')}`;
+  }
+
+  private extractPhotoCategory(filename: string): ProjectPhoto['category'] | null {
+    const lower = filename.toLowerCase();
+    
+    if (lower.includes('screenshot') || lower.includes('screen')) return 'screenshot';
+    if (lower.includes('diagram') || lower.includes('architecture')) return 'diagram';
+    if (lower.includes('demo') || lower.includes('showcase')) return 'demo';
+    if (lower.includes('interface') || lower.includes('ui')) return 'interface';
+    if (lower.includes('mobile') || lower.includes('phone')) return 'mobile';
+    if (lower.includes('analytics') || lower.includes('dashboard') || lower.includes('metrics')) return 'analytics';
+    
+    // Default to screenshot for most images
+    return 'screenshot';
   }
 }
 

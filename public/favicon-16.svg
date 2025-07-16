@@ -1,1 +1,16 @@
- 
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="circle-small">
+      <circle cx="8" cy="8" r="8"/>
+    </clipPath>
+    <pattern id="profileImageSmall" patternUnits="userSpaceOnUse" width="16" height="16">
+      <image href="/profile-logo.png" x="-2" y="-2" width="20" height="20" transform="scale(1.25)"/>
+    </pattern>
+  </defs>
+  
+  <!-- Background circle with cropped profile -->
+  <circle cx="8" cy="8" r="8" fill="url(#profileImageSmall)" clip-path="url(#circle-small)"/>
+  
+  <!-- Subtle border for definition at small size -->
+  <circle cx="8" cy="8" r="7.5" fill="none" stroke="rgba(59, 130, 246, 0.4)" stroke-width="0.5"/>
+</svg> 

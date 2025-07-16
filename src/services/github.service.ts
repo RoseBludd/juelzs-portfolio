@@ -48,12 +48,14 @@ class GitHubService {
   private static instance: GitHubService;
   private octokit: Octokit;
   private username: string;
+  private organization: string;
 
   private constructor() {
     this.octokit = new Octokit({
       auth: process.env.GITHUB_TOKEN,
     });
     this.username = process.env.GITHUB_USERNAME || 'RoseBludd';
+    this.organization = process.env.GITHUB_ORGANIZATION || process.env['GITHUB-ORGANIZATION'] || 'RestoreMastersLLC';
   }
 
   public static getInstance(): GitHubService {
@@ -64,12 +66,13 @@ class GitHubService {
   }
 
   /**
-   * Get all repositories for the authenticated user
+   * Get all repositories for the organization
    */
   async getRepositories(): Promise<GitHubRepository[]> {
     try {
-      const { data } = await this.octokit.repos.listForAuthenticatedUser({
-        visibility: 'all',
+      const { data } = await this.octokit.repos.listForOrg({
+        org: this.organization,
+        type: 'all',
         sort: 'updated',
         per_page: 100,
       });
@@ -80,19 +83,19 @@ class GitHubService {
         full_name: repo.full_name,
         description: repo.description,
         html_url: repo.html_url,
-        homepage: repo.homepage,
-        language: repo.language,
+        homepage: repo.homepage || null,
+        language: repo.language || null,
         languages_url: repo.languages_url,
         topics: repo.topics || [],
         created_at: repo.created_at || new Date().toISOString(),
         updated_at: repo.updated_at || new Date().toISOString(),
         pushed_at: repo.pushed_at || new Date().toISOString(),
-        stargazers_count: repo.stargazers_count,
-        forks_count: repo.forks_count,
-        size: repo.size,
-        archived: repo.archived,
-        disabled: repo.disabled,
-        private: repo.private,
+        stargazers_count: repo.stargazers_count || 0,
+        forks_count: repo.forks_count || 0,
+        size: repo.size || 0,
+        archived: repo.archived || false,
+        disabled: repo.disabled || false,
+        private: repo.private || false,
       }));
     } catch (error) {
       console.error('Error fetching repositories:', error);
@@ -148,45 +151,91 @@ class GitHubService {
    */
   async getPortfolioProjects(): Promise<GitHubProject[]> {
     const repositories = await this.getRepositories();
+    const activeRepos = repositories.filter(repo => !repo.archived && !repo.disabled);
+    
+    console.log(`Processing ${activeRepos.length} active repositories...`);
+    
+    // Process repositories in batches to avoid rate limits
+    const batchSize = 5;
     const projects: GitHubProject[] = [];
+    
+    for (let i = 0; i < activeRepos.length; i += batchSize) {
+      const batch = activeRepos.slice(i, i + batchSize);
+      console.log(`Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(activeRepos.length / batchSize)}...`);
+      
+      // Process batch in parallel but limit concurrent requests
+      const batchProjects = await Promise.all(
+        batch.map(async (repo) => {
+          try {
+            // Get language statistics and README in parallel with error handling
+            const [languages, readme] = await Promise.allSettled([
+              this.getRepositoryLanguages(this.organization, repo.name),
+              this.getRepositoryReadme(this.organization, repo.name)
+            ]);
 
-    for (const repo of repositories) {
-      // Skip archived, disabled, or private repos
-      if (repo.archived || repo.disabled || repo.private) continue;
+            const repoLanguages = languages.status === 'fulfilled' ? languages.value : {};
+            const repoReadme = readme.status === 'fulfilled' ? readme.value : '';
+            
+            const techStack = Object.keys(repoLanguages).sort((a, b) => repoLanguages[b] - repoLanguages[a]);
+            const uniqueDecisions = this.extractUniqueDecisions(repoReadme);
 
-      // Get language statistics using configured username
-      const languages = await this.getRepositoryLanguages(this.username, repo.name);
-      const techStack = Object.keys(languages).sort((a, b) => languages[b] - languages[a]);
+            // Categorize based on topics and language
+            const category = this.categorizeProject(repo.topics, repo.language, repo.description);
 
-      // Get README using configured username
-      const readme = await this.getRepositoryReadme(this.username, repo.name);
-      const uniqueDecisions = this.extractUniqueDecisions(readme);
+            // Generate role based on project characteristics
+            const role = this.generateRole(repo, techStack);
 
-      // Categorize based on topics and language
-      const category = this.categorizeProject(repo.topics, repo.language, repo.description);
-
-      // Generate role based on project characteristics
-      const role = this.generateRole(repo, techStack);
-
-      projects.push({
-        id: repo.id.toString(),
-        title: this.formatTitle(repo.name),
-        description: repo.description || 'No description available',
-        role,
-        techStack,
-        githubUrl: repo.html_url,
-        liveUrl: repo.homepage || undefined,
-        uniqueDecisions,
-        category,
-        stars: repo.stargazers_count,
-        forks: repo.forks_count,
-        lastUpdated: format(new Date(repo.updated_at), 'yyyy-MM-dd'),
-        topics: repo.topics,
-        language: repo.language || 'Unknown',
-        createdAt: format(new Date(repo.created_at), 'yyyy-MM-dd'),
-      });
+            return {
+              id: repo.id.toString(),
+              title: this.formatTitle(repo.name),
+              description: repo.description || 'No description available',
+              role,
+              techStack,
+              githubUrl: repo.html_url,
+              liveUrl: repo.homepage || undefined,
+              uniqueDecisions,
+              category,
+              stars: repo.stargazers_count,
+              forks: repo.forks_count,
+              lastUpdated: format(new Date(repo.updated_at), 'yyyy-MM-dd'),
+              topics: repo.topics,
+              language: repo.language || 'Unknown',
+              createdAt: format(new Date(repo.created_at), 'yyyy-MM-dd'),
+            };
+          } catch (error) {
+            console.warn(`Failed to process repository ${repo.name}:`, error);
+            
+            // Return basic project info without detailed data
+            return {
+              id: repo.id.toString(),
+              title: this.formatTitle(repo.name),
+              description: repo.description || 'No description available',
+              role: 'Developer',
+              techStack: repo.language ? [repo.language] : ['Unknown'],
+              githubUrl: repo.html_url,
+              liveUrl: repo.homepage || undefined,
+              uniqueDecisions: [],
+              category: this.categorizeProject(repo.topics, repo.language, repo.description),
+              stars: repo.stargazers_count,
+              forks: repo.forks_count,
+              lastUpdated: format(new Date(repo.updated_at), 'yyyy-MM-dd'),
+              topics: repo.topics,
+              language: repo.language || 'Unknown',
+              createdAt: format(new Date(repo.created_at), 'yyyy-MM-dd'),
+            };
+          }
+        })
+      );
+      
+      projects.push(...batchProjects);
+      
+      // Small delay between batches to be respectful to GitHub API
+      if (i + batchSize < activeRepos.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
 
+    console.log(`Successfully processed ${projects.length} projects`);
     return projects.sort((a, b) => b.stars - a.stars); // Sort by stars descending
   }
 
@@ -227,9 +276,9 @@ class GitHubService {
     const overallStats: GitHubLanguageStats = {};
 
     for (const repo of repositories) {
-      if (repo.archived || repo.disabled || repo.private) continue;
+      if (repo.archived || repo.disabled) continue;
 
-      const languages = await this.getRepositoryLanguages(this.username, repo.name);
+      const languages = await this.getRepositoryLanguages(this.organization, repo.name);
       
       for (const [language, bytes] of Object.entries(languages)) {
         overallStats[language] = (overallStats[language] || 0) + bytes;

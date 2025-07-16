@@ -39,6 +39,8 @@ class TranscriptAnalysisService {
    * Analyze transcript content to extract meeting insights
    */
   async analyzeTranscript(transcript: string, filename?: string): Promise<MeetingInsights> {
+    console.log(`🎯 Analyzing transcript for: ${filename || 'Unknown meeting'}`);
+    
     // Clean and normalize transcript
     const cleanTranscript = this.cleanTranscript(transcript);
     
@@ -51,6 +53,7 @@ class TranscriptAnalysisService {
     
     // If not portfolio relevant, return early
     if (!category || category.type === 'skip') {
+      console.log(`⏭️ Skipping ${filename}: ${category?.reason || 'Not portfolio relevant'}`);
       return {
         category: category || { type: 'skip', confidence: 0, reason: 'Not portfolio relevant' },
         keyMoments: [],
@@ -64,12 +67,16 @@ class TranscriptAnalysisService {
       };
     }
 
+    console.log(`✅ Meeting categorized as: ${category.type} (confidence: ${category.confidence})`);
+
     // Extract detailed insights for relevant meetings
     const keyMoments = this.extractKeyMoments(cleanTranscript);
     const technicalTopics = this.extractTechnicalTopics(cleanTranscript);
     const decisions = this.extractDecisions(cleanTranscript);
-         const title = this.generateTitle(cleanTranscript, category.type);
+    const title = this.generateTitle(cleanTranscript, category.type);
     const description = this.generateDescription(cleanTranscript, category.type);
+
+    console.log(`🎬 Final results for ${title}: ${keyMoments.length} key moments, ${technicalTopics.length} technical topics`);
 
     return {
       category,
@@ -228,61 +235,80 @@ class TranscriptAnalysisService {
     const moments: KeyMoment[] = [];
     const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 20);
 
+    console.log(`🔍 Extracting key moments from ${sentences.length} sentences`);
+
     // Keywords that indicate important moments
     const importantPhrases = {
-      'architecture': /\b(design|architecture|system|pattern|modular|scalable)\b/i,
-      'decision': /\b(decide|decision|choose|selected|agreed|conclusion)\b/i,
-      'technical': /\b(implement|code|algorithm|performance|optimization|bug)\b/i,
-      'leadership': /\b(team|lead|manage|strategy|vision|direction)\b/i,
-      'mentoring': /\b(learn|teach|guidance|mentor|coaching|growth)\b/i
+      'architecture': /\b(design|architecture|system|pattern|modular|scalable|structure|framework|component)\b/i,
+      'decision': /\b(decide|decision|choose|selected|agreed|conclusion|resolved|determined)\b/i,
+      'technical': /\b(implement|code|algorithm|performance|optimization|bug|solution|approach|method)\b/i,
+      'leadership': /\b(team|lead|manage|strategy|vision|direction|coordination|planning)\b/i,
+      'mentoring': /\b(learn|teach|guidance|mentor|coaching|growth|advice|feedback|improvement)\b/i
     };
 
     sentences.forEach((sentence, index) => {
       const timestamp = this.generateTimestamp(index, sentences.length);
       
       Object.entries(importantPhrases).forEach(([type, pattern]) => {
-                 if (pattern.test(sentence)) {
-           const importance = this.calculateImportance(sentence);
-           if (importance >= 6) { // Only include high-importance moments
-                         moments.push({
-               timestamp,
-               description: sentence.trim().substring(0, 100) + '...',
-               type: type as KeyMoment['type'],
-               importance
-             });
+        if (pattern.test(sentence)) {
+          const importance = this.calculateImportance(sentence);
+          console.log(`📝 Found ${type} moment (score: ${importance}): ${sentence.substring(0, 50)}...`);
+          
+          if (importance >= 4) { // Lowered threshold from 6 to 4
+            moments.push({
+              timestamp,
+              description: sentence.trim().substring(0, 100) + '...',
+              type: type as KeyMoment['type'],
+              importance
+            });
           }
         }
       });
     });
 
     // Sort by importance and return top moments
-    return moments
+    const sortedMoments = moments
       .sort((a, b) => b.importance - a.importance)
       .slice(0, 8); // Limit to 8 key moments
+
+    console.log(`✅ Generated ${sortedMoments.length} key moments from ${moments.length} candidates`);
+    
+    return sortedMoments;
   }
 
   /**
    * Calculate importance score for a sentence
    */
   private calculateImportance(sentence: string): number {
-    let score = 5; // Base score
+    let score = 4; // Lowered base score from 5 to 4
 
     // Boost for specific keywords
     const highValueWords = [
       'architecture', 'design', 'decision', 'implement', 'solution',
       'strategy', 'approach', 'pattern', 'optimization', 'scalability',
-      'leadership', 'mentoring', 'guidance', 'learning', 'growth'
+      'leadership', 'mentoring', 'guidance', 'learning', 'growth',
+      'problem', 'issue', 'challenge', 'requirement', 'feature',
+      'database', 'api', 'frontend', 'backend', 'security', 'testing'
     ];
 
     highValueWords.forEach(word => {
       if (sentence.toLowerCase().includes(word)) {
-        score += 1;
+        score += 0.8; // Slightly reduced boost per word
       }
     });
 
     // Boost for question/answer patterns
-    if (/\?/.test(sentence)) score += 1;
-    if (/\b(because|since|due to|reason)\b/i.test(sentence)) score += 1;
+    if (/\?/.test(sentence)) score += 0.5;
+    if (/\b(because|since|due to|reason|explanation|clarification)\b/i.test(sentence)) score += 0.5;
+    if (/\b(will|should|need to|have to|must)\b/i.test(sentence)) score += 0.3;
+
+    // Boost for technical terms
+    const technicalTerms = ['react', 'node', 'javascript', 'typescript', 'database', 'api', 'server', 'client'];
+    technicalTerms.forEach(term => {
+      if (sentence.toLowerCase().includes(term)) {
+        score += 0.5;
+      }
+    });
 
     return Math.min(10, score);
   }

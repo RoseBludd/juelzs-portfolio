@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { VideoThumbnail, VideoPlayerSection } from '@/components/ui/VideoComponents';
+import AnalysisToggle from '@/components/ui/AnalysisToggle';
 import PortfolioService from '@/services/portfolio.service';
 import Image from 'next/image';
 
@@ -65,65 +66,68 @@ export default async function LeadershipPage() {
         </div>
 
         {/* Videos Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-16">
           {videos.map((video) => (
-            <Card key={video.id} className="h-full">
+            <Card key={video.id} className="h-full bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-700/50 hover:border-purple-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10">
               <div className="flex flex-col h-full">
                 {/* Enhanced Video Thumbnail */}
                 <VideoThumbnail video={video} momentTypes={momentTypes} />
 
                 {/* Video Info */}
-                <div className="flex-grow">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xl font-semibold text-white">{video.title}</h3>
-                    <span className="text-sm text-gray-400">{video.dateRecorded}</span>
-                  </div>
-                  
-                  <p className="text-gray-400 mb-4">{video.description}</p>
-
-                  {/* Participants */}
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-300 mb-2">Participants:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {video.participants.map((participant) => (
-                        <span key={participant} className="px-2 py-1 bg-gray-700 text-gray-300 rounded text-xs">
-                          {participant}
-                        </span>
-                      ))}
+                <div className="flex-grow p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-grow">
+                      <h3 className="text-lg font-bold text-white mb-2 leading-tight">{video.title}</h3>
+                      <div className="flex items-center gap-2 text-xs text-gray-400">
+                        <span>{video.dateRecorded}</span>
+                        <span>•</span>
+                        <span>{video.duration}</span>
+                      </div>
                     </div>
                   </div>
+                  
+                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">{video.description}</p>
 
-                  {/* Key Moments */}
+                  {/* AI Leadership Analysis Preview */}
+                  {video.analysis && (
+                    <AnalysisToggle analysis={video.analysis} />
+                  )}
+
+                  {/* Key Moments Summary */}
                   <div className="mb-6">
-                    <h4 className="text-sm font-medium text-gray-300 mb-3">Key Moments:</h4>
-                    <div className="space-y-2">
-                      {video.keyMoments.map((moment, index) => (
-                        <div key={index} className="flex items-start space-x-3 p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors duration-200 cursor-pointer">
-                          <span className="text-blue-400 font-mono text-sm mt-0.5 flex-shrink-0">
-                            {moment.timestamp}
-                          </span>
-                          <div className="flex-grow">
-                            <p className="text-sm text-gray-300">{moment.description}</p>
-                            <span className={`inline-block px-2 py-1 rounded text-xs mt-1 ${
-                              momentTypes.find(t => t.type === moment.type)?.color || 'bg-gray-500/20 text-gray-300'
-                            }`}>
-                              {moment.type}
-                            </span>
-                          </div>
-                        </div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-medium text-gray-300">Key Moments</h4>
+                      <span className="text-xs text-gray-500 bg-gray-800/50 px-2 py-1 rounded">
+                        {video.keyMoments.length} moments
+                      </span>
+                    </div>
+                    
+                    {/* Moment Type Tags */}
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {Array.from(new Set(video.keyMoments.map(m => m.type))).map((type) => (
+                        <span key={type} className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                          momentTypes.find(t => t.type === type)?.color || 'bg-gray-500/20 text-gray-300'
+                        }`}>
+                          {type}
+                        </span>
                       ))}
                     </div>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-3 mt-auto">
-                  <Button href={`/leadership/${video.id}`} variant="primary" size="sm" className="flex-1">
-                    Full Details
-                  </Button>
-                  <Button href="/contact?topic=coaching" variant="outline" size="sm">
-                    Book Session
-                  </Button>
+                <div className="p-6 pt-0">
+                  <div className="flex gap-3">
+                    <Button href={`/leadership/${video.id}`} variant="primary" size="sm" className="flex-1">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                      Watch Video
+                    </Button>
+                    <Button href="/contact?topic=coaching" variant="outline" size="sm">
+                      Book Session
+                    </Button>
+                  </div>
                 </div>
               </div>
             </Card>

@@ -6,7 +6,7 @@ import Image from 'next/image';
 export default async function Home() {
   const portfolioService = PortfolioService.getInstance();
   const featuredProjects = await portfolioService.getFeatureProjects();
-  const latestVideos = await portfolioService.getLatestLeadershipVideos();
+  const latestVideos = await portfolioService.getLeadershipVideosWithAnalysis();
 
   return (
     <div className="min-h-screen">
@@ -355,7 +355,7 @@ export default async function Home() {
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {latestVideos.map((video) => (
+            {latestVideos.slice(0, 2).map((video) => (
               <Card key={video.id} className="h-full">
                 <div className="flex flex-col h-full">
                   <div className="aspect-video bg-gray-700 rounded-lg mb-4 flex items-center justify-center">
@@ -375,6 +375,34 @@ export default async function Home() {
                   <h3 className="text-xl font-semibold mb-2 text-white">{video.title}</h3>
                   <p className="text-gray-400 mb-4 flex-grow">{video.description}</p>
                   
+                  {/* AI Analysis Preview */}
+                  {video.analysis && (
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-300 mb-2">AI Leadership Rating:</h4>
+                      <div className="bg-gray-800/50 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-gray-400">Overall Performance</span>
+                          <span className={`font-bold ${
+                            video.analysis.overallRating >= 8 ? 'text-green-400' :
+                            video.analysis.overallRating >= 6 ? 'text-yellow-400' : 'text-red-400'
+                          }`}>
+                            {video.analysis.overallRating}/10
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">Technical:</span>
+                            <span className="text-blue-400">{video.analysis.leadershipQualities.technicalGuidance}/10</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-500">Clarity:</span>
+                            <span className="text-green-400">{video.analysis.communicationStyle.clarity}/10</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="mb-4">
                     <h4 className="text-sm font-medium text-gray-300 mb-2">Key Moments:</h4>
                     <ul className="text-sm text-gray-400 space-y-1">

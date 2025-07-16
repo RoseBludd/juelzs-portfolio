@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import { VideoPlayer } from '@/components/ui/VideoComponents';
+import VideoPageClient from '@/components/ui/VideoPageClient';
 import PortfolioService from '@/services/portfolio.service';
 
 interface LeadershipDetailPageProps {
@@ -35,6 +35,14 @@ export default async function LeadershipDetailPage({ params }: LeadershipDetailP
     notFound();
   }
 
+  console.log('🎥 Individual video page loaded:', {
+    videoId: id,
+    videoTitle: video.title,
+    keyMomentsCount: video.keyMoments.length,
+    hasAnalysis: !!video.analysis,
+    analysisRating: video.analysis?.overallRating
+  });
+
   return (
     <div className="min-h-screen py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,155 +55,45 @@ export default async function LeadershipDetailPage({ params }: LeadershipDetailP
             Back to Leadership Library
           </Button>
           
-          <h1 className="text-4xl sm:text-5xl font-bold mb-6 text-white">
-            {video.title}
-          </h1>
-          
-          <div className="flex items-center gap-6 text-gray-400 mb-6">
-            <span>Duration: {video.duration}</span>
-            <span>•</span>
-            <span>Recorded: {video.dateRecorded}</span>
-            <span>•</span>
-            <span>Participants: {video.participants.join(', ')}</span>
+          <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 rounded-xl p-8 border border-gray-700/50">
+            <h1 className="text-4xl sm:text-5xl font-bold mb-6 text-white leading-tight">
+              {video.title}
+            </h1>
+            
+            <div className="flex flex-wrap items-center gap-4 text-gray-400 mb-6">
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{video.duration}</span>
+              </div>
+              <span>•</span>
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>{video.dateRecorded}</span>
+              </div>
+              <span>•</span>
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span>{video.keyMoments.length} key moments</span>
+              </div>
+            </div>
+            
+            <p className="text-xl text-gray-300 max-w-3xl leading-relaxed">
+              {video.description}
+            </p>
           </div>
-          
-          <p className="text-xl text-gray-400 max-w-3xl">
-            {video.description}
-          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Enhanced Video Player */}
-            <Card>
-              <VideoPlayer video={video} />
-              
-              {/* Video controls */}
-              <div className="mt-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <Button variant="primary" size="sm">
-                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                    Play
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Timestamps
-                  </Button>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                    </svg>
-                    Share
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                    Save
-                  </Button>
-                </div>
-              </div>
-            </Card>
-
-            {/* Enhanced Key Moments Timeline */}
-            <Card>
-              <h2 className="text-2xl font-bold mb-6 text-white">Session Timeline</h2>
-              <div className="space-y-4">
-                {video.keyMoments.map((moment, index) => (
-                  <div key={index} className="flex items-start space-x-4 p-4 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors duration-200 cursor-pointer group">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center group-hover:bg-blue-500/30 transition-colors duration-200">
-                        <span className="text-blue-400 font-mono text-sm font-semibold">
-                          {moment.timestamp}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex-grow">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-medium text-white">{moment.description}</h3>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          moment.type === 'architecture' ? 'bg-blue-500/20 text-blue-300' :
-                          moment.type === 'leadership' ? 'bg-purple-500/20 text-purple-300' :
-                          moment.type === 'mentoring' ? 'bg-green-500/20 text-green-300' :
-                          'bg-orange-500/20 text-orange-300'
-                        }`}>
-                          {moment.type}
-                        </span>
-                      </div>
-                      
-                      <p className="text-gray-400 text-sm">
-                        Jump to this moment in the video to see {moment.type} principles in action.
-                      </p>
-                    </div>
-                    
-                    <div className="flex-shrink-0">
-                      <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* Session Insights */}
-            <Card>
-              <h2 className="text-2xl font-bold mb-6 text-white">Session Insights</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 text-white">What You&apos;ll Learn</h3>
-                  <ul className="space-y-2 text-gray-300">
-                    <li className="flex items-start">
-                      <span className="text-blue-400 mr-3 mt-1">•</span>
-                      <span>How I approach architectural decision-making in real-time</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-blue-400 mr-3 mt-1">•</span>
-                      <span>My coaching methodology for building systems thinking</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-blue-400 mr-3 mt-1">•</span>
-                      <span>Techniques for leading technical discussions effectively</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-blue-400 mr-3 mt-1">•</span>
-                      <span>How to balance technical depth with strategic thinking</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 text-white">Leadership Approach</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    This session showcases my collaborative leadership style, where I guide developers 
-                    through complex architectural decisions while building their confidence and systems thinking. 
-                    You&apos;ll see how I balance technical mentoring with strategic guidance.
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-3 text-white">Technical Topics Covered</h3>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">Modular Architecture</span>
-                    <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">System Design</span>
-                    <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-sm">Code Review</span>
-                    <span className="px-3 py-1 bg-orange-500/20 text-orange-300 rounded-full text-sm">Best Practices</span>
-                  </div>
-                </div>
-              </div>
-            </Card>
+          <div className="lg:col-span-2">
+            {/* Tabbed Interface */}
+            <VideoPageClient video={video} />
           </div>
 
           {/* Sidebar */}
@@ -210,16 +108,7 @@ export default async function LeadershipDetailPage({ params }: LeadershipDetailP
                   <p className="text-gray-400">{video.duration}</p>
                 </div>
 
-                <div>
-                  <h4 className="text-sm font-medium text-gray-300 mb-2">Participants</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {video.participants.map((participant) => (
-                      <span key={participant} className="px-2 py-1 bg-gray-700 text-gray-300 rounded text-sm">
-                        {participant}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+
 
                 <div>
                   <h4 className="text-sm font-medium text-gray-300 mb-2">Recorded</h4>
@@ -230,7 +119,50 @@ export default async function LeadershipDetailPage({ params }: LeadershipDetailP
                   <h4 className="text-sm font-medium text-gray-300 mb-2">Key Moments</h4>
                   <p className="text-gray-400">{video.keyMoments.length} timestamped insights</p>
                 </div>
+
+                {video.analysis && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-300 mb-2">AI Analysis Rating</h4>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        video.analysis.overallRating >= 8 ? 'bg-green-500/20' :
+                        video.analysis.overallRating >= 6 ? 'bg-yellow-500/20' : 'bg-red-500/20'
+                      }`}>
+                        <span className={`text-sm font-bold ${
+                          video.analysis.overallRating >= 8 ? 'text-green-400' :
+                          video.analysis.overallRating >= 6 ? 'text-yellow-400' : 'text-red-400'
+                        }`}>
+                          {video.analysis.overallRating}
+                        </span>
+                      </div>
+                      <span className="text-gray-400">out of 10</span>
+                    </div>
+                  </div>
+                )}
               </div>
+            </Card>
+
+            {/* Session Insights */}
+            <Card>
+              <h3 className="text-lg font-semibold mb-4 text-white">What You&apos;ll Learn</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li className="flex items-start">
+                  <span className="text-blue-400 mr-3 mt-1">•</span>
+                  <span>How I approach architectural decision-making in real-time</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-blue-400 mr-3 mt-1">•</span>
+                  <span>My coaching methodology for building systems thinking</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-blue-400 mr-3 mt-1">•</span>
+                  <span>Techniques for leading technical discussions effectively</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-blue-400 mr-3 mt-1">•</span>
+                  <span>How to balance technical depth with strategic thinking</span>
+                </li>
+              </ul>
             </Card>
 
             {/* Related Videos */}

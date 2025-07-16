@@ -159,8 +159,6 @@ export const VideoThumbnail: React.FC<VideoThumbnailProps> = ({ video, momentTyp
   );
 };
 
-
-
 interface VideoPlayerProps {
   video: LeadershipVideo;
   onClose: () => void;
@@ -183,6 +181,51 @@ const getCategoryStyle = (type: string) => {
 
 export function VideoPlayer({ video, onClose }: VideoPlayerProps) {
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [showTranscript, setShowTranscript] = useState(false);
+  const [showRecap, setShowRecap] = useState(false);
+  const [transcriptContent, setTranscriptContent] = useState('');
+  const [recapContent, setRecapContent] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleViewTranscript = async () => {
+    if (!video.transcript) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/video/${video.id}/transcript`);
+      if (response.ok) {
+        const content = await response.text();
+        setTranscriptContent(content);
+        setShowTranscript(true);
+      } else {
+        console.error('Failed to load transcript');
+      }
+    } catch (error) {
+      console.error('Error loading transcript:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewRecap = async () => {
+    if (!video.recap) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/video/${video.id}/recap`);
+      if (response.ok) {
+        const content = await response.text();
+        setRecapContent(content);
+        setShowRecap(true);
+      } else {
+        console.error('Failed to load recap');
+      }
+    } catch (error) {
+      console.error('Error loading recap:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
@@ -277,13 +320,21 @@ export function VideoPlayer({ video, onClose }: VideoPlayerProps) {
               {(video.transcript || video.recap) && (
                 <div className="flex gap-3">
                   {video.transcript && (
-                    <button className="flex-1 py-2 px-4 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors">
-                      View Transcript
+                    <button 
+                      onClick={handleViewTranscript}
+                      disabled={loading}
+                      className="flex-1 py-2 px-4 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors disabled:opacity-50"
+                    >
+                      {loading ? 'Loading...' : 'View Transcript'}
                     </button>
                   )}
                   {video.recap && (
-                    <button className="flex-1 py-2 px-4 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30 transition-colors">
-                      View Recap
+                    <button 
+                      onClick={handleViewRecap}
+                      disabled={loading}
+                      className="flex-1 py-2 px-4 bg-green-500/20 text-green-300 rounded-lg hover:bg-green-500/30 transition-colors disabled:opacity-50"
+                    >
+                      {loading ? 'Loading...' : 'View Recap'}
                     </button>
                   )}
                 </div>
@@ -305,6 +356,54 @@ export function VideoPlayer({ video, onClose }: VideoPlayerProps) {
           </div>
         </div>
       </div>
+
+      {/* Transcript Modal */}
+      {showTranscript && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-60 p-4">
+          <div className="w-full max-w-4xl max-h-[90vh] bg-gray-900 rounded-lg">
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <h3 className="text-xl font-bold text-white">Transcript - {video.title}</h3>
+              <button 
+                onClick={() => setShowTranscript(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 max-h-[70vh] overflow-y-auto">
+              <pre className="text-gray-300 text-sm whitespace-pre-wrap font-mono leading-relaxed">
+                {transcriptContent}
+              </pre>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Recap Modal */}
+      {showRecap && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-60 p-4">
+          <div className="w-full max-w-4xl max-h-[90vh] bg-gray-900 rounded-lg">
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <h3 className="text-xl font-bold text-white">Recap - {video.title}</h3>
+              <button 
+                onClick={() => setShowRecap(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 max-h-[70vh] overflow-y-auto">
+              <div className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">
+                {recapContent}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

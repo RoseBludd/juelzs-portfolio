@@ -29,6 +29,7 @@ export interface LeadershipVideo {
   description: string;
   videoUrl: string;
   duration: string;
+  type: 'architecture' | 'leadership' | 'technical' | 'mentoring';
   keyMoments: {
     timestamp: string;
     description: string;
@@ -69,6 +70,13 @@ class PortfolioService {
     s3Meetings: 0,
     errors: []
   };
+  
+  // Add caching for filtered videos
+  private filteredVideosCache: {
+    videos: LeadershipVideo[];
+    timestamp: number;
+    ttl: number; // 30 minutes
+  } | null = null;
 
   private constructor() {
     this.s3Service = AWSS3Service.getInstance();
@@ -277,6 +285,7 @@ class PortfolioService {
         description: 'Deep dive into modular architecture principles and team collaboration.',
         videoUrl: '', // Will be populated later
         duration: '45:30',
+        type: 'architecture',
         keyMoments: [
           {
             timestamp: '5:20',
@@ -316,12 +325,32 @@ class PortfolioService {
         // Use insights from transcript analysis if available
         const insights = group.insights;
         
+        // Get recap summary for description if available
+        let description = insights?.description || `${group.category?.replace('-', ' ')} with ${group.participants.join(', ')}`;
+        
+        // If we have a recap file, use its content as description
+        if (group.recap) {
+          try {
+            const recapContent = await this.s3Service.getFileContent(group.recap.s3Key);
+            if (recapContent && recapContent.length > 50) {
+              // Extract first paragraph or first 200 characters as description
+              const firstParagraph = recapContent.split('\n').find(line => line.trim().length > 20);
+              if (firstParagraph) {
+                description = firstParagraph.trim().substring(0, 200) + (firstParagraph.length > 200 ? '...' : '');
+              }
+            }
+          } catch (error) {
+            console.log(`⚠️ Could not load recap for ${group.title}:`, error);
+          }
+        }
+        
         const video: LeadershipVideo = {
           id: `s3-${group.id}`,
           title: group.title,
-          description: insights?.description || `${group.category?.replace('-', ' ')} with ${group.participants.join(', ')}`,
+          description,
           videoUrl: group.video?.url || '',
           duration: insights?.duration || '0:00',
+          type: this.mapCategoryToType(group.category),
           keyMoments: insights?.keyMoments?.map(moment => ({
             timestamp: moment.timestamp,
             description: moment.description,
@@ -337,27 +366,41 @@ class PortfolioService {
         // Only add leadership analysis if requested and transcript is available
         if (includeAnalysis && group.transcript) {
           try {
-            const transcriptContent = await this.s3Service.getFileContent(group.transcript.s3Key);
+            // First check for cached analysis
+            console.log(`🔍 Checking for cached analysis: ${group.title}`);
+            let analysis = await this.s3Service.getCachedAnalysis(group.id);
             
-            if (transcriptContent && transcriptContent.length > 100) {
-              console.log(`🔍 Analyzing leadership performance for: ${group.title}`);
+            if (analysis) {
+              console.log(`✅ Using cached analysis for: ${group.title} - Rating: ${analysis.overallRating}/10`);
+              video.analysis = analysis;
+            } else {
+              // No cached analysis, run new analysis
+              const transcriptContent = await this.s3Service.getFileContent(group.transcript.s3Key);
               
-              // Perform analysis without timeout to ensure completion
-              const analysis = await this.analysisService.analyzeMeetingLeadership({
-                id: group.id,
-                title: group.title,
-                transcript: transcriptContent,
-                participants: group.participants,
-                duration: insights?.duration || '0:00',
-                type: this.mapCategoryToType(group.category),
-                dateRecorded: group.dateRecorded
-              });
-              
-              if (analysis) {
-                video.analysis = analysis;
-                console.log(`✅ Analysis completed for: ${group.title} - Overall Rating: ${analysis.overallRating}/10`);
-              } else {
-                console.log(`⚠️ Analysis returned null for: ${group.title} - OpenAI may be unavailable`);
+              if (transcriptContent && transcriptContent.length > 100) {
+                console.log(`🔍 Running new AI analysis for: ${group.title}`);
+                
+                // Perform analysis without timeout to ensure completion
+                analysis = await this.analysisService.analyzeMeetingLeadership({
+                  id: group.id,
+                  title: group.title,
+                  transcript: transcriptContent,
+                  participants: group.participants,
+                  duration: insights?.duration || '0:00',
+                  type: this.mapCategoryToType(group.category),
+                  dateRecorded: group.dateRecorded
+                });
+                
+                if (analysis) {
+                  video.analysis = analysis;
+                  console.log(`✅ New analysis completed for: ${group.title} - Overall Rating: ${analysis.overallRating}/10`);
+                  
+                  // Store analysis in S3 for future use
+                  console.log(`💾 Caching analysis for: ${group.title}`);
+                  await this.s3Service.storeAnalysisResult(group.id, analysis);
+                } else {
+                  console.log(`⚠️ Analysis returned null for: ${group.title} - OpenAI may be unavailable`);
+                }
               }
             }
           } catch (error) {
@@ -564,7 +607,15 @@ This approach creates developers who become architectural partners, not just imp
   }
 
   /**
-   * Force re-analysis of a specific video
+   * Clear the filtered videos cache
+   */
+  clearFilteredVideosCache(): void {
+    console.log('🧹 Clearing filtered videos cache');
+    this.filteredVideosCache = null;
+  }
+
+  /**
+   * Force re-analysis of a specific video (bypasses cache)
    */
   async reanalyzeVideo(id: string): Promise<LeadershipAnalysis | null> {
     if (!id.startsWith('s3-')) {
@@ -579,9 +630,10 @@ This approach creates developers who become architectural partners, not just imp
     }
 
     try {
+      console.log(`🔄 Force re-analyzing: ${group.title}`);
       const transcriptContent = await this.s3Service.getFileContent(group.transcript.s3Key);
       
-      return await this.analysisService.analyzeMeetingLeadership({
+      const analysis = await this.analysisService.analyzeMeetingLeadership({
         id: group.id,
         title: group.title,
         transcript: transcriptContent,
@@ -590,6 +642,17 @@ This approach creates developers who become architectural partners, not just imp
         type: this.mapCategoryToType(group.category),
         dateRecorded: group.dateRecorded
       });
+
+      // Store new analysis result to update cache
+      if (analysis) {
+        console.log(`💾 Updating cached analysis for: ${group.title}`);
+        await this.s3Service.storeAnalysisResult(group.id, analysis);
+        
+        // Clear filtered videos cache since analysis may have changed ratings
+        this.clearFilteredVideosCache();
+      }
+
+      return analysis;
     } catch (error) {
       console.error('Error re-analyzing video:', error);
       return null;
@@ -761,7 +824,51 @@ This approach creates developers who become architectural partners, not just imp
    */
   async getLeadershipVideosWithAnalysis(): Promise<LeadershipVideo[]> {
     console.log('📊 Loading videos with full analysis');
-    return this.getLeadershipVideos(true); // Include analysis
+    
+    // Check cache first
+    const now = Date.now();
+    if (this.filteredVideosCache && 
+        (now - this.filteredVideosCache.timestamp) < (30 * 60 * 1000)) { // 30 minutes TTL
+      console.log('🎯 Using cached filtered videos');
+      return this.filteredVideosCache.videos;
+    }
+    
+    console.log('🔄 Cache miss or expired, fetching fresh video data');
+    const videos = await this.getLeadershipVideos(true); // Include analysis
+    
+    // Lower threshold from 7 to 5 to show more videos (user reported missing videos)
+    const ratingThreshold = 5;
+    
+    // Filter to only show videos with analysis ratings >= threshold
+    const filteredVideos = videos.filter(video => {
+      if (!video.analysis) {
+        console.log(`🚫 Filtering out video "${video.title}" - no analysis available`);
+        return false; // Exclude videos without analysis
+      }
+      
+      const rating = video.analysis.overallRating;
+      const shouldShowVideo = rating >= ratingThreshold;
+      
+      if (!shouldShowVideo) {
+        console.log(`🚫 Filtering out video "${video.title}" with rating ${rating}/10 (below ${ratingThreshold}/10 threshold)`);
+      } else {
+        console.log(`✅ Including video "${video.title}" with rating ${rating}/10`);
+      }
+      
+      return shouldShowVideo;
+    });
+    
+    // Cache the filtered results
+    this.filteredVideosCache = {
+      videos: filteredVideos,
+      timestamp: now,
+      ttl: 30 * 60 * 1000 // 30 minutes
+    };
+    
+    console.log(`✅ Showing ${filteredVideos.length} videos with ratings >= ${ratingThreshold}/10 (filtered from ${videos.length} total)`);
+    console.log(`💾 Cached filtered results for 30 minutes`);
+    
+    return filteredVideos;
   }
 
   /**

@@ -8,15 +8,20 @@
     "start": "next start",
     "lint": "next lint",
     "test:services": "node scripts/run-tests.js",
-    "test:advanced": "ts-node scripts/test-services.ts"
+    "test:advanced": "ts-node scripts/test-services.ts",
+    "test:video": "node scripts/test-video-functionality.js",
+    "test:video:watch": "nodemon scripts/test-video-functionality.js",
+    "test:video:browser": "node scripts/test-video-interactions.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.56.0",
     "@aws-sdk/client-s3": "^3.705.0",
     "@aws-sdk/s3-request-presigner": "^3.844.0",
     "@octokit/rest": "^21.0.2",
     "@types/pg": "^8.15.4",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
+    "mermaid": "^11.8.1",
     "next": "15.3.5",
     "openai": "^5.8.4",
     "pg": "^8.16.3",
@@ -30,8 +35,10 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "axios": "^1.10.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.5",
+    "puppeteer": "^24.12.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
