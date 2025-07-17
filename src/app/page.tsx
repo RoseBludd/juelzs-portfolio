@@ -150,6 +150,212 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Vision Duplication Strategy */}
+      <section className="px-4 sm:px-6 lg:px-8 py-20 bg-gradient-to-br from-blue-900/20 via-purple-900/10 to-gray-900/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-6">
+              How I Scale My <span className="gradient-text">Vision</span>
+            </h2>
+                         <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
+               I don&apos;t just assign tasks—I create complete blueprints. Every UI, every repository structure, 
+               every architectural decision is my vision, then I guide developers to implement it perfectly.
+             </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Strategy Explanation */}
+            <div className="space-y-6">
+              <Card className="p-8 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/20">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <span className="text-2xl">🎯</span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white">The Vision-First Approach</h3>
+                </div>
+                
+                                 <blockquote className="text-lg text-gray-300 italic border-l-4 border-blue-500 pl-6 mb-6">
+                   &quot;When the company gives me a task, I don&apos;t delegate it—I architect it. 
+                   I build the complete UI and repository structure first, then assign developers 
+                   to implement my exact vision. This way, everything created is unquestionably 
+                   my architectural thinking, scaled through the team.&quot;
+                 </blockquote>
+
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 text-sm font-bold mt-1">✓</span>
+                    <div>
+                      <p className="text-white font-medium">Complete Vision Creation</p>
+                      <p className="text-gray-400 text-sm">I design the entire UI and repository structure before anyone writes code</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 text-sm font-bold mt-1">✓</span>
+                    <div>
+                      <p className="text-white font-medium">Guided Implementation</p>
+                      <p className="text-gray-400 text-sm">Developers implement to match my exact architectural vision</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 text-sm font-bold mt-1">✓</span>
+                    <div>
+                      <p className="text-white font-medium">Modular & Reusable</p>
+                      <p className="text-gray-400 text-sm">Everything flows into the registry as documented, reusable components</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 text-sm font-bold mt-1">✓</span>
+                    <div>
+                      <p className="text-white font-medium">Vision Duplication</p>
+                                             <p className="text-gray-400 text-sm">I&apos;ve essentially duplicated myself multiple times through this process</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Visual Process Flow */}
+            <div className="space-y-6">
+              <h3 className="text-xl font-bold text-white text-center mb-8">The Duplication Process</h3>
+              
+              {/* Step 1 */}
+              <Card className="p-6 bg-gradient-to-r from-blue-500/10 to-blue-600/10 border-blue-500/30">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                    <span className="text-blue-400 font-bold">1</span>
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold">Company Assigns Task</h4>
+                    <p className="text-gray-400 text-sm">New business requirement comes in</p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Arrow */}
+              <div className="flex justify-center">
+                <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </div>
+
+              {/* Step 2 */}
+              <Card className="p-6 bg-gradient-to-r from-purple-500/10 to-purple-600/10 border-purple-500/30">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
+                    <span className="text-purple-400 font-bold">2</span>
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold">I Architect Everything</h4>
+                    <p className="text-gray-400 text-sm">Complete UI design + full repository structure</p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Arrow */}
+              <div className="flex justify-center">
+                <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </div>
+
+              {/* Step 3 */}
+              <Card className="p-6 bg-gradient-to-r from-green-500/10 to-green-600/10 border-green-500/30">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+                    <span className="text-green-400 font-bold">3</span>
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold">Developer Implements Vision</h4>
+                    <p className="text-gray-400 text-sm">Guided to match my exact architectural thinking</p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Arrow */}
+              <div className="flex justify-center">
+                <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </div>
+
+              {/* Result */}
+              <Card className="p-6 bg-gradient-to-r from-orange-500/10 to-orange-600/10 border-orange-500/30">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+                    <span className="text-orange-400">🚀</span>
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold">Vision Multiplied</h4>
+                    <p className="text-gray-400 text-sm">My architectural thinking, scaled through the team</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
+
+          {/* Results Grid */}
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card className="text-center p-8 bg-gradient-to-br from-blue-500/5 to-purple-500/5 border-blue-500/20">
+              <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">👥</span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">Team Scaling</h3>
+              <p className="text-gray-400 mb-4">
+                10+ developers across multiple countries, all implementing my architectural vision
+              </p>
+              <div className="text-2xl font-bold text-blue-400">10+</div>
+              <div className="text-sm text-gray-500">Active Developers</div>
+            </Card>
+
+            <Card className="text-center p-8 bg-gradient-to-br from-green-500/5 to-emerald-500/5 border-green-500/20">
+              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">📦</span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">Modular Registry</h3>
+              <p className="text-gray-400 mb-4">
+                Every component flows into the registry, creating a growing library of reusable architecture
+              </p>
+              <div className="text-2xl font-bold text-green-400">100%</div>
+              <div className="text-sm text-gray-500">Modular Output</div>
+            </Card>
+
+            <Card className="text-center p-8 bg-gradient-to-br from-purple-500/5 to-pink-500/5 border-purple-500/20">
+              <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">🎯</span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">Vision Consistency</h3>
+              <p className="text-gray-400 mb-4">
+                Every system reflects my architectural thinking, creating consistency across all projects
+              </p>
+              <div className="text-2xl font-bold text-purple-400">25+</div>
+              <div className="text-sm text-gray-500">Production Systems</div>
+            </Card>
+          </div>
+
+          {/* Call to Action */}
+          <div className="text-center mt-16">
+            <h3 className="text-2xl font-bold text-white mb-4">
+              Want to Learn This Approach?
+            </h3>
+            <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
+              I can teach you how to scale your architectural vision through your team, 
+              creating systems that consistently reflect your thinking and approach.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button href="/leadership" size="lg">
+                Watch My Coaching Videos
+              </Button>
+              <Button href="/contact?topic=vision-scaling" variant="outline" size="lg">
+                Book Strategy Session
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Systems */}
       <section className="px-4 sm:px-6 lg:px-8 py-20 bg-gray-800/50">
         <div className="max-w-7xl mx-auto">
