@@ -327,7 +327,32 @@ function ProjectShowcaseTab({ photos }: { photos: ProjectPhoto[] }) {
 
   // Define project views with dynamic configuration
   const getProjectViews = () => {
-    // Fallback to static configuration for server-side rendering
+    // Get project ID from window location (for client-side detection)
+    const projectId = typeof window !== 'undefined' ? 
+      window.location.pathname.split('/projects/')[1] : '';
+
+    // Custom views for specific projects
+    if (projectId === 'contractor-clockin') {
+      const contractorViews = [
+        { id: 'all', label: 'All Views', icon: '👁️', categories: [], description: 'Show all photos' },
+        { id: 'admin', label: 'Admin View', icon: '⚙️', categories: ['interface', 'dashboard', 'admin'], description: 'Administrative interfaces and management screens' },
+        { id: 'employee', label: 'Employee View', icon: '👷', categories: ['workflow', 'mobile', 'employee'], description: 'Employee time tracking and clocking workflows' },
+        { id: 'mobile', label: 'Mobile View', icon: '📱', categories: ['mobile', 'responsive'], description: 'Mobile time tracking interfaces' },
+        { id: 'demo', label: 'Demo View', icon: '🎬', categories: ['demo', 'workflow'], description: 'Live demonstrations and workflow examples' }
+      ];
+
+      return contractorViews.filter(view => {
+        if (view.id === 'all') return true;
+        // Only show views that have photos in their categories
+        return view.categories.some(category => availableCategories.includes(category));
+      }).map(view => ({
+        ...view,
+        count: view.id === 'all' ? photos.length : 
+          photos.filter(p => view.categories.includes(p.category)).length
+      }));
+    }
+
+    // Fallback to static configuration for server-side rendering and other projects
     const staticViews = [
       { id: 'all', label: 'All Views', icon: '👁️', categories: [], description: 'Show all photos' },
       { id: 'admin', label: 'Admin View', icon: '⚙️', categories: ['interface', 'dashboard', 'admin'], description: 'Administrative interfaces' },

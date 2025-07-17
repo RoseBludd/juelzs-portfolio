@@ -5,23 +5,16 @@ import path from 'path';
 
 // Configuration - Update these for different projects
 const CONFIG = {
-  PROJECT_ID: 'ai-campaign', // Change this for different projects
-  PHOTO_CATEGORY: 'interface', // interface maps to admin view in the gallery
+  PROJECT_ID: 'image-analyzer', // Changed for image-analyzer project
+  PHOTO_CATEGORY: 'interface', // interface category for general interface screenshots
   ADMIN_PASSWORD: 'TheWorldIsYours',
   
-  // AI Campaign Screenshots - New batch
+  // Image Analyzer Screenshots - Interface Views
   SCREENSHOT_PATHS: [
-    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-16 223203.png",
-    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-16 223228.png",
-    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-16 223301.png",
-    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-16 223319.png",
-    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-16 223340.png",
-    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-16 223409.png",
-    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-16 223428.png",
-    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-16 223457.png",
-    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-16 223525.png",
-    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-16 223543.png",
-    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-16 223624.png"
+    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-17 081429.png",
+    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-17 081704.png",
+    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-17 081836.png",
+    "C:\\Users\\GENIUS\\Pictures\\Screenshots\\Screenshot 2025-07-17 081914.png"
   ]
 };
 
