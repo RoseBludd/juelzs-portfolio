@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Card from './Card';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { SystemProject } from '@/services/portfolio.service';
 import type { ProjectPhoto } from '@/services/project-linking.service';
 
@@ -26,6 +26,14 @@ interface ProjectsClientProps {
 
 export default function ProjectsClient({ projects, categories }: ProjectsClientProps) {
   const [activeCategory, setActiveCategory] = useState('all');
+  const [loadingProject, setLoadingProject] = useState<string | null>(null);
+  const router = useRouter();
+
+  // Handle project navigation with loading state
+  const handleProjectClick = (projectId: string) => {
+    setLoadingProject(projectId);
+    router.push(`/projects/${projectId}`);
+  };
 
   // Filter projects by category
   const getFilteredProjects = () => {
@@ -57,6 +65,71 @@ export default function ProjectsClient({ projects, categories }: ProjectsClientP
 
   return (
     <>
+      {/* Loading Overlay */}
+      {loadingProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/95 via-purple-900/95 to-black/95 backdrop-blur-sm" />
+          
+          {/* Loading Content */}
+          <div className="relative z-10 text-center">
+            {/* Animated Spinner */}
+            <div className="mb-8">
+              <div className="relative w-20 h-20 mx-auto">
+                {/* Outer Ring */}
+                <div className="absolute inset-0 rounded-full border-4 border-blue-500/30"></div>
+                {/* Spinning Ring */}
+                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-500 border-r-purple-500 animate-spin"></div>
+                {/* Inner Glow */}
+                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-sm"></div>
+                {/* Center Dot */}
+                <div className="absolute inset-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 animate-pulse"></div>
+              </div>
+            </div>
+
+            {/* Loading Text */}
+            <div className="space-y-3">
+              <h3 className="text-2xl font-bold text-white">
+                Loading Project
+              </h3>
+              <p className="text-blue-200 text-lg">
+                {projects.find(p => p.id === loadingProject)?.title}
+              </p>
+              <div className="flex items-center justify-center gap-2 text-gray-300">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                </div>
+                <span className="ml-2 text-sm">Analyzing architecture & generating insights</span>
+              </div>
+            </div>
+
+            {/* Progress Steps */}
+            <div className="mt-8 max-w-sm mx-auto">
+              <div className="space-y-2">
+                {[
+                  'Fetching repository data',
+                  'Running AI analysis',
+                  'Generating insights',
+                  'Preparing visualization'
+                ].map((step, index) => (
+                  <div key={step} className="flex items-center gap-3 text-sm text-gray-300">
+                    <div className={`w-2 h-2 rounded-full transition-colors duration-1000 ${
+                      index === 0 ? 'bg-blue-400 animate-pulse' : 
+                      index === 1 ? 'bg-purple-400 animate-pulse [animation-delay:1s]' :
+                      index === 2 ? 'bg-blue-400 animate-pulse [animation-delay:2s]' :
+                      'bg-gray-600'
+                    }`}></div>
+                    <span className={index <= 2 ? 'text-white' : ''}>{step}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Category Tabs */}
       <div className="mb-12">
         <div className="flex flex-wrap justify-center gap-3 mb-8">
@@ -113,8 +186,14 @@ export default function ProjectsClient({ projects, categories }: ProjectsClientP
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredWithImages.map((project) => (
-              <Link key={project.id} href={`/projects/${project.id}`}>
-                <Card className="group overflow-hidden hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 border-gray-700/50 hover:border-blue-500/30 cursor-pointer">
+              <div 
+                key={project.id} 
+                onClick={() => handleProjectClick(project.id)}
+                className="cursor-pointer"
+              >
+                <Card className={`group overflow-hidden hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 border-gray-700/50 hover:border-blue-500/30 ${
+                  loadingProject === project.id ? 'opacity-75 scale-95' : ''
+                }`}>
                   {/* Featured Image */}
                   <div className="relative h-48 overflow-hidden">
                     <img
@@ -193,7 +272,7 @@ export default function ProjectsClient({ projects, categories }: ProjectsClientP
                     </div>
                   </div>
                 </Card>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
@@ -207,8 +286,14 @@ export default function ProjectsClient({ projects, categories }: ProjectsClientP
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredWithoutImages.map((project) => (
-              <Link key={project.id} href={`/projects/${project.id}`}>
-                <Card className="group p-6 hover:scale-[1.02] transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 border-gray-700/50 hover:border-blue-500/30 cursor-pointer">
+              <div 
+                key={project.id} 
+                onClick={() => handleProjectClick(project.id)}
+                className="cursor-pointer"
+              >
+                <Card className={`group p-6 hover:scale-[1.02] transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 border-gray-700/50 hover:border-blue-500/30 ${
+                  loadingProject === project.id ? 'opacity-75 scale-95' : ''
+                }`}>
                   {/* Project Header */}
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-3">
@@ -268,7 +353,7 @@ export default function ProjectsClient({ projects, categories }: ProjectsClientP
                     <span>{project.role.split(' & ')[0]}</span>
                   </div>
                 </Card>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
