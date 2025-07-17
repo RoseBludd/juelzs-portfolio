@@ -1,5 +1,6 @@
 import PortfolioService, { SystemProject } from '@/services/portfolio.service';
-import Card from '@/components/ui/Card';
+import ProjectLinkingService, { ProjectPhoto } from '@/services/project-linking.service';
+import ProjectsClient from '@/components/ui/ProjectsClient';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
 import { Metadata } from 'next';
@@ -11,6 +12,13 @@ export const metadata: Metadata = {
 };
 
 const categories = [
+  {
+    id: 'all',
+    label: 'All Projects',
+    description: 'View all production systems',
+    icon: '🎯',
+    color: 'bg-gray-500/20 text-gray-300'
+  },
   {
     id: 'ai',
     label: 'AI & Machine Learning',
@@ -41,10 +49,16 @@ const categories = [
   }
 ];
 
+interface ProjectWithPhotos extends SystemProject {
+  photos: ProjectPhoto[];
+  featuredImage?: ProjectPhoto;
+}
+
 export default async function ProjectsPage() {
   const portfolioService = PortfolioService.getInstance();
+  const projectLinkingService = ProjectLinkingService.getInstance();
   
-  let projects: SystemProject[] = [];
+  let projects: ProjectWithPhotos[] = [];
   
   try {
     console.log('🚀 ProjectsPage: Starting data fetch...');
@@ -56,8 +70,44 @@ export default async function ProjectsPage() {
     console.log(`🎯 Projects Page: Loaded ${rawProjects.length} projects`);
     console.log(`📊 Project sources breakdown:`, rawProjects.map(p => `${p.title} (${p.source})`));
     
+            // Load project photos and set featured images
+        const projectsWithPhotos = await Promise.all(
+          rawProjects.map(async (project) => {
+            try {
+              const resources = await projectLinkingService.getProjectResources(project.id);
+              const photos = resources.photos || [];
+              
+              // Find featured image using featuredImageId, or fallback to first suitable image
+              let featuredImage: ProjectPhoto | undefined;
+              if (resources.featuredImageId) {
+                featuredImage = photos.find(p => p.id === resources.featuredImageId);
+              }
+              
+              // Fallback if no featured image is set or the set one doesn't exist
+              if (!featuredImage && photos.length > 0) {
+                featuredImage = photos.find(p => p.category === 'screenshot') ||
+                               photos.find(p => p.category === 'interface') ||
+                               photos[0];
+              }
+              
+              return {
+                ...project,
+                photos,
+                featuredImage
+              };
+            } catch (error) {
+              console.warn(`Failed to load photos for project ${project.id}:`, error);
+              return {
+                ...project,
+                photos: [],
+                featuredImage: undefined
+              };
+            }
+          })
+        );
+    
     // Ensure proper serialization by creating clean objects
-    projects = rawProjects.map(project => ({
+    projects = projectsWithPhotos.map(project => ({
       id: project.id,
       title: project.title,
       description: project.description,
@@ -75,7 +125,9 @@ export default async function ProjectsPage() {
       topics: project.topics || [],
       language: project.language || '',
       createdAt: project.createdAt || '',
-      source: project.source
+      source: project.source,
+      photos: project.photos || [],
+      featuredImage: project.featuredImage
     }));
     
     if (projects.length === 0) {
@@ -86,6 +138,7 @@ export default async function ProjectsPage() {
     } else {
       console.log(`✅ Successfully loaded ${projects.length} projects`);
       console.log(`📊 Project sources: ${projects.map(p => p.source).join(', ')}`);
+      console.log(`📸 Projects with photos: ${projects.filter(p => p.photos.length > 0).length}`);
     }
   } catch (error) {
     console.error('❌ Error loading projects:', error);
@@ -94,23 +147,17 @@ export default async function ProjectsPage() {
     // Use empty array as fallback
     projects = [];
   }
-  
-  // Group projects by category
-  const projectsByCategory = categories.reduce((acc, category) => {
-    acc[category.id] = projects.filter((p: SystemProject) => p.category === category.id);
-    return acc;
-  }, {} as Record<string, SystemProject[]>);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Hero Section */}
-      <section className="relative py-20 px-4">
+      <section className="relative py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+          <div className="text-center mb-10">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
               Real Production Systems
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-8">
+            <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-6">
               Beyond concepts and theory—these are the actual systems powering RestoreMasters LLC. 
               From AI-driven automation to mobile field operations, each project solves real business challenges.
             </p>
@@ -123,16 +170,16 @@ export default async function ProjectsPage() {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-400 mb-2">{projects.length}</div>
               <div className="text-gray-400">Active Projects</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-green-400 mb-2">
-                {projects.filter(p => p.category === 'ai').length}
+                {projects.filter(p => p.featuredImage).length}
               </div>
-              <div className="text-gray-400">AI Systems</div>
+              <div className="text-gray-400">With Visuals</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-400 mb-2">
@@ -142,138 +189,21 @@ export default async function ProjectsPage() {
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-orange-400 mb-2">
-                {projects.filter(p => p.githubUrl).length}
+                {projects.filter(p => p.role === 'Lead Developer & Architect').length}
               </div>
-              <div className="text-gray-400">Open Source</div>
+              <div className="text-gray-400">Leadership Role</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Projects by Category */}
-      <section className="py-16 px-4">
+      {/* Project Client Component */}
+      <section className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
-          {categories.map((category) => {
-            const categoryProjects = projectsByCategory[category.id];
-            if (categoryProjects.length === 0) return null;
-
-            return (
-              <div key={category.id} className="mb-20">
-                <div className="flex items-center gap-4 mb-8">
-                  <span className="text-4xl">{category.icon}</span>
-                  <div>
-                    <h2 className="text-3xl font-bold text-white mb-2">{category.label}</h2>
-                    <p className="text-gray-400">{category.description}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {categoryProjects.map((project: SystemProject) => (
-                    <Card key={project.id} className="group hover:scale-105 transition-transform duration-300">
-                      <div className="p-6">
-                        {/* Project Header */}
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
-                              {project.title}
-                            </h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-400">
-                              <span className={`px-2 py-1 rounded-full text-xs ${category.color}`}>
-                                {category.label}
-                              </span>
-                              <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs">
-                                {project.role}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm text-gray-400 mb-1">Primary</div>
-                            <div className="text-sm font-medium text-white">{project.language}</div>
-                          </div>
-                        </div>
-
-                        {/* Description */}
-                        <p className="text-gray-300 mb-4 line-clamp-3">{project.description}</p>
-
-                        {/* Stats */}
-                        <div className="mb-4 flex items-center gap-4 text-sm text-gray-400">
-                          <div className="flex items-center gap-1">
-                            <span>⭐</span>
-                            <span>{project.stars || 0}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span>🍴</span>
-                            <span>{project.forks || 0}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span>📅</span>
-                            <span>{project.lastUpdated || 'Recently'}</span>
-                          </div>
-                        </div>
-
-                        {/* Tech Stack */}
-                        <div className="mb-6">
-                          <h4 className="text-sm font-medium text-purple-400 mb-2">Tech Stack</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {project.techStack.slice(0, 4).map((tech: string, idx: number) => (
-                              <span 
-                                key={idx}
-                                className="px-2 py-1 bg-gray-800 text-gray-300 rounded text-xs"
-                              >
-                                {tech}
-                              </span>
-                            ))}
-                            {project.techStack.length > 4 && (
-                              <span className="px-2 py-1 bg-gray-700 text-gray-400 rounded text-xs">
-                                +{project.techStack.length - 4} more
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Unique Decisions */}
-                        <div className="mb-6">
-                          <h4 className="text-sm font-medium text-green-400 mb-2">Key Decisions</h4>
-                          <ul className="text-xs text-gray-400 space-y-1">
-                            {project.uniqueDecisions.slice(0, 2).map((decision: string, idx: number) => (
-                              <li key={idx} className="flex items-start">
-                                <span className="text-green-400 mr-2">•</span>
-                                <span className="line-clamp-1">{decision}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex gap-3">
-                          <Button 
-                            variant="primary" 
-                            size="sm"
-                            className="flex-1"
-                          >
-                            <Link href={`/projects/${project.id}`}>
-                              View Details
-                            </Link>
-                          </Button>
-                          {project.githubUrl && (
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              className="flex-1"
-                            >
-                              <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                                GitHub →
-                              </Link>
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+          <ProjectsClient 
+            projects={projects} 
+            categories={categories}
+          />
         </div>
       </section>
 

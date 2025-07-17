@@ -166,6 +166,25 @@ export default function AdminProjectsPage() {
     }
   };
 
+  const handleSetFeaturedImage = async (photoId: string | null) => {
+    if (!selectedProject) return;
+
+    try {
+      const projectLinkingService = ProjectLinkingService.getInstance();
+      
+      if (photoId) {
+        await projectLinkingService.setFeaturedImage(selectedProject.id, photoId);
+      } else {
+        await projectLinkingService.clearFeaturedImage(selectedProject.id);
+      }
+
+      // Refresh data
+      await loadData();
+    } catch (error) {
+      console.error('Error setting featured image:', error);
+    }
+  };
+
   const handleUnlinkVideo = async (videoId: string) => {
     if (!selectedProject || !confirm('Are you sure you want to unlink this video?')) return;
 
@@ -294,27 +313,61 @@ export default function AdminProjectsPage() {
                 </h3>
                 {selectedProject.photos.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {selectedProject.photos.map((photo) => (
-                      <div key={photo.id} className="relative group">
-                        <img
-                          src={photo.url || '/placeholder-image.png'}
-                          alt={photo.alt || photo.filename}
-                          className="w-full h-32 object-cover rounded-lg"
-                        />
-                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                          <button
-                            onClick={() => handleRemovePhoto(photo.id)}
-                            className="px-3 py-1 bg-red-600 text-white rounded text-sm"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                        <div className="mt-2">
-                          <div className="text-sm font-medium text-white">{photo.category}</div>
-                          <div className="text-xs text-gray-400">{photo.filename}</div>
-                        </div>
-                      </div>
-                    ))}
+                    {selectedProject.photos.map((photo) => {
+                      const isFeatured = selectedProject.resources.featuredImageId === photo.id;
+                      
+                      return (
+                        <div key={photo.id} className="relative group">
+                          {/* Featured Badge */}
+                          {isFeatured && (
+                            <div className="absolute top-2 left-2 z-10">
+                              <span className="px-2 py-1 bg-yellow-500 text-black rounded-full text-xs font-bold">
+                                ⭐ Featured
+                              </span>
+                            </div>
+                          )}
+                          
+                          <img
+                            src={photo.url || '/placeholder-image.png'}
+                            alt={photo.alt || photo.filename}
+                            className={`w-full h-32 object-cover rounded-lg transition-all ${
+                              isFeatured ? 'ring-2 ring-yellow-400' : ''
+                            }`}
+                          />
+                          
+                          <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                            <div className="flex gap-2">
+                              {!isFeatured ? (
+                                <button
+                                  onClick={() => handleSetFeaturedImage(photo.id)}
+                                  className="px-3 py-1 bg-yellow-600 text-white rounded text-sm"
+                                >
+                                  Set Featured
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleSetFeaturedImage(null)}
+                                  className="px-3 py-1 bg-gray-600 text-white rounded text-sm"
+                                >
+                                  Unset Featured
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleRemovePhoto(photo.id)}
+                                className="px-3 py-1 bg-red-600 text-white rounded text-sm"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-2">
+                            <div className="text-sm font-medium text-white">{photo.category}</div>
+                            <div className="text-xs text-gray-400">{photo.filename}</div>
+                          </div>
+                                                </div>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-8 text-gray-400">

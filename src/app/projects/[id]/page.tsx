@@ -100,6 +100,17 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
     'systems': 'bg-orange-500/20 text-orange-300'
   };
 
+  // Get project-specific description
+  const getProjectDescription = (project: { id: string; description: string }) => {
+    const customDescriptions: { [key: string]: string } = {
+      'dev-portal': 'A comprehensive task management and developer portal system built with modern architecture patterns. Features advanced project tracking, resource management, and team collaboration tools designed for high-performance development workflows.',
+      'juelzs-portfolio': 'A sophisticated portfolio platform showcasing technical leadership and architectural expertise. Built with Next.js, featuring AI-powered project analysis, dynamic content management, and seamless integration capabilities.',
+      // Add more project-specific descriptions as needed
+    };
+
+    return customDescriptions[project.id] || project.description;
+  };
+
   const lastUpdated = project.lastUpdated 
     ? new Date(project.lastUpdated).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -141,17 +152,10 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
             </div>
 
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-              {project.description}
+              {getProjectDescription(project)}
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-8">
-              {project.githubUrl && (
-                <Button variant="primary" size="lg">
-                  <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                    View on GitHub →
-                  </Link>
-                </Button>
-              )}
               {project.liveUrl && (
                 <Button variant="outline" size="lg">
                   <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
@@ -177,7 +181,12 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       <section className="pt-4 pb-16 px-4">
         <div className="max-w-6xl mx-auto">
           <ProjectPageClient 
-            photos={projectResources.photos.map(p => ({ ...p, url: p.url ?? null }))}
+            photos={projectResources.photos.map((p, index) => ({ 
+              ...p, 
+              id: p.filename, // Use filename as unique ID
+              url: p.url ?? null,
+              order: index + 1 // Add order for sorting
+            }))}
             linkedVideos={linkedVideos}
             architectureAnalysis={architectureAnalysis}
             projectOverview={projectOverview}

@@ -307,6 +307,9 @@ function ProjectOverviewTab({ projectOverview }: { projectOverview: ProjectOverv
 }
 
 function ProjectShowcaseTab({ photos }: { photos: ProjectPhoto[] }) {
+  const [activeView, setActiveView] = useState('all');
+  const [lightboxImage, setLightboxImage] = useState<ProjectPhoto | null>(null);
+
   if (photos.length === 0) {
     return (
       <div className="text-center py-16">
@@ -319,35 +322,214 @@ function ProjectShowcaseTab({ photos }: { photos: ProjectPhoto[] }) {
     );
   }
 
+  // Get available photo categories
+  const availableCategories = [...new Set(photos.map(p => p.category))];
+
+  // Define project views with dynamic configuration
+  const getProjectViews = () => {
+    // Fallback to static configuration for server-side rendering
+    const staticViews = [
+      { id: 'all', label: 'All Views', icon: '👁️', categories: [], description: 'Show all photos' },
+      { id: 'admin', label: 'Admin View', icon: '⚙️', categories: ['interface', 'dashboard', 'admin'], description: 'Administrative interfaces' },
+      { id: 'developer', label: 'Developer View', icon: '💻', categories: ['screenshot', 'diagram', 'analytics', 'architecture'], description: 'Developer tools and technical views' },
+      { id: 'mobile', label: 'Mobile View', icon: '📱', categories: ['mobile', 'responsive'], description: 'Mobile interfaces' },
+      { id: 'demo', label: 'Demo View', icon: '🎬', categories: ['demo', 'workflow'], description: 'Live demonstrations' },
+      { id: 'api', label: 'API View', icon: '🔌', categories: ['api', 'integration', 'docs'], description: 'API documentation' }
+    ];
+
+    return staticViews.filter(view => {
+      if (view.id === 'all') return true;
+      // Only show views that have photos in their categories
+      return view.categories.some(category => availableCategories.includes(category));
+    }).map(view => ({
+      ...view,
+      count: view.id === 'all' ? photos.length : 
+        photos.filter(p => view.categories.includes(p.category)).length
+    }));
+  };
+
+  const views = getProjectViews();
+
+  // Filter photos based on active view
+  const getFilteredPhotos = () => {
+    if (activeView === 'all') return photos;
+    
+    const activeViewConfig = views.find(v => v.id === activeView);
+    if (!activeViewConfig) return photos;
+    
+    const filtered = photos.filter(photo => activeViewConfig.categories.includes(photo.category));
+    
+    // Debug logging
+    console.log(`🔍 ProjectShowcaseTab Debug:`);
+    console.log(`   Active view: ${activeView}`);
+    console.log(`   View config categories:`, activeViewConfig.categories);
+    console.log(`   Total photos:`, photos.length);
+    console.log(`   Filtered photos:`, filtered.length);
+    console.log(`   Photo categories:`, photos.map(p => p.category));
+    
+    return filtered;
+  };
+
+  const filteredPhotos = getFilteredPhotos().sort((a, b) => a.order - b.order);
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {photos
-        .sort((a, b) => a.order - b.order)
-        .map((photo) => (
-          <Card key={photo.id} className="overflow-hidden group">
-            <div className="relative">
-              <img
-                src={photo.url || '/placeholder-image.png'}
-                alt={photo.alt || photo.filename}
-                className="w-full h-64 object-cover transition-transform group-hover:scale-105"
-              />
-              <div className="absolute top-2 left-2">
-                <span className="px-2 py-1 bg-black/60 text-white rounded text-xs capitalize">
-                  {photo.category.replace('-', ' ')}
+    <>
+      <div className="space-y-8">
+        {/* View Selector */}
+        <div className="flex flex-wrap gap-3 justify-center">
+          {views.map((view) => (
+            <button
+              key={view.id}
+              onClick={() => setActiveView(view.id)}
+              className={`
+                flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
+                ${activeView === view.id
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-105'
+                  : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 hover:text-white border border-gray-600'
+                }
+              `}
+            >
+              <span className="text-lg">{view.icon}</span>
+              <span>{view.label}</span>
+              {view.count > 0 && (
+                <span className={`
+                  inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                  ${activeView === view.id
+                    ? 'bg-white/20 text-white'
+                    : 'bg-gray-600 text-gray-300'
+                  }
+                `}>
+                  {view.count}
                 </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Dribbble-style Photo Gallery */}
+        <div className="space-y-12">
+          {filteredPhotos.map((photo, index) => (
+            <div
+              key={photo.id}
+              className="group cursor-pointer"
+              onClick={() => setLightboxImage(photo)}
+            >
+              {/* Photo Container */}
+              <div className="relative overflow-hidden rounded-xl bg-gray-900 shadow-2xl">
+                <img
+                  src={photo.url || '/placeholder-image.png'}
+                  alt={photo.alt || photo.filename}
+                  className="w-full h-auto object-contain max-h-[80vh] transition-transform duration-500 group-hover:scale-[1.02]"
+                  loading="lazy"
+                />
+                
+                {/* Overlay on hover */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-white font-semibold text-lg mb-1 capitalize">
+                          {photo.category.replace('-', ' ')} View
+                        </h3>
+                        {photo.alt && (
+                          <p className="text-gray-200 text-sm">{photo.alt}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-white">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <span className="text-sm">View Full Size</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Category Badge */}
+                <div className="absolute top-4 left-4">
+                  <span className="px-3 py-1 bg-black/70 backdrop-blur-sm text-white rounded-full text-xs font-medium capitalize">
+                    {photo.category.replace('-', ' ')}
+                  </span>
+                </div>
+
+                {/* Photo Number */}
+                <div className="absolute top-4 right-4">
+                  <span className="px-2 py-1 bg-white/10 backdrop-blur-sm text-white rounded-full text-xs font-medium">
+                    {index + 1} of {filteredPhotos.length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Photo Info */}
+              <div className="mt-4 px-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-gray-300 font-medium">
+                    {photo.filename.replace(/\.[^/.]+$/, "").replace(/[\d_-]/g, ' ').trim()}
+                  </h4>
+                  <span className="text-xs text-gray-500">
+                    {photo.category.replace('-', ' ')}
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="p-4">
-              <h3 className="font-medium text-white mb-2 capitalize">
-                {photo.category.replace('-', ' ')}
+          ))}
+        </div>
+
+        {filteredPhotos.length === 0 && activeView !== 'all' && (
+          <div className="text-center py-16">
+            <div className="text-4xl mb-4">🔍</div>
+            <h3 className="text-lg font-medium text-white mb-2">No Photos in This View</h3>
+            <p className="text-gray-300">
+              No photos have been categorized for the {views.find(v => v.id === activeView)?.label} yet.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Lightbox Modal */}
+      {lightboxImage && (
+        <div 
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setLightboxImage(null)}
+        >
+          <div className="relative max-w-7xl max-h-[90vh] w-full">
+            {/* Close Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxImage(null);
+              }}
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors z-10"
+            >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Image */}
+            <img
+              src={lightboxImage.url || '/placeholder-image.png'}
+              alt={lightboxImage.alt || lightboxImage.filename}
+              className="w-full h-full object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            {/* Image Info */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-lg">
+              <h3 className="text-white font-semibold text-xl mb-2 capitalize">
+                {lightboxImage.category.replace('-', ' ')} View
               </h3>
-              {photo.alt && (
-                <p className="text-sm text-gray-400">{photo.alt}</p>
+              {lightboxImage.alt && (
+                <p className="text-gray-200">{lightboxImage.alt}</p>
               )}
+              <p className="text-gray-400 text-sm mt-2">
+                {lightboxImage.filename}
+              </p>
             </div>
-          </Card>
-        ))}
-    </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

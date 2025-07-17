@@ -26,6 +26,7 @@ export interface ProjectResources {
   projectId: string;
   photos: ProjectPhoto[];
   linkedVideos: ProjectVideoLink[];
+  featuredImageId?: string;
   lastUpdated: Date;
 }
 
@@ -35,7 +36,10 @@ class ProjectLinkingService {
   private cacheTimestamp: number = 0;
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-  private constructor() {}
+  private constructor() {
+    // Clear any existing cache when initializing
+    this.invalidateCache();
+  }
 
   public static getInstance(): ProjectLinkingService {
     if (!ProjectLinkingService.instance) {
@@ -50,17 +54,22 @@ class ProjectLinkingService {
   async getProjectResources(projectId: string): Promise<ProjectResources> {
     // Check cache first
     if (this.isValidCache() && this.projectResourcesCache.has(projectId)) {
-      return this.projectResourcesCache.get(projectId)!;
+      const cachedResources = this.projectResourcesCache.get(projectId)!;
+      // Generate fresh URLs for cached resources too
+      return await this.generateFreshPhotoUrls(cachedResources);
     }
 
     // Load from storage (for now using localStorage, could be moved to S3 or database)
     const resources = await this.loadProjectResourcesFromStorage(projectId);
     
-    // Cache the result
+    // Generate fresh presigned URLs for all photos
+    const resourcesWithFreshUrls = await this.generateFreshPhotoUrls(resources);
+    
+    // Cache the result (without URLs to avoid caching expired URLs)
     this.projectResourcesCache.set(projectId, resources);
     this.cacheTimestamp = Date.now();
 
-    return resources;
+    return resourcesWithFreshUrls;
   }
 
   /**
@@ -112,6 +121,40 @@ class ProjectLinkingService {
     if (!photo) return false;
 
     Object.assign(photo, updates);
+    resources.lastUpdated = new Date();
+
+    await this.saveProjectResources(projectId, resources);
+    this.invalidateCache();
+
+    return true;
+  }
+
+  /**
+   * Set featured image for project
+   */
+  async setFeaturedImage(projectId: string, photoId: string): Promise<boolean> {
+    const resources = await this.getProjectResources(projectId);
+    
+    // Verify the photo exists in this project
+    const photo = resources.photos.find(p => p.id === photoId);
+    if (!photo) return false;
+
+    resources.featuredImageId = photoId;
+    resources.lastUpdated = new Date();
+
+    await this.saveProjectResources(projectId, resources);
+    this.invalidateCache();
+
+    return true;
+  }
+
+  /**
+   * Clear featured image for project
+   */
+  async clearFeaturedImage(projectId: string): Promise<boolean> {
+    const resources = await this.getProjectResources(projectId);
+    
+    resources.featuredImageId = undefined;
     resources.lastUpdated = new Date();
 
     await this.saveProjectResources(projectId, resources);
@@ -174,19 +217,40 @@ class ProjectLinkingService {
    * Get all projects that have resources
    */
   async getProjectsWithResources(): Promise<string[]> {
-    // For now, get from localStorage. In production, this would query S3 or database
-    const projects: string[] = [];
-    
-    if (typeof window !== 'undefined') {
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key?.startsWith('project_resources_')) {
-          projects.push(key.replace('project_resources_', ''));
+    try {
+      const { S3Client, ListObjectsV2Command } = await import('@aws-sdk/client-s3');
+      const s3Client = new S3Client({
+        region: process.env.AWS_REGION || 'us-east-1',
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+        },
+      });
+
+      const command = new ListObjectsV2Command({
+        Bucket: process.env.AWS_S3_BUCKET || 'genius-untitled',
+        Prefix: 'project-resources/',
+      });
+
+      const response = await s3Client.send(command);
+      const projects: string[] = [];
+
+      if (response.Contents) {
+        for (const object of response.Contents) {
+          if (object.Key && object.Key.endsWith('_resources.json')) {
+            const projectId = object.Key
+              .replace('project-resources/', '')
+              .replace('_resources.json', '');
+            projects.push(projectId);
+          }
         }
       }
-    }
 
-    return projects;
+      return projects;
+    } catch (error) {
+      console.error('Error listing projects with resources:', error);
+      return [];
+    }
   }
 
   /**
@@ -209,27 +273,44 @@ class ProjectLinkingService {
    * Private helper methods
    */
   private async loadProjectResourcesFromStorage(projectId: string): Promise<ProjectResources> {
-    // For development, use localStorage. In production, this would be S3 or database
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(`project_resources_${projectId}`);
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          // Convert date strings back to Date objects
-          parsed.lastUpdated = new Date(parsed.lastUpdated);
-          parsed.photos = parsed.photos.map((p: Omit<ProjectPhoto, 'uploadedAt'> & { uploadedAt: string }) => ({
-            ...p,
-            uploadedAt: new Date(p.uploadedAt)
-          }));
-          parsed.linkedVideos = parsed.linkedVideos.map((l: Omit<ProjectVideoLink, 'linkedAt'> & { linkedAt: string }) => ({
-            ...l,
-            linkedAt: new Date(l.linkedAt)
-          }));
-          return parsed;
-        } catch (error) {
-          console.error('Error parsing stored project resources:', error);
-        }
+    try {
+      // Use S3 for persistent storage
+      const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3');
+      const s3Client = new S3Client({
+        region: process.env.AWS_REGION || 'us-east-1',
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+        },
+      });
+
+      const command = new GetObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET || 'genius-untitled',
+        Key: `project-resources/${projectId}_resources.json`,
+      });
+
+      const response = await s3Client.send(command);
+      
+      if (response.Body) {
+        const data = await response.Body.transformToString();
+        const parsed = JSON.parse(data);
+        
+        // Convert date strings back to Date objects
+        parsed.lastUpdated = new Date(parsed.lastUpdated);
+        parsed.photos = parsed.photos.map((p: Omit<ProjectPhoto, 'uploadedAt'> & { uploadedAt: string }) => ({
+          ...p,
+          uploadedAt: new Date(p.uploadedAt)
+        }));
+        parsed.linkedVideos = parsed.linkedVideos.map((l: Omit<ProjectVideoLink, 'linkedAt'> & { linkedAt: string }) => ({
+          ...l,
+          linkedAt: new Date(l.linkedAt)
+        }));
+        
+        return parsed;
       }
+    } catch {
+      // File doesn't exist or other error - this is normal for new projects
+      console.log(`📄 No existing resources found for project: ${projectId}`);
     }
 
     // Return empty resources structure
@@ -241,10 +322,82 @@ class ProjectLinkingService {
     };
   }
 
+  /**
+   * Generate public S3 URLs that never expire for all photos in resources
+   */
+  private async generateFreshPhotoUrls(resources: ProjectResources): Promise<ProjectResources> {
+    if (!resources.photos || resources.photos.length === 0) {
+      return resources;
+    }
+
+    try {
+      const bucketName = process.env.AWS_S3_BUCKET || 'genius-untitled';
+      const region = process.env.AWS_REGION || 'us-east-1';
+
+      // Generate public URLs for all photos (these never expire)
+      const photosWithFreshUrls = resources.photos.map((photo) => {
+        try {
+          if (!photo.s3Key) {
+            console.error(`Photo ${photo.filename} missing s3Key`);
+            return {
+              ...photo,
+              url: undefined
+            };
+          }
+
+          // Generate public S3 URL that never expires
+          const publicUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${photo.s3Key}`;
+          
+          return {
+            ...photo,
+            url: publicUrl
+          };
+        } catch (error) {
+          console.error(`Error generating URL for photo ${photo.filename}:`, error);
+          return {
+            ...photo,
+            url: undefined
+          };
+        }
+      });
+
+      return {
+        ...resources,
+        photos: photosWithFreshUrls
+      };
+    } catch (error) {
+      console.error('Error generating photo URLs:', error);
+      return resources; // Return original resources if URL generation fails
+    }
+  }
+
   private async saveProjectResources(projectId: string, resources: ProjectResources): Promise<void> {
-    // For development, use localStorage. In production, this would be S3 or database
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(`project_resources_${projectId}`, JSON.stringify(resources));
+    try {
+      const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3');
+      const s3Client = new S3Client({
+        region: process.env.AWS_REGION || 'us-east-1',
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+        },
+      });
+
+      const command = new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET || 'genius-untitled',
+        Key: `project-resources/${projectId}_resources.json`,
+        Body: JSON.stringify(resources),
+        ContentType: 'application/json',
+        Metadata: {
+          'project-id': projectId,
+          'updated-at': new Date().toISOString()
+        }
+      });
+
+      await s3Client.send(command);
+      console.log(`💾 Saved project resources for: ${projectId}`);
+    } catch (error) {
+      console.error('Error saving project resources to S3:', error);
+      throw error;
     }
   }
 
