@@ -27,11 +27,6 @@ export default function VideoPageClient({ video }: VideoPageClientProps) {
   
   return (
     <div className="space-y-6">
-      {/* DEBUG: Visible indicator */}
-      <div className="bg-red-500 text-white p-2 rounded text-center font-bold">
-        DEBUG: VideoPageClient Component Loaded - Active Tab: {activeTab}
-      </div>
-      
       {/* Tab Navigation */}
       <div className="bg-gray-800 rounded-lg p-2 flex items-center gap-2 border-2 border-blue-500">
         <button
@@ -99,11 +94,7 @@ export default function VideoPageClient({ video }: VideoPageClientProps) {
 
       {/* Tab Content */}
       <Card>
-        <div className="min-h-[500px] border-2 border-green-500 p-4">
-          <div className="bg-yellow-500 text-black p-2 rounded mb-4 font-bold">
-            DEBUG: Active Tab Content - {activeTab}
-          </div>
-          
+        <div className="min-h-[500px] p-4">
           {activeTab === 'video' && (
             <div>
               <h2 className="text-2xl font-bold mb-6 text-white">Video Player</h2>
