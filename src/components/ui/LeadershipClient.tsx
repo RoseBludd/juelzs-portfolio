@@ -11,9 +11,10 @@ import type { LeadershipVideo } from '@/services/portfolio.service';
 
 interface LeadershipClientProps {
   videos: LeadershipVideo[];
+  showHeader?: boolean;
 }
 
-export default function LeadershipClient({ videos }: LeadershipClientProps) {
+export default function LeadershipClient({ videos, showHeader = true }: LeadershipClientProps) {
   const [loadingVideo, setLoadingVideo] = useState<string | null>(null);
   const router = useRouter();
 
@@ -48,93 +49,67 @@ export default function LeadershipClient({ videos }: LeadershipClientProps) {
                 {/* Spinning Ring */}
                 <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 border-r-blue-500 animate-spin"></div>
                 {/* Inner Glow */}
-                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 blur-sm"></div>
-                {/* Center Dot */}
-                <div className="absolute inset-6 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 animate-pulse"></div>
+                <div className="absolute inset-2 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 blur-sm"></div>
               </div>
             </div>
-
+            
             {/* Loading Text */}
-            <div className="space-y-3">
-              <h3 className="text-2xl font-bold text-white">
-                Loading Leadership Video
-              </h3>
-              <p className="text-purple-200 text-lg">
-                {videos.find(v => v.id === loadingVideo)?.title}
-              </p>
-              <div className="flex items-center justify-center gap-2 text-gray-300">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
-                </div>
-                <span className="ml-2 text-sm">Preparing video player & analysis</span>
-              </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold text-white">Loading Leadership Session</h3>
+              <p className="text-gray-300">Preparing detailed analysis and key moments...</p>
             </div>
-
-            {/* Progress Steps */}
-            <div className="mt-8 max-w-sm mx-auto">
-              <div className="space-y-2">
-                {[
-                  'Loading video content',
-                  'Preparing AI analysis',
-                  'Setting up timeline',
-                  'Initializing player'
-                ].map((step, index) => (
-                  <div key={step} className="flex items-center gap-3 text-sm text-gray-300">
-                    <div className={`w-2 h-2 rounded-full transition-colors duration-1000 ${
-                      index === 0 ? 'bg-purple-400 animate-pulse' : 
-                      index === 1 ? 'bg-blue-400 animate-pulse [animation-delay:1s]' :
-                      index === 2 ? 'bg-purple-400 animate-pulse [animation-delay:2s]' :
-                      'bg-gray-600'
-                    }`}></div>
-                    <span className={index <= 2 ? 'text-white' : ''}>{step}</span>
-                  </div>
-                ))}
+            
+            {/* Progress Animation */}
+            <div className="mt-6 w-64 mx-auto">
+              <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full animate-pulse"></div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <div className="min-h-screen py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="text-center mb-16">
-            {/* Profile Image */}
-            <div className="flex justify-center mb-8">
-              <div className="relative">
-                <div className="w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-purple-500/30 shadow-2xl ring-4 ring-purple-500/20">
-                  <Image
-                    src="/profile-logo.png"
-                    alt="Juelzs - Leadership & Team Coaching"
-                    width={144}
-                    height={144}
-                    className="w-full h-full object-cover object-center scale-125"
-                  />
+      {/* Main Content */}
+      <div className={showHeader ? "min-h-screen py-20" : ""}>
+        <div className={showHeader ? "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" : ""}>
+          {/* Header - Only show if showHeader is true */}
+          {showHeader && (
+            <div className="text-center mb-16">
+              {/* Profile Image */}
+              <div className="flex justify-center mb-8">
+                <div className="relative">
+                  <div className="w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-purple-500/30 shadow-2xl ring-4 ring-purple-500/20">
+                    <Image
+                      src="/profile-logo.png"
+                      alt="Juelzs - Leadership & Team Coaching"
+                      width={144}
+                      height={144}
+                      className="w-full h-full object-cover object-center scale-125"
+                    />
+                  </div>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-600/20 blur-xl -z-10"></div>
                 </div>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-600/20 blur-xl -z-10"></div>
+              </div>
+              
+              <h1 className="text-4xl sm:text-5xl font-bold mb-6">
+                Leadership in <span className="gradient-text">Action</span>
+              </h1>
+              <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
+                Watch how I coach teams, review architecture, and guide technical decisions in real-time. 
+                These recordings showcase my approach to building both systems and the people who build them.
+              </p>
+              
+              {/* Moment Types Filter */}
+              <div className="flex flex-wrap justify-center gap-4 mb-8">
+                <Button variant="primary" size="sm">All Videos</Button>
+                {momentTypes.map((moment) => (
+                  <Button key={moment.type} variant="outline" size="sm">
+                    {moment.label}
+                  </Button>
+                ))}
               </div>
             </div>
-            
-            <h1 className="text-4xl sm:text-5xl font-bold mb-6">
-              Leadership in <span className="gradient-text">Action</span>
-            </h1>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
-              Watch how I coach teams, review architecture, and guide technical decisions in real-time. 
-              These recordings showcase my approach to building both systems and the people who build them.
-            </p>
-            
-            {/* Moment Types Filter */}
-            <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <Button variant="primary" size="sm">All Videos</Button>
-              {momentTypes.map((moment) => (
-                <Button key={moment.type} variant="outline" size="sm">
-                  {moment.label}
-                </Button>
-              ))}
-            </div>
-          </div>
+          )}
 
           {/* Videos Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-16">

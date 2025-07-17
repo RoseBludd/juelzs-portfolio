@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
-import LeadershipClient from '@/components/ui/LeadershipClient';
+import LeadershipPageClient from '@/components/ui/LeadershipPageClient';
 import PortfolioService, { LeadershipVideo } from '@/services/portfolio.service';
+import { OverallLeadershipAnalysis } from '@/services/overall-leadership-analysis.service';
 
 export const metadata: Metadata = {
   title: 'Leadership Library',
@@ -18,10 +19,16 @@ export default async function LeadershipPage() {
   console.log('🔑 OpenAI key available:', !!process.env.OPENAI_API_KEY);
   
   let videos: LeadershipVideo[] = [];
+  let overallAnalysis: OverallLeadershipAnalysis | null = null;
   
   try {
-    const rawVideos = await portfolioService.getLeadershipVideosWithAnalysis();
+    const [rawVideos, analysis] = await Promise.all([
+      portfolioService.getLeadershipVideosWithAnalysis(),
+      portfolioService.getOverallLeadershipAnalysis()
+    ]);
+    
     console.log(`📊 Leadership Page: Raw videos loaded: ${rawVideos.length}`);
+    overallAnalysis = analysis;
     
     if (rawVideos.length === 0) {
       console.error('❌ No videos returned from getLeadershipVideosWithAnalysis');
@@ -46,6 +53,12 @@ export default async function LeadershipPage() {
       console.log(`📊 Video sources: ${videos.map(v => `${v.title} (${v.source})`).join(', ')}`);
       console.log(`📊 Videos with analysis: ${videos.filter(v => v.analysis).length}`);
     }
+
+    if (overallAnalysis) {
+      console.log(`📊 Overall analysis loaded - Rating: ${overallAnalysis.overallRating}/10`);
+    } else {
+      console.log('📊 No overall analysis available');
+    }
     
   } catch (error) {
     console.error('❌ Error loading leadership videos:', error);
@@ -64,5 +77,5 @@ export default async function LeadershipPage() {
     }
   }
 
-  return <LeadershipClient videos={videos} />;
+  return <LeadershipPageClient videos={videos} overallAnalysis={overallAnalysis} />;
 } 

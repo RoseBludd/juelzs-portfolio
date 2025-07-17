@@ -1,6 +1,7 @@
 import AWSS3Service from './aws-s3.service';
 import GitHubService from './github.service';
 import MeetingAnalysisService, { LeadershipAnalysis } from './meeting-analysis.service';
+import OverallLeadershipAnalysisService, { OverallLeadershipAnalysis } from './overall-leadership-analysis.service';
 
 export interface SystemProject {
   id: string;
@@ -64,6 +65,7 @@ class PortfolioService {
   private s3Service: AWSS3Service;
   private githubService: GitHubService;
   private analysisService: MeetingAnalysisService;
+  private overallAnalysisService: OverallLeadershipAnalysisService;
   private syncStatus: SyncStatus = {
     lastSync: new Date(),
     githubProjects: 0,
@@ -82,6 +84,7 @@ class PortfolioService {
     this.s3Service = AWSS3Service.getInstance();
     this.githubService = GitHubService.getInstance();
     this.analysisService = MeetingAnalysisService.getInstance();
+    this.overallAnalysisService = OverallLeadershipAnalysisService.getInstance();
   }
 
   public static getInstance(): PortfolioService {
@@ -951,6 +954,79 @@ This approach creates developers who become architectural partners, not just imp
     console.log(`💾 Cached filtered results for 30 minutes`);
     
     return filteredVideos;
+  }
+
+  /**
+   * Get overall leadership analysis based on showcased videos only
+   */
+  async getOverallLeadershipAnalysis(): Promise<OverallLeadershipAnalysis | null> {
+    try {
+      console.log('📊 Getting overall leadership analysis from showcased videos');
+      
+      // Get only the showcased videos (those that appear on the leadership page)
+      const showcasedVideos = await this.getLeadershipVideosWithAnalysis();
+      
+      // Extract analyses and titles from showcased videos only
+      const videoAnalyses: LeadershipAnalysis[] = [];
+      const videoTitles: string[] = [];
+      
+      for (const video of showcasedVideos) {
+        if (video.analysis) {
+          videoAnalyses.push(video.analysis);
+          videoTitles.push(video.title);
+        }
+      }
+      
+      if (videoAnalyses.length === 0) {
+        console.log('❌ No analyzed videos available for overall analysis');
+        return null;
+      }
+      
+      console.log(`📊 Generating overall analysis from ${videoAnalyses.length} showcased videos`);
+      return await this.overallAnalysisService.getOverallAnalysis(videoAnalyses, videoTitles);
+      
+    } catch (error) {
+      console.error('❌ Error getting overall leadership analysis:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Refresh overall leadership analysis (bypasses cache)
+   */
+  async refreshOverallLeadershipAnalysis(): Promise<OverallLeadershipAnalysis | null> {
+    try {
+      console.log('🔄 Refreshing overall leadership analysis');
+      
+      // Clear video cache to ensure we get fresh data
+      this.clearFilteredVideosCache();
+      
+      // Get fresh showcased videos
+      const showcasedVideos = await this.getLeadershipVideosWithAnalysis();
+      
+      // Extract analyses and titles from showcased videos only
+      const videoAnalyses: LeadershipAnalysis[] = [];
+      const videoTitles: string[] = [];
+      
+      for (const video of showcasedVideos) {
+        if (video.analysis) {
+          videoAnalyses.push(video.analysis);
+          videoTitles.push(video.title);
+        }
+      }
+      
+      if (videoAnalyses.length === 0) {
+        console.log('❌ No analyzed videos available for overall analysis refresh');
+        return null;
+      }
+      
+      console.log(`🔄 Force refreshing overall analysis from ${videoAnalyses.length} showcased videos`);
+      return await this.overallAnalysisService.refreshOverallAnalysis(videoAnalyses, videoTitles);
+      
+    } catch (error) {
+      console.error('❌ Error refreshing overall leadership analysis:', error);
+      return null;
+    }
   }
 
   /**

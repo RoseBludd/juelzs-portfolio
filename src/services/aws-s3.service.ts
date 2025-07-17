@@ -341,6 +341,32 @@ class AWSS3Service {
   }
 
   /**
+   * Store overall leadership analysis in S3
+   */
+  async storeOverallAnalysis(analysis: Record<string, unknown>): Promise<void> {
+    try {
+      const analysisKey = 'overall-leadership-analysis/overall_analysis.json';
+      
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: analysisKey,
+        Body: JSON.stringify(analysis, null, 2),
+        ContentType: 'application/json',
+        Metadata: {
+          'analysis-type': 'overall-leadership',
+          'analysis-version': '1.0',
+          'created-at': new Date().toISOString()
+        }
+      });
+
+      await this.s3Client.send(command);
+      console.log('✅ Overall leadership analysis stored');
+    } catch (error) {
+      console.error('❌ Error storing overall analysis:', error);
+    }
+  }
+
+  /**
    * Get cached leadership analysis from S3
    */
   async getCachedAnalysis(meetingId: string): Promise<LeadershipAnalysis | null> {

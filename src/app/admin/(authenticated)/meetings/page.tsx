@@ -53,6 +53,7 @@ export default function AdminMeetingsPage() {
   const [refreshingVideos, setRefreshingVideos] = useState<Set<string>>(new Set());
   const [sortBy, setSortBy] = useState<'date' | 'title' | 'relevance'>('date');
   const [filterBy, setFilterBy] = useState<'all' | 'relevant' | 'recent'>('all');
+  const [refreshingOverallAnalysis, setRefreshingOverallAnalysis] = useState(false);
 
   useEffect(() => {
     loadMeetings();
@@ -120,21 +121,47 @@ export default function AdminMeetingsPage() {
   };
 
   const refreshAllAnalyses = async () => {
-    const meetingsWithTranscripts = meetingGroups.filter(m => m.transcript && m.isPortfolioRelevant);
-    
-    if (meetingsWithTranscripts.length === 0) {
-      alert('No portfolio-relevant meetings with transcripts found to analyze.');
-      return;
-    }
+    try {
+      const response = await fetch('/api/admin/meetings/refresh-analysis', {
+        method: 'POST',
+      });
 
-    if (!confirm(`This will refresh analysis for ${meetingsWithTranscripts.length} portfolio meetings. Continue?`)) {
-      return;
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('✅ All analyses refreshed successfully');
+        // Reload meetings to get updated analysis data
+        await loadMeetings();
+      } else {
+        console.error('Failed to refresh analyses:', data.error);
+      }
+    } catch (error) {
+      console.error('Error refreshing analyses:', error);
     }
+  };
 
-    for (const meeting of meetingsWithTranscripts) {
-      await refreshVideoAnalysis(meeting.id);
-      // Small delay to prevent overwhelming the API
-      await new Promise(resolve => setTimeout(resolve, 2000));
+  const refreshOverallAnalysis = async () => {
+    try {
+      setRefreshingOverallAnalysis(true);
+      console.log('🔄 Refreshing overall leadership analysis...');
+      
+      const response = await fetch('/api/admin/leadership/refresh-overall-analysis', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('✅ Overall leadership analysis refreshed successfully');
+        console.log(`📊 New overall rating: ${data.analysis.overallRating}/10`);
+        console.log(`📊 Sessions analyzed: ${data.analysis.totalSessionsAnalyzed}`);
+      } else {
+        console.error('Failed to refresh overall analysis:', data.error);
+      }
+    } catch (error) {
+      console.error('Error refreshing overall analysis:', error);
+    } finally {
+      setRefreshingOverallAnalysis(false);
     }
   };
 
@@ -272,6 +299,14 @@ export default function AdminMeetingsPage() {
               disabled={refreshingVideos.size > 0}
             >
               🔄 Refresh All Analysis
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={refreshOverallAnalysis}
+              disabled={refreshingOverallAnalysis}
+            >
+              {refreshingOverallAnalysis ? '⏳ Generating...' : '📊 Refresh Overall Analysis'}
             </Button>
           </div>
         </div>
