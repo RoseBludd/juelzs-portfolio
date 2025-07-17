@@ -1,7 +1,9 @@
 export interface ContactFormData {
   name: string;
   email: string;
+  phone: string;
   company?: string;
+  website?: string;
   subject: string;
   message: string;
   projectType?: 'consultation' | 'architecture-review' | 'team-coaching' | 'system-design' | 'ai-implementation' | 'technical-audit' | 'leadership-coaching' | 'code-review' | 'performance-optimization' | 'database-review' | 'cicd-setup' | 'legacy-modernization' | 'remote-team-management' | 'team-building' | 'contracted-team' | 'other';

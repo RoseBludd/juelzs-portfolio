@@ -118,7 +118,9 @@ class EmailService {
   public async sendContactFormEmail(formData: {
     name: string;
     email: string;
+    phone: string;
     company?: string;
+    website?: string;
     subject: string;
     message: string;
     projectType?: string;
@@ -128,7 +130,9 @@ New Contact Form Submission
 
 Name: ${formData.name}
 Email: ${formData.email}
+Phone: ${formData.phone}
 Company: ${formData.company || 'Not provided'}
+Website: ${formData.website || 'Not provided'}
 Project Type: ${formData.projectType || 'consultation'}
 Subject: ${formData.subject}
 
@@ -142,7 +146,9 @@ Submitted at: ${new Date().toLocaleString()}
 <h2>New Contact Form Submission</h2>
 <p><strong>Name:</strong> ${formData.name}</p>
 <p><strong>Email:</strong> <a href="mailto:${formData.email}">${formData.email}</a></p>
+<p><strong>Phone:</strong> <a href="tel:${formData.phone}">${formData.phone}</a></p>
 <p><strong>Company:</strong> ${formData.company || 'Not provided'}</p>
+<p><strong>Website:</strong> ${formData.website ? `<a href="${formData.website}" target="_blank">${formData.website}</a>` : 'Not provided'}</p>
 <p><strong>Project Type:</strong> ${formData.projectType || 'consultation'}</p>
 <p><strong>Subject:</strong> ${formData.subject}</p>
 <p><strong>Message:</strong></p>

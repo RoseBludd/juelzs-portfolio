@@ -4,12 +4,12 @@ import EmailService from '@/services/email.service';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, company, subject, message, projectType } = body;
+    const { name, email, phone, company, website, subject, message, projectType } = body;
 
     // Validate required fields
-    if (!name || !email || !subject || !message) {
+    if (!name || !email || !phone || !subject || !message) {
       return NextResponse.json(
-        { success: false, message: 'Please fill in all required fields.' },
+        { success: false, message: 'Please fill in all required fields (name, email, phone, subject, and message).' },
         { status: 400 }
       );
     }
@@ -29,7 +29,9 @@ New Contact Form Submission
 
 Name: ${name}
 Email: ${email}
+Phone: ${phone}
 Company: ${company || 'Not provided'}
+Website: ${website || 'Not provided'}
 Project Type: ${projectType || 'consultation'}
 Subject: ${subject}
 
@@ -42,7 +44,9 @@ Submitted at: ${new Date().toLocaleString()}
     console.log('📧 Contact form submission received:', {
       name,
       email,
+      phone,
       company,
+      website,
       subject,
       projectType,
       timestamp: new Date().toISOString()
@@ -59,7 +63,9 @@ Submitted at: ${new Date().toLocaleString()}
       emailSent = await emailService.sendContactFormEmail({
         name,
         email,
+        phone,
         company,
+        website,
         subject,
         message,
         projectType

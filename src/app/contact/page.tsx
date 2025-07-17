@@ -10,7 +10,9 @@ export default function ContactPage() {
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
+    phone: '',
     company: '',
+    website: '',
     subject: '',
     message: '',
     projectType: 'consultation'
@@ -35,7 +37,9 @@ export default function ContactPage() {
         setFormData({
           name: '',
           email: '',
+          phone: '',
           company: '',
+          website: '',
           subject: '',
           message: '',
           projectType: 'consultation'
@@ -135,6 +139,39 @@ export default function ContactPage() {
                     required
                     className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="your@email.com"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="website" className="block text-sm font-medium text-gray-300 mb-2">
+                    Website
+                  </label>
+                  <input
+                    type="url"
+                    id="website"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="https://yourcompany.com"
                   />
                 </div>
               </div>
