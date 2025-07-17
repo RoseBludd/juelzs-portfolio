@@ -517,6 +517,86 @@ const serviceDetails: Record<string, ServiceDetail> = {
       'Organizations with remote productivity challenges',
       'Teams spanning multiple time zones'
     ]
+  },
+  'team-building': {
+    title: 'Build Your Permanent Team',
+    subtitle: 'Complete team building and training program (RECOMMENDED)',
+    description: 'I help you build, hire, and train your own development team - you keep them permanently. This comprehensive program includes recruitment strategy, technical interviews, onboarding, and training to ensure your new team can execute on the architectural vision.',
+    duration: '2-6 weeks',
+    pricing: '$8,000-15,000',
+    deliveryModel: ['Recruitment strategy', 'Interview process design', 'Team training program', 'Remote or on-site options'],
+    travelRequired: false,
+    onSiteDetails: 'On-site training available for initial team integration and culture building',
+    whatYouGet: [
+      'Complete recruitment strategy and job descriptions',
+      'Technical interview process and evaluation criteria',
+      'Candidate sourcing and screening support',
+      'Team onboarding and training program',
+      'Architecture and development standards documentation',
+      'Long-term team development roadmap'
+    ],
+    process: [
+      { step: 'Requirements Planning', description: 'Define team structure, roles, and technical requirements' },
+      { step: 'Recruitment Strategy', description: 'Create job descriptions, sourcing strategy, and interview process' },
+      { step: 'Candidate Screening', description: 'Support candidate evaluation and technical interviews' },
+      { step: 'Team Onboarding', description: 'Design comprehensive onboarding program for new hires' },
+      { step: 'Training Program', description: 'Deliver architectural thinking and development standards training' },
+      { step: 'Team Integration', description: 'Support team integration and establish ongoing development practices' }
+    ],
+    deliverables: [
+      'Complete recruitment strategy and documentation',
+      'Technical interview process and evaluation tools',
+      'Team onboarding program and materials',
+      'Architecture and coding standards documentation',
+      'Training curriculum and development roadmap',
+      'Team management and growth framework'
+    ],
+    idealFor: [
+      'Companies ready to invest in permanent talent',
+      'Organizations needing long-term technical capacity',
+      'Teams requiring architectural expertise building',
+      'Companies preferring owned vs. contracted resources'
+    ]
+  },
+  'contracted-team': {
+    title: 'Use My Premium Team',
+    subtitle: 'Hire experienced team for implementation (expensive option)',
+    description: 'Hire my experienced team of developers and specialists for direct implementation work. This is the premium option with proven expertise but higher costs. Best for companies that need immediate results and have the budget for premium talent.',
+    duration: 'Project-based',
+    pricing: '$150-200/hr + management',
+    deliveryModel: ['Dedicated team assignment', 'Project-based engagement', 'Remote or hybrid available'],
+    travelRequired: false,
+    onSiteDetails: 'On-site work available for complex integrations and stakeholder coordination',
+    whatYouGet: [
+      'Experienced development team assignment',
+      'Project management and coordination',
+      'Direct implementation and delivery',
+      'Quality assurance and testing',
+      'Documentation and knowledge transfer',
+      'Ongoing support and maintenance options'
+    ],
+    process: [
+      { step: 'Project Scoping', description: 'Define project requirements, timeline, and resource needs' },
+      { step: 'Team Assignment', description: 'Assign optimal team members based on technology and experience' },
+      { step: 'Implementation Planning', description: 'Create detailed implementation plan and milestone schedule' },
+      { step: 'Development Execution', description: 'Execute development work with regular progress updates' },
+      { step: 'Quality Assurance', description: 'Comprehensive testing and quality validation' },
+      { step: 'Delivery & Handoff', description: 'Complete delivery with documentation and knowledge transfer' }
+    ],
+    deliverables: [
+      'Complete implemented solution',
+      'Comprehensive documentation',
+      'Testing and quality assurance reports',
+      'Knowledge transfer and training materials',
+      'Source code and deployment assets',
+      'Ongoing support options and recommendations'
+    ],
+    idealFor: [
+      'Companies with substantial budgets for premium talent',
+      'Organizations needing immediate implementation capacity',
+      'Complex projects requiring proven expertise',
+      'Teams preferring fully managed implementation'
+    ]
   }
 };
 
