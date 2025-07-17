@@ -885,11 +885,11 @@ This approach creates developers who become architectural partners, not just imp
   }
 
   /**
-   * Utility methods
+   * Get featured systems for home page (3 of the 6 curated architecture systems)
    */
   async getFeatureProjects(): Promise<SystemProject[]> {
-    const projects = await this.getSystemProjects();
-    return projects.slice(0, 6); // Return top 6 featured projects
+    const systemArchitectures = await this.getSystemArchitectures();
+    return systemArchitectures.slice(0, 3); // Return top 3 featured architecture systems
   }
 
   /**
