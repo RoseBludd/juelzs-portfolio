@@ -146,6 +146,44 @@ export default async function PhilosophyPage() {
             </div>
           </div>
             </Card>
+
+        {/* Operating Principles */}
+        <Card className="mb-16">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl font-bold mb-8 text-center">Operating Principles</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+                <h3 className="text-lg font-semibold text-blue-400 mb-3">Data & Industry Agnostic</h3>
+                <p className="text-gray-300 text-sm">
+                  Systems are designed to be portable across domains and data sources. Interfaces, adapters,
+                  and patterns keep business logic independent from industry specifics, so the same core can
+                  power any vertical.
+                </p>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+                <h3 className="text-lg font-semibold text-purple-400 mb-3">Proof of Concept → Progressive Enhancement</h3>
+                <p className="text-gray-300 text-sm">
+                  Start with a minimal, working proof, connect it to real systems, then iterate with
+                  progressive enhancement. Keep UX stable while upgrading the engine behind the scenes.
+                </p>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+                <h3 className="text-lg font-semibold text-green-400 mb-3">Shift-Left</h3>
+                <p className="text-gray-300 text-sm">
+                  Bring testing, observability, security, and rollback thinking to the earliest design steps.
+                  Treat these as part of architecture, not afterthoughts.
+                </p>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+                <h3 className="text-lg font-semibold text-orange-400 mb-3">Modular By Default</h3>
+                <p className="text-gray-300 text-sm">
+                  Build with composable modules and clear boundaries so that features, teams, and data sources
+                  can evolve independently without coupling.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Card>
             
         {/* Leadership Style */}
         <Card className="mb-16">

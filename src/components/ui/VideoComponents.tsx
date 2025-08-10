@@ -5,156 +5,29 @@ import Button from './Button';
 import Card from './Card';
 import { LeadershipVideo } from '@/services/portfolio.service';
 import LeadershipAnalysisCard from './LeadershipAnalysisCard';
+import SimpleVideoThumbnail from './SimpleVideoThumbnail';
+import EnhancedVideoPlayer from './EnhancedVideoPlayer';
 import { useState } from 'react';
 
-interface MomentType {
-  type: string;
-  label: string;
-  color: string;
-}
+
 
 interface VideoThumbnailProps {
   video: LeadershipVideo;
-  momentTypes: MomentType[];
+  onClick?: () => void;
 }
 
-export const VideoThumbnail: React.FC<VideoThumbnailProps> = ({ video, momentTypes }) => {
-  const getPrimaryMomentType = () => {
-    if (video.keyMoments.length === 0) return 'technical';
-    const typeCounts = video.keyMoments.reduce((acc: Record<string, number>, moment) => {
-      acc[moment.type] = (acc[moment.type] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    return Object.keys(typeCounts).reduce((a, b) => typeCounts[a] > typeCounts[b] ? a : b);
-  };
-
-  const primaryType = getPrimaryMomentType();
-  const momentType = momentTypes.find(t => t.type === primaryType);
-
-  const getCategoryIcon = (type: string) => {
-    switch (type) {
-      case 'architecture':
-        return (
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
-        );
-      case 'leadership':
-        return (
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-        );
-      case 'mentoring':
-        return (
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-          </svg>
-        );
-      case 'technical':
-        return (
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-          </svg>
-        );
-      default:
-        return (
-          <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
-        );
-    }
-  };
-
-  const getGradient = (type: string) => {
-    switch (type) {
-      case 'architecture':
-        return 'from-blue-500/20 via-blue-600/30 to-cyan-500/20';
-      case 'leadership':
-        return 'from-purple-500/20 via-purple-600/30 to-pink-500/20';
-      case 'mentoring':
-        return 'from-green-500/20 via-green-600/30 to-emerald-500/20';
-      case 'technical':
-        return 'from-orange-500/20 via-orange-600/30 to-red-500/20';
-      default:
-        return 'from-gray-500/20 via-gray-600/30 to-gray-500/20';
-    }
-  };
-
-  const handleWatchClick = () => {
-    // Hide all video players first
-    const allVideoElements = document.querySelectorAll('[id^="video-"]');
-    allVideoElements.forEach(el => el.classList.add('hidden'));
-    
-    // Show the selected video player
-    const videoElement = document.getElementById(`video-${video.id}`);
-    if (videoElement) {
-      videoElement.classList.remove('hidden');
-      videoElement.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
+export const VideoThumbnail: React.FC<VideoThumbnailProps> = ({ video, onClick }) => {
   return (
-    <div className="aspect-video bg-gray-900 rounded-lg mb-6 flex items-center justify-center relative overflow-hidden border border-gray-700">
-      {/* Background gradient */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${getGradient(primaryType)}`} />
-      
-      {/* Content */}
-      <div className="relative z-10 text-center">
-        {/* Category icon */}
-        <div className={`w-16 h-16 ${momentType?.color || 'bg-gray-500/20 text-gray-300'} rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm`}>
-          {getCategoryIcon(primaryType)}
-        </div>
-        
-        {/* Video info */}
-        <div className="px-4">
-          <h4 className="text-white font-semibold text-lg mb-2 line-clamp-2">
-            {video.title}
-          </h4>
-          <p className="text-gray-300 text-sm mb-3">
-            Duration: {video.duration}
-          </p>
-          
-          {/* Participants preview */}
-          <div className="flex justify-center mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-500/30 rounded-full flex items-center justify-center">
-                <span className="text-xs font-medium text-blue-300">J</span>
-              </div>
-              <span className="text-gray-400 text-sm">+{video.participants.length - 1}</span>
-            </div>
-          </div>
-          
-          {/* Key moments count */}
-          <div className="flex justify-center items-center gap-2 text-xs text-gray-400">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {video.keyMoments.length} key moments
-          </div>
-        </div>
-      </div>
-      
-      {/* Play button overlay */}
-      <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm">
-        <Button 
-          variant="primary" 
-          size="lg"
-          onClick={handleWatchClick}
-        >
-          <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
-          Watch Now
-        </Button>
-      </div>
-      
-      {/* Category badge */}
-      <div className="absolute top-4 right-4">
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${momentType?.color || 'bg-gray-500/20 text-gray-300'} backdrop-blur-sm`}>
-          {momentType?.label || 'Technical'}
-        </span>
-      </div>
+    <div className="relative aspect-video bg-gray-900 rounded-lg mb-6 overflow-hidden border border-gray-700">
+      {/* Simple S3-based Video Thumbnail with GPT Vision Analysis */}
+      <SimpleVideoThumbnail
+        videoKey={video.id}
+        videoUrl={video.videoUrl}
+        className="w-full h-full"
+        showPlayButton={true}
+        aspectRatio="video"
+        onClick={onClick}
+      />
     </div>
   );
 };
@@ -265,27 +138,16 @@ export function VideoPlayer({ video, onClose }: VideoPlayerProps) {
           <div className={`grid gap-6 ${showAnalysis && video.analysis ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
             {/* Video Section */}
             <div>
-              {/* Video Player */}
-              <div className="bg-black rounded-lg mb-6 aspect-video flex items-center justify-center">
-                {video.videoUrl ? (
-                  <video 
-                    controls 
-                    className="w-full h-full rounded-lg"
-                    preload="metadata"
-                  >
-                    <source src={video.videoUrl} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                ) : (
-                  <div className="text-center text-gray-400">
-                    <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                    </div>
-                    <p>Video content coming soon</p>
-                  </div>
-                )}
+              {/* Enhanced Video Player */}
+              <div className="mb-6">
+                <EnhancedVideoPlayer
+                  video={video}
+                  autoPlay={false}
+                  className="w-full"
+                  onTimeUpdate={(time) => console.log('Current time:', time)}
+                  onLoadedMetadata={(duration) => console.log('Video duration:', duration)}
+                  onMomentClick={(timestamp) => console.log('Jumped to moment:', timestamp)}
+                />
               </div>
 
               {/* Video Description */}
@@ -443,7 +305,6 @@ export const VideoPlayerSection: React.FC<VideoPlayerSectionProps> = ({ videos }
                 <video
                   controls
                   className="w-full h-full rounded-lg"
-                  poster={`/api/video-thumbnail/${video.id}`}
                 >
                   <source src={video.videoUrl} type="video/mp4" />
                   Your browser does not support the video tag.

@@ -662,6 +662,7 @@ function ProjectSystemArchitectureTab({ analysis }: { analysis: ArchitectureAnal
               <li>• TypeScript-first approach</li>
               <li>• Progressive enhancement</li>
               <li>• Shift-left principles</li>
+              <li>• Data & industry agnostic</li>
               <li>• Production-ready code</li>
             </ul>
           </Card>

@@ -159,6 +159,22 @@ class PortfolioService {
         source: 'manual'
       },
       {
+        id: 'tower-of-babel',
+        title: 'Tower of Babel Architecture',
+        description: 'Single-root, multi-branch architecture where each service exposes one stable entry point and branches to specialized integrations (Main, Analytics, Memory).',
+        role: 'Principal Architect',
+        techStack: ['TypeScript', 'Next.js', 'PostgreSQL', 'AWS', 'Singleton Services'],
+        uniqueDecisions: [
+          'Established service roots with branch isolation and graceful fallbacks',
+          'Enabled cross-branch intelligence sharing and caching',
+          'Introduced adapters for data/industry agnostic integration'
+        ],
+        category: 'architecture',
+        githubUrl: '',
+        videoUrl: '',
+        source: 'manual'
+      },
+      {
         id: 'scalable-microservices-platform',
         title: 'Scalable Microservices Platform',
         description: 'Enterprise-grade microservices platform with intelligent routing and auto-scaling. Features advanced service mesh architecture with AI-powered load balancing and fault tolerance.',
@@ -591,6 +607,130 @@ This is the future I'm building toward—systems that don't just run, but think.
         category: 'ai-modularity',
         publishDate: '2024-01-01',
         readTime: '8 min read'
+      },
+      {
+        id: 'data-industry-agnostic',
+        title: 'Data- and Industry-Agnostic Systems',
+        content: `
+# Data- and Industry-Agnostic Systems
+
+Modern architecture must travel well. My approach makes systems portable across both data sources and industries by separating concerns and leaning on adapters, contracts, and progressive enhancement.
+
+## Core Tenets
+
+1. **Stable Contracts, Swappable Adapters**  
+   Define interfaces at system boundaries. Connect any source (PostgreSQL, Sheets, APIs) via adapters without touching domain logic.
+
+2. **Proof of Concept First**  
+   Ship a minimal working flow in real context, then harden it. Validate assumptions early with the least risk.
+
+3. **Progressive Enhancement**  
+   Keep UX steady while continuously upgrading internals—observability, performance, and resiliency.
+
+4. **Shift-Left Practices**  
+   Treat testing, security, rollback, and telemetry as architectural requirements from day one.
+
+## Why It Matters
+
+This pattern lets the same core architecture support multiple industries without forks, and adopt new data sources without rewrites. It’s how we scale intelligently while staying nimble.
+        `,
+        category: 'systems-design',
+        publishDate: '2025-01-01',
+        readTime: '5 min read'
+      },
+      {
+        id: 'poc-progressive-enhancement',
+        title: 'Proof of Concept → Progressive Enhancement',
+        content: `
+# Proof of Concept → Progressive Enhancement
+
+Deliver value early, then scale intelligently. I start with a minimal working proof connected to real systems, then progressively enhance stability, performance, and resilience without breaking UX.
+
+## Practice
+1. **Ship a Thin Slice** – One end-to-end path that works in production context.
+2. **Connect to Reality** – Real data, real users, observable signals.
+3. **Harden Iteratively** – Add tests, telemetry, and failure handling layer by layer.
+4. **Upgrade Quietly** – Keep the user experience stable while upgrading the engine.
+        `,
+        category: 'systems-design',
+        publishDate: '2025-01-01',
+        readTime: '4 min read'
+      },
+      {
+        id: 'shift-left-architecture',
+        title: 'Shift-Left Architecture',
+        content: `
+# Shift-Left Architecture
+
+Move quality earlier. Testing, observability, security, and rollback are designed into the architecture—not appended later.
+
+## What Shifts Left
+- **Testing**: Contract tests at boundaries; fast unit tests for cores.
+- **Observability**: Tracing, metrics, logs from day one.
+- **Security**: Input validation, authZ/authN, least-privilege defaults.
+- **Rollback**: Safe switches, semantic rollbacks, and state guards.
+        `,
+        category: 'systems-design',
+        publishDate: '2025-01-01',
+        readTime: '4 min read'
+      },
+      {
+        id: 'tower-of-babel-architecture',
+        title: 'Tower of Babel Architecture (Single Root, Multi-Branch)',
+        content: `
+# Tower of Babel Architecture (Single Root, Multi-Branch)
+
+A unified service root that branches into specialized integrations. Each branch adds capability without changing the core.
+
+## Principles
+1. **Single Root** – One stable entry per service (e.g., DatabaseService, CADISService).
+2. **Multiple Branches** – Main, Analytics, Memory, API, and more.
+3. **Cross-Branch Intelligence** – Learning and insights flow between branches.
+4. **Graceful Fallbacks** – Branch isolation prevents cascade failures.
+
+## Benefits
+- Add new integrations with minimal risk
+- Maintain strong separation of concerns
+- Share intelligence and memory across branches
+        `,
+        category: 'systems-design',
+        publishDate: '2025-01-01',
+        readTime: '6 min read'
+      },
+      {
+        id: 'cadis-living-thought-architecture',
+        title: 'CADIS – Living Thought Architecture',
+        content: `
+# CADIS – Living Thought Architecture
+
+Context-Aware Development Intelligence System that mirrors how teams think: memory, orchestration, simulation, governance.
+
+## Core Elements
+- Memory core with evolving blueprints
+- Insight engine and confidence scoring
+- NLSC (natural language system control)
+- Rollback intelligence and cascade engine
+        `,
+        category: 'ai-modularity',
+        publishDate: '2025-01-01',
+        readTime: '5 min read'
+      },
+      {
+        id: 'modular-singleton-services',
+        title: 'Modular Architecture with Singleton Service Roots',
+        content: `
+# Modular Architecture with Singleton Service Roots
+
+Use clear module boundaries with singleton service roots for consistency and performance.
+
+## Why
+- Prevent duplicated stateful resources
+- Centralize orchestration and policy
+- Keep modules composable and observable
+        `,
+        category: 'product-architecture',
+        publishDate: '2025-01-01',
+        readTime: '4 min read'
       },
       {
         id: '2',

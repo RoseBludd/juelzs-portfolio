@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from './Button';
 import Card from './Card';
-import { VideoThumbnail, VideoPlayerSection } from './VideoComponents';
+import { VideoThumbnail, VideoPlayerSection, VideoPlayer } from './VideoComponents';
 import AnalysisToggle from './AnalysisToggle';
 import Image from 'next/image';
 import type { LeadershipVideo } from '@/services/portfolio.service';
@@ -16,6 +16,7 @@ interface LeadershipClientProps {
 
 export default function LeadershipClient({ videos, showHeader = true }: LeadershipClientProps) {
   const [loadingVideo, setLoadingVideo] = useState<string | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<LeadershipVideo | null>(null);
   const router = useRouter();
 
   // Handle video navigation with loading state
@@ -119,7 +120,10 @@ export default function LeadershipClient({ videos, showHeader = true }: Leadersh
               }`}>
                 <div className="flex flex-col h-full">
                   {/* Enhanced Video Thumbnail */}
-                  <VideoThumbnail video={video} momentTypes={momentTypes} />
+                  <VideoThumbnail 
+                    video={video}
+                    onClick={() => setSelectedVideo(video)}
+                  />
 
                   {/* Video Info */}
                   <div className="flex-grow p-6">
@@ -254,6 +258,14 @@ export default function LeadershipClient({ videos, showHeader = true }: Leadersh
           </div>
         </div>
       </div>
+
+      {/* Video Player Modal */}
+      {selectedVideo && (
+        <VideoPlayer 
+          video={selectedVideo} 
+          onClose={() => setSelectedVideo(null)} 
+        />
+      )}
     </>
   );
 } 

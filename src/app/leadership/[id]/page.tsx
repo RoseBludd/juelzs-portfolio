@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import VideoPageClient from '@/components/ui/VideoPageClient';
+import ModernSessionPage from '@/components/ui/ModernSessionPage';
 import PortfolioService from '@/services/portfolio.service';
 
 interface LeadershipDetailPageProps {
@@ -92,8 +92,8 @@ export default async function LeadershipDetailPage({ params }: LeadershipDetailP
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Tabbed Interface */}
-            <VideoPageClient video={video} />
+            {/* Modern Session Interface */}
+            <ModernSessionPage video={video} />
           </div>
 
           {/* Sidebar */}

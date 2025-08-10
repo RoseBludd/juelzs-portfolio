@@ -34,6 +34,8 @@ export default async function SystemDetailPage({ params }: SystemDetailPageProps
     notFound();
   }
 
+  const isTowerOfBabel = id === 'tower-of-babel';
+
   return (
     <div className="min-h-screen py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,6 +97,25 @@ export default async function SystemDetailPage({ params }: SystemDetailPageProps
               <h2 className="text-2xl font-bold mb-6 text-white">System Architecture</h2>
               <div className="bg-gray-800/50 rounded-lg border border-gray-600 p-6 mb-6">
                 <div className="font-mono text-xs text-gray-300 overflow-x-auto">
+                  {isTowerOfBabel && (
+                    <pre className="whitespace-pre text-center leading-tight">
+{`           ┌───────────────────────────────┐
+           │        Service Root          │
+           │    (Single Entry Point)      │
+           └─────────────┬─────────────────┘
+                         │
+        ┌────────────────┼───────────────┐
+        │                │               │
+        ▼                ▼               ▼
+   [Main Branch]   [Analytics]      [Memory]
+        │                │               │
+   [API][DB][Auth]   [BI][ETL][ML]   [Cache][Sim]
+                         │
+               [Cross-Branch Intelligence]
+                         │
+                 [Graceful Fallbacks]`}
+                    </pre>
+                  )}
                   {project.id === 'ai-modular-architecture' && (
                     <pre className="whitespace-pre text-center leading-tight">
 {`    ┌─────────────────────────────────────┐

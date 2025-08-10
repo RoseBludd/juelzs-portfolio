@@ -53,7 +53,42 @@ export default async function SystemsPage() {
           </div>
         </div>
 
-
+        {/* Architecture Foundations */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-blue-400 mb-2">Data & Industry Agnostic</h3>
+            <p className="text-sm text-gray-300 mb-4">Built with adapters and stable contracts so the same core system works across domains and data sources without rewrites.</p>
+            <Button href="/philosophy/data-industry-agnostic" variant="outline" size="sm">Learn more</Button>
+          </Card>
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-purple-400 mb-2">Proof of Concept → Progressive Enhancement</h3>
+            <p className="text-sm text-gray-300 mb-4">Ship a minimal working flow, connect to real systems, then harden in iterations while keeping UX stable.</p>
+            <Button href="/philosophy/poc-progressive-enhancement" variant="outline" size="sm">Learn more</Button>
+          </Card>
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-green-400 mb-2">Shift-Left</h3>
+            <p className="text-sm text-gray-300 mb-4">Testing, observability, security, and rollback are architectural concerns from day one.</p>
+            <Button href="/philosophy/shift-left-architecture" variant="outline" size="sm">Learn more</Button>
+          </Card>
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-orange-400 mb-2">Tower of Babel Architecture</h3>
+            <p className="text-sm text-gray-300 mb-4">Single root with multiple specialized branches (services, data, AI). Add new integrations without touching core logic.</p>
+            <div className="flex gap-2">
+              <Button href="/philosophy/tower-of-babel-architecture" variant="outline" size="sm">Learn more</Button>
+              <Button href="/systems/tower-of-babel" size="sm">View diagram</Button>
+            </div>
+          </Card>
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-cyan-400 mb-2">CADIS – Living Thought Architecture</h3>
+            <p className="text-sm text-gray-300 mb-4">Context-aware intelligence, memory, and orchestration that help systems learn and teams scale.</p>
+            <Button href="/philosophy/cadis-living-thought-architecture" variant="outline" size="sm">Learn more</Button>
+          </Card>
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold text-pink-400 mb-2">Modular & Singleton Services</h3>
+            <p className="text-sm text-gray-300 mb-4">Clear boundaries and singleton service roots keep systems composable, observable, and scalable.</p>
+            <Button href="/philosophy/modular-singleton-services" variant="outline" size="sm">Learn more</Button>
+          </Card>
+        </div>
 
         {/* Projects Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
@@ -72,7 +107,7 @@ export default async function SystemsPage() {
 
                 {/* Project Content */}
                 <h3 className="text-xl font-semibold mb-3 text-white">{project.title}</h3>
-                <p className="text-gray-400 mb-4 flex-grow">{project.description}</p>
+                <p className="text-gray-400 mb-4">{project.description}</p>
 
                 {/* Role */}
                 <div className="mb-4">
@@ -149,6 +184,25 @@ export default async function SystemsPage() {
 │       Observability           │
 │  [Monitor] [AI Alert] [Scale] │
 └───────────────────────────────┘`}
+                      </pre>
+                    )}
+                     {project.id === 'tower-of-babel' && (
+                      <pre className="whitespace-pre text-center leading-tight">
+{`           ┌───────────────────────────────┐
+           │        Service Root          │
+           │    (Single Entry Point)      │
+           └─────────────┬─────────────────┘
+                         │
+        ┌────────────────┼───────────────┐
+        │                │               │
+        ▼                ▼               ▼
+   [Main Branch]   [Analytics]      [Memory]
+        │                │               │
+   [API][DB][Auth]   [BI][ETL][ML]   [Cache][Sim]
+                         │
+               [Cross-Branch Intelligence]
+                         │
+                 [Graceful Fallbacks]`}
                       </pre>
                     )}
                     {project.id === 'realtime-data-processing-pipeline' && (

@@ -30,6 +30,11 @@ const navigation = [
     icon: '📸',
   },
   {
+    name: 'AI Thumbnails',
+    href: '/admin/thumbnails',
+    icon: '🎨',
+  },
+  {
     name: 'Links',
     href: '/admin/links',
     icon: '🔗',

@@ -43,6 +43,8 @@ class AWSS3Service {
   private bucketName: string;
   private meetingsPath: string;
   private transcriptAnalysis: TranscriptAnalysisService;
+  private urlCache: Map<string, { url: string; expiresAt: number }> = new Map();
+  private readonly URL_CACHE_DURATION = 3000; // 50 minutes (URLs expire in 1 hour)
 
   private constructor() {
     this.s3Client = new S3Client({
@@ -110,21 +112,122 @@ class AWSS3Service {
   }
 
   /**
-   * Get pre-signed URL for a file
+   * Get pre-signed URL for a file with caching
    */
   async getFileUrl(s3Key: string, expiresIn: number = 3600): Promise<string> {
     try {
+      // Check cache first
+      const cached = this.urlCache.get(s3Key);
+      const now = Date.now();
+      
+      if (cached && cached.expiresAt > now) {
+        console.log('🎯 Using cached URL for:', s3Key);
+        return cached.url;
+      }
+
+      console.log('🔄 Generating new signed URL for:', s3Key);
       const command = new GetObjectCommand({
         Bucket: this.bucketName,
         Key: s3Key,
       });
 
       const signedUrl = await getSignedUrl(this.s3Client, command, { expiresIn });
+      
+      // Cache the URL (expires 50 minutes after creation)
+      this.urlCache.set(s3Key, {
+        url: signedUrl,
+        expiresAt: now + (this.URL_CACHE_DURATION * 1000)
+      });
+      
+      console.log('✅ New signed URL generated and cached');
       return signedUrl;
     } catch (error) {
       console.error('Error generating signed URL:', error);
       throw error;
     }
+  }
+
+  /**
+   * Get optimized video URL with metadata and caching
+   */
+  async getVideoUrl(videoKey: string): Promise<{ url: string; fileSize?: number; title?: string }> {
+    try {
+      console.log('🎬 Getting video URL for:', videoKey);
+      
+      // For S3 videos, extract S3 key and get URL
+      if (videoKey.startsWith('s3-')) {
+        // Strip the s3- prefix to get the actual group ID
+        const groupId = videoKey.replace('s3-', '');
+        console.log('🔍 Looking for group ID:', groupId);
+        
+        // Find the meeting group and extract S3 key
+        const groups = await this.getMeetingGroups();
+        const group = groups.find(g => g.id === groupId || g.video?.id === videoKey);
+        
+        console.log('🔍 Found group:', group ? group.title : 'Not found');
+        console.log('🔍 Available groups:', groups.map(g => g.id).slice(0, 5));
+        
+        if (!group || !group.video) {
+          console.error('❌ Video not found for groupId:', groupId);
+          throw new Error(`Video not found for groupId: ${groupId}`);
+        }
+
+        console.log('✅ Found video, generating URL for S3 key:', group.video.s3Key);
+        const url = await this.getFileUrl(group.video.s3Key, 3600); // 1 hour expiry
+        
+        return {
+          url,
+          fileSize: group.video.size,
+          title: group.title
+        };
+      }
+      
+      // For direct URLs, return as-is
+      return { url: videoKey };
+    } catch (error) {
+      console.error('❌ Error getting video URL:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Clear expired URLs from cache
+   */
+  private cleanupExpiredUrls(): void {
+    const now = Date.now();
+    for (const [key, cached] of this.urlCache.entries()) {
+      if (cached.expiresAt <= now) {
+        this.urlCache.delete(key);
+      }
+    }
+  }
+
+  /**
+   * Preload video URLs for better performance
+   */
+  async preloadVideoUrls(videoKeys: string[]): Promise<void> {
+    console.log('🚀 Preloading video URLs for better performance...');
+    
+    // Clean up expired URLs first
+    this.cleanupExpiredUrls();
+    
+    // Preload URLs in parallel (but limit concurrency)
+    const batchSize = 5;
+    for (let i = 0; i < videoKeys.length; i += batchSize) {
+      const batch = videoKeys.slice(i, i + batchSize);
+      
+      await Promise.allSettled(
+        batch.map(async (videoKey) => {
+          try {
+            await this.getVideoUrl(videoKey);
+          } catch {
+            console.warn('⚠️ Failed to preload URL for:', videoKey);
+          }
+        })
+      );
+    }
+    
+    console.log('✅ Video URL preloading completed');
   }
 
   /**

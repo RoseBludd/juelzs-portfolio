@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Button from './Button';
 import Card from './Card';
 import LeadershipAnalysisCard from './LeadershipAnalysisCard';
+import EnhancedVideoPlayer from './EnhancedVideoPlayer';
 import { LeadershipVideo } from '@/services/portfolio.service';
 
 interface VideoPageClientProps {
@@ -99,22 +100,20 @@ export default function VideoPageClient({ video }: VideoPageClientProps) {
             <div>
               <h2 className="text-2xl font-bold mb-6 text-white">Video Player</h2>
               
-              {/* Video Player Placeholder */}
-              <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center mb-6">
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                  </div>
-                  <p className="text-white font-medium mb-2">Video content available</p>
-                  <Button className="bg-blue-600 hover:bg-blue-700">
-                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                    Play Video
-                  </Button>
-                </div>
+              {/* Enhanced Video Player */}
+              <div className="mb-6">
+                <EnhancedVideoPlayer
+                  video={video}
+                  autoPlay={false}
+                  className="w-full"
+                  onTimeUpdate={(time) => console.log('Video time:', time)}
+                  onLoadedMetadata={(duration) => console.log('Video loaded, duration:', duration)}
+                  onMomentClick={(timestamp) => {
+                    console.log('Jumped to moment:', timestamp);
+                    // Switch to timeline tab when moment is clicked
+                    setActiveTab('timeline');
+                  }}
+                />
               </div>
 
               {/* Video Controls */}
