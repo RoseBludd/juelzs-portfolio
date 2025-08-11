@@ -16,6 +16,7 @@ interface SimpleThumbnailResult {
     brightness: number;
     contrast: number;
     sharpness: number;
+    visionScore?: number;
   };
 }
 
