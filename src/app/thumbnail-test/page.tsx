@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { SimpleVideoThumbnail } from '@/components/ui/SimpleVideoThumbnail';
+import SimpleVideoThumbnail from '@/components/ui/SimpleVideoThumbnail';
 
 interface TestVideo {
   id: string;
