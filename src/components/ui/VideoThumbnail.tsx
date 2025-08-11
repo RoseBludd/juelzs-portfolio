@@ -157,7 +157,9 @@ const VideoThumbnail: React.FC<VideoThumbnailProps> = ({
         }
         
         sourceUrl = data.url;
-        addDebugInfo(`✅ Got video URL: ${sourceUrl.substring(0, 50)}...`);
+        if (sourceUrl) {
+          addDebugInfo(`✅ Got video URL: ${String(sourceUrl).substring(0, 50)}...`);
+        }
       }
 
       if (!sourceUrl) {
