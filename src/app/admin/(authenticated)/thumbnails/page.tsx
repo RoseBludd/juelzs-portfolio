@@ -266,7 +266,7 @@ export default function ThumbnailsPage() {
                         
                         <div className="text-xs text-gray-500">
                           <div>Seek: {option.seekTime}s</div>
-                          <div>AI: {option.aiScore.toFixed(0)} | Pixel: {option.pixelScore.toFixed(0)}</div>
+                          <div>AI: {(option.aiScore ?? 0).toFixed(0)} | Pixel: {option.pixelScore.toFixed(0)}</div>
                           {option.isRecommended && (
                             <div className="text-yellow-600">⭐ Recommended</div>
                           )}
