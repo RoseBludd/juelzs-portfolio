@@ -3,10 +3,10 @@ import AWSS3Service from '@/services/aws-s3.service';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const videoId = params.id;
+    const { id: videoId } = await context.params;
     
     if (!videoId) {
       return NextResponse.json(
