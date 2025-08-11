@@ -209,10 +209,8 @@ export default function ThumbnailsPage() {
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Showcased Video Thumbnails</h2>
         
-        {/* Generator Component */}
-        <div className="mb-8">
-          <ShowcasedThumbnailGenerator onGenerationComplete={loadShowcasedThumbnails} />
-        </div>
+        {/* Generator Component (temporarily hidden if unavailable in build) */}
+        {/* <ShowcasedThumbnailGenerator onGenerationComplete={loadShowcasedThumbnails} /> */}
 
         {/* Showcased Thumbnails Display */}
         {isLoadingShowcased ? (
