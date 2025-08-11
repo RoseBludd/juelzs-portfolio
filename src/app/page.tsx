@@ -586,7 +586,7 @@ export default async function Home() {
                 <Card key={video.id} className="h-full bg-gradient-to-br from-gray-800/50 to-gray-900/50 border-gray-700/50 hover:border-purple-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10">
                   <div className="flex flex-col h-full">
                     {/* Enhanced Video Thumbnail */}
-                    <VideoThumbnail video={video} momentTypes={momentTypes} />
+                    <VideoThumbnail video={video} />
 
                     {/* Video Info */}
                     <div className="flex-grow p-6">
