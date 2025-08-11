@@ -13,6 +13,7 @@ interface TestVideo {
 export default function ThumbnailTestPage() {
   const [videos, setVideos] = useState<TestVideo[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<TestVideo | null>(null);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,6 +45,24 @@ export default function ThumbnailTestPage() {
       setLoading(false);
     }
   };
+
+  // Fetch video URL whenever selection changes
+  useEffect(() => {
+    const fetchUrl = async () => {
+      if (!selectedVideo) {
+        setSelectedVideoUrl(null);
+        return;
+      }
+      try {
+        const url = await getVideoUrl(selectedVideo.id);
+        setSelectedVideoUrl(url);
+      } catch (e) {
+        console.warn('Failed to fetch video URL', e);
+        setSelectedVideoUrl(null);
+      }
+    };
+    fetchUrl();
+  }, [selectedVideo]);
 
   const getVideoUrl = async (videoId: string): Promise<string> => {
     const response = await fetch(`/api/video/${videoId}/url`);
@@ -151,7 +170,7 @@ export default function ThumbnailTestPage() {
                 <div className="inline-block">
                   <SimpleVideoThumbnail
                     videoKey={selectedVideo.id}
-                    getVideoUrl={getVideoUrl}
+                    videoUrl={selectedVideoUrl ?? undefined}
                     className="rounded-lg shadow-md"
                   />
                 </div>
