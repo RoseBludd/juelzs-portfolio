@@ -109,7 +109,7 @@ class DatabaseService {
   }
 
   /**
-   * Get database client
+   * Get database client (private)
    */
   private async getClient(): Promise<PoolClient> {
     if (!this.pool) {
@@ -121,6 +121,13 @@ class DatabaseService {
     }
 
     return this.pool.connect();
+  }
+
+  /**
+   * Get database client (public for other services)
+   */
+  async getPoolClient(): Promise<PoolClient> {
+    return this.getClient();
   }
 
   /**

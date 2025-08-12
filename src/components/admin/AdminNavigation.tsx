@@ -39,6 +39,11 @@ const navigation = [
     href: '/admin/links',
     icon: '🔗',
   },
+  {
+    name: 'Journal',
+    href: '/admin/journal',
+    icon: '📝',
+  },
 ];
 
 export default function AdminNavigation() {
