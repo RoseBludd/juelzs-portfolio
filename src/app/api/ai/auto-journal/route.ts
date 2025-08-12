@@ -40,7 +40,7 @@ You are an expert engineering journal assistant. Based on the content provided, 
 CONTENT TO ANALYZE:
 ${content}
 
-${files.length > 0 ? `FILES PROVIDED: ${files.map(f => f.name || f.url).join(', ')}` : ''}
+${files.length > 0 ? `FILES PROVIDED: ${files.map((f: any) => f.name || f.url || f).join(', ')}` : ''}
 
 Generate a complete, professional journal entry with these fields:
 
