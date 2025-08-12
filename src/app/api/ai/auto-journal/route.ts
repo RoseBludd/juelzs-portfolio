@@ -45,13 +45,20 @@ ${files.length > 0 ? `FILES PROVIDED: ${files.map((f: any) => f.name || f.url ||
 Generate a complete, professional journal entry with these fields:
 
 1. OPTIMAL TITLE: Create a clear, descriptive title that captures the essence
-2. CATEGORY: Choose the best fit from: architecture, decision, reflection, planning, problem-solving, milestone
-3. PROJECT DETECTION: Analyze content to detect which project this relates to (sales-jobs, portfolio, etc.)
-4. SMART TAGS: Generate relevant technical and contextual tags
-5. ASSESSMENT SCORES: Auto-assess difficulty (1-10) and impact (1-10) based on technical complexity and business value
-6. NEXT STEPS: Extract or infer logical next steps from the content
-7. KEY LEARNINGS: Identify important insights or lessons
-8. RESOURCES: ONLY include actual, real resources that are:
+2. ENHANCED CONTENT: Rewrite and optimize the original content to be:
+   - More professional and structured
+   - Include technical context and implications
+   - Add architectural considerations if relevant
+   - Expand on challenges and solutions
+   - Maintain the original intent but enhance clarity and depth
+   - Use proper markdown formatting for readability
+3. CATEGORY: Choose the best fit from: architecture, decision, reflection, planning, problem-solving, milestone
+4. PROJECT DETECTION: Analyze content to detect which project this relates to (sales-jobs, portfolio, etc.)
+5. SMART TAGS: Generate relevant technical and contextual tags
+6. ASSESSMENT SCORES: Auto-assess difficulty (1-10) and impact (1-10) based on technical complexity and business value
+7. NEXT STEPS: Extract or infer logical next steps from the content
+8. KEY LEARNINGS: Identify important insights or lessons
+9. RESOURCES: ONLY include actual, real resources that are:
    - Specific URLs mentioned in the content
    - Named tools/services referenced (e.g., "AWS S3", "DocuSign API", "PostgreSQL")  
    - Documentation links if explicitly mentioned
@@ -66,7 +73,7 @@ Respond in JSON format:
     "projectId": "detected_project_or_null",
     "projectName": "detected_project_name_or_empty",
     "tags": ["technical-tag1", "context-tag2", "domain-tag3"],
-    "content": "${content}",
+    "content": "Enhanced and optimized content with better structure, technical depth, and professional formatting",
     "metadata": {
       "difficulty": 7,
       "impact": 8,

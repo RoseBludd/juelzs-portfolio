@@ -259,7 +259,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
       // If not in manual mode and has sufficient content, auto-fill with AI
       if (!showManualFields && formData.content.trim().length >= 10) {
         setIsAutoSubmitting(true);
-        setAiProgress('🔍 Analyzing content...');
+        setAiProgress('🔍 Analyzing & optimizing content...');
         
         try {
           const response = await fetch('/api/ai/auto-journal', {
@@ -274,16 +274,17 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
             }),
           });
 
-          setAiProgress('⚡ Processing AI response...');
+          setAiProgress('⚡ Generating enhanced content...');
 
           if (response.ok) {
             const data = await response.json();
             if (data.success && data.optimizedEntry) {
-              setAiProgress('✨ Applying AI insights...');
+              setAiProgress('✨ Applying optimized content & insights...');
               const optimized = data.optimizedEntry;
               finalFormData = {
                 ...finalFormData,
                 title: optimized.title || finalFormData.title || 'Untitled Entry',
+                content: optimized.content || finalFormData.content, // Use AI-optimized content
                 category: optimized.category || finalFormData.category,
                 projectId: optimized.projectId || finalFormData.projectId,
                 projectName: optimized.projectName || finalFormData.projectName,
@@ -421,7 +422,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium text-gray-300">
-                  Content * {!showManualFields && <span className="text-gray-500 text-xs">(AI will auto-fill title, category, tags, etc.)</span>}
+                  Content * {!showManualFields && <span className="text-gray-500 text-xs">(AI will optimize content & auto-fill all fields)</span>}
                 </label>
                 <div className="flex gap-2">
                   {showManualFields && (
@@ -447,7 +448,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
                 onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
                 rows={10}
                 className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Write your journal entry content here. Be detailed about your decisions, thought process, and insights."
+                placeholder="Write your journal entry content here... AI will enhance and optimize it automatically!"
                 required
               />
               
