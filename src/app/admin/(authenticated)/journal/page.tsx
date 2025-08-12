@@ -278,10 +278,10 @@ export default function JournalPage() {
   };
 
   const tabs = [
-    { id: 'entries' as TabType, label: '📝 Entries', icon: '📝', count: entries.length },
-    { id: 'analytics' as TabType, label: '📊 Analytics', icon: '📊' },
-    { id: 'reminders' as TabType, label: '🔔 Reminders', icon: '🔔', count: reminders.length },
-    { id: 'settings' as TabType, label: '⚙️ Settings', icon: '⚙️' }
+    { id: 'entries' as TabType, label: 'Entries', icon: '📝', count: entries.length },
+    { id: 'analytics' as TabType, label: 'Analytics', icon: '📊' },
+    { id: 'reminders' as TabType, label: 'Reminders', icon: '🔔', count: reminders.length },
+    { id: 'settings' as TabType, label: 'Settings', icon: '⚙️' }
   ];
 
   return (
