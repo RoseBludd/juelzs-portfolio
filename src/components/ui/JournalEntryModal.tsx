@@ -959,8 +959,8 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
                         architectureDiagrams: [...prev.architectureDiagrams, file.url]
                       }));
                     }}
-                    acceptedTypes="image/*,.pdf,.svg"
-                    category="diagram"
+                    onError={(error) => setError(error)}
+                    allowedCategories={['diagram', 'image']}
                   />
                 </div>
                 <div>
@@ -974,8 +974,8 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
                         relatedFiles: [...prev.relatedFiles, file.url]
                       }));
                     }}
-                    acceptedTypes="*"
-                    category="document"
+                    onError={(error) => setError(error)}
+                    allowedCategories={['document', 'screenshot', 'code', 'image']}
                   />
                 </div>
               </div>
