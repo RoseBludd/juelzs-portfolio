@@ -519,7 +519,8 @@ class JournalService {
    */
   async generateAISuggestions(entry: JournalEntry): Promise<AISuggestion[]> {
     try {
-      const response = await fetch('/api/ai/journal-suggestions', {
+      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/ai/journal-suggestions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

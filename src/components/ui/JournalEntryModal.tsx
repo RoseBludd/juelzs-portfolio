@@ -57,6 +57,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
   const [isAutoFilling, setIsAutoFilling] = useState(false);
   const [showManualFields, setShowManualFields] = useState(false);
   const [isAutoSubmitting, setIsAutoSubmitting] = useState(false);
+  const [aiProgress, setAiProgress] = useState('');
 
   useEffect(() => {
     if (entry && !isCreating) {
@@ -258,6 +259,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
       // If not in manual mode and has sufficient content, auto-fill with AI
       if (!showManualFields && formData.content.trim().length >= 10) {
         setIsAutoSubmitting(true);
+        setAiProgress('🔍 Analyzing content...');
         
         try {
           const response = await fetch('/api/ai/auto-journal', {
@@ -272,9 +274,12 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
             }),
           });
 
+          setAiProgress('⚡ Processing AI response...');
+
           if (response.ok) {
             const data = await response.json();
             if (data.success && data.optimizedEntry) {
+              setAiProgress('✨ Applying AI insights...');
               const optimized = data.optimizedEntry;
               finalFormData = {
                 ...finalFormData,
@@ -295,11 +300,14 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
           }
         } catch (aiError) {
           console.warn('AI auto-fill failed, proceeding with manual data:', aiError);
+          setAiProgress('⚠️ AI failed, using defaults...');
           // Continue with manual data if AI fails
           if (!finalFormData.title.trim()) {
             finalFormData.title = 'Journal Entry - ' + new Date().toLocaleDateString();
           }
         }
+        
+        setAiProgress('💾 Saving entry...');
         setIsAutoSubmitting(false);
       } else {
         // Manual mode - validate title is provided
@@ -319,6 +327,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
     } finally {
       setIsSaving(false);
       setIsAutoSubmitting(false);
+      setAiProgress('');
     }
   };
 
@@ -988,7 +997,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
               className="bg-blue-600 hover:bg-blue-700"
               disabled={isSaving}
             >
-              {isSaving ? (isAutoSubmitting ? '🤖 AI Processing & Saving...' : '💾 Saving...') : (isCreating ? '📝 Create Entry' : '💾 Save Changes')}
+              {isSaving ? (aiProgress || '💾 Saving...') : (isCreating ? '📝 Create Entry' : '💾 Save Changes')}
             </Button>
           </div>
         </form>

@@ -117,13 +117,32 @@ Respond in JSON format:
     // Parse AI response
     let analysis;
     try {
-      analysis = JSON.parse(aiContent);
+      // Clean the AI content of potential control characters
+      const cleanedContent = aiContent.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+      analysis = JSON.parse(cleanedContent);
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
-      return NextResponse.json(
-        { error: 'Failed to parse AI analysis' },
-        { status: 500 }
-      );
+      console.error('Raw AI content:', aiContent);
+      
+      // Try to extract JSON from the response if it's wrapped in text
+      const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          const cleanedMatch = jsonMatch[0].replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+          analysis = JSON.parse(cleanedMatch);
+        } catch (secondError) {
+          console.error('Failed to parse extracted JSON:', secondError);
+          return NextResponse.json(
+            { error: 'Failed to parse AI analysis' },
+            { status: 500 }
+          );
+        }
+      } else {
+        return NextResponse.json(
+          { error: 'Failed to parse AI analysis' },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({ 
