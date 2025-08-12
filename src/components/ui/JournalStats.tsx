@@ -12,7 +12,8 @@ const categoryColors = {
   reflection: 'bg-green-900/30 text-green-300 border-green-700',
   planning: 'bg-yellow-900/30 text-yellow-300 border-yellow-700',
   'problem-solving': 'bg-red-900/30 text-red-300 border-red-700',
-  milestone: 'bg-indigo-900/30 text-indigo-300 border-indigo-700'
+  milestone: 'bg-indigo-900/30 text-indigo-300 border-indigo-700',
+  learning: 'bg-orange-900/30 text-orange-300 border-orange-700'
 };
 
 const categoryIcons = {
@@ -21,7 +22,8 @@ const categoryIcons = {
   reflection: '💭',
   planning: '📅',
   'problem-solving': '🔧',
-  milestone: '🎯'
+  milestone: '🎯',
+  learning: '📚'
 };
 
 export default function JournalStats({ stats }: JournalStatsProps) {
@@ -108,6 +110,7 @@ export default function JournalStats({ stats }: JournalStatsProps) {
                         categoryColors[category as keyof typeof categoryColors]?.includes('green') ? 'bg-green-500' :
                         categoryColors[category as keyof typeof categoryColors]?.includes('yellow') ? 'bg-yellow-500' :
                         categoryColors[category as keyof typeof categoryColors]?.includes('red') ? 'bg-red-500' :
+                        categoryColors[category as keyof typeof categoryColors]?.includes('orange') ? 'bg-orange-500' :
                         'bg-indigo-500'
                       }`}
                       style={{ 
