@@ -56,6 +56,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
   const [autoReminders, setAutoReminders] = useState(true);
   const [isAutoFilling, setIsAutoFilling] = useState(false);
   const [showManualFields, setShowManualFields] = useState(false);
+  const [isAutoSubmitting, setIsAutoSubmitting] = useState(false);
 
   useEffect(() => {
     if (entry && !isCreating) {
@@ -244,17 +245,72 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title.trim() || !formData.content.trim()) {
-      setError('Title and content are required');
+    if (!formData.content.trim()) {
+      setError('Content is required');
       return;
     }
 
     try {
       setIsSaving(true);
       setError(null);
-      
-      // Save the entry
-      const savedFormData = { ...formData, autoReminders };
+      let finalFormData = { ...formData };
+
+      // If not in manual mode and has sufficient content, auto-fill with AI
+      if (!showManualFields && formData.content.trim().length >= 10) {
+        setIsAutoSubmitting(true);
+        
+        try {
+          const response = await fetch('/api/ai/auto-journal', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              content: formData.content,
+              files: [...formData.architectureDiagrams, ...formData.relatedFiles],
+              currentDate: new Date().toISOString()
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.optimizedEntry) {
+              const optimized = data.optimizedEntry;
+              finalFormData = {
+                ...finalFormData,
+                title: optimized.title || finalFormData.title || 'Untitled Entry',
+                category: optimized.category || finalFormData.category,
+                projectId: optimized.projectId || finalFormData.projectId,
+                projectName: optimized.projectName || finalFormData.projectName,
+                tags: optimized.tags || finalFormData.tags,
+                metadata: {
+                  difficulty: optimized.metadata.difficulty || finalFormData.metadata.difficulty,
+                  impact: optimized.metadata.impact || finalFormData.metadata.impact,
+                  learnings: optimized.metadata.learnings || finalFormData.metadata.learnings,
+                  nextSteps: optimized.metadata.nextSteps || finalFormData.metadata.nextSteps,
+                  resources: optimized.metadata.resources || finalFormData.metadata.resources
+                }
+              };
+            }
+          }
+        } catch (aiError) {
+          console.warn('AI auto-fill failed, proceeding with manual data:', aiError);
+          // Continue with manual data if AI fails
+          if (!finalFormData.title.trim()) {
+            finalFormData.title = 'Journal Entry - ' + new Date().toLocaleDateString();
+          }
+        }
+        setIsAutoSubmitting(false);
+      } else {
+        // Manual mode - validate title is provided
+        if (!finalFormData.title.trim()) {
+          setError('Title is required in manual mode');
+          return;
+        }
+      }
+
+      // Save the entry with auto-reminders enabled by default
+      const savedFormData = { ...finalFormData, autoReminders: true };
       await onSave(savedFormData);
       
     } catch (error) {
@@ -262,6 +318,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
       setError(error instanceof Error ? error.message : 'Failed to save entry');
     } finally {
       setIsSaving(false);
+      setIsAutoSubmitting(false);
     }
   };
 
@@ -351,30 +408,20 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
 
           {/* Content */}
           <div className="p-6 space-y-6">
-            {/* Streamlined Content Entry with AI Auto-Fill */}
+            {/* Streamlined Content Entry */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium text-gray-300">
-                  Content * {!showManualFields && <span className="text-gray-500 text-xs">(AI will fill everything else)</span>}
+                  Content * {!showManualFields && <span className="text-gray-500 text-xs">(AI will auto-fill title, category, tags, etc.)</span>}
                 </label>
                 <div className="flex gap-2">
-                  {formData.content.trim().length >= 10 && !showManualFields && (
-                    <Button
-                      type="button"
-                      onClick={autoFillFromContent}
-                      disabled={isAutoFilling}
-                      className="text-xs bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
-                    >
-                      {isAutoFilling ? '🤖 Auto-Filling...' : '✨ AI Auto-Fill All'}
-                    </Button>
-                  )}
                   {showManualFields && (
                     <Button
                       type="button"
                       onClick={() => setShowManualFields(false)}
                       className="text-xs bg-gray-600 hover:bg-gray-700"
                     >
-                      ⬆️ Minimize
+                      ⬆️ Simple Mode
                     </Button>
                   )}
                   <Button
@@ -382,7 +429,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
                     onClick={() => setShowManualFields(true)}
                     className="text-xs bg-purple-600 hover:bg-purple-700"
                   >
-                    ⚙️ Manual
+                    ⚙️ Advanced
                   </Button>
                 </div>
               </div>
@@ -472,77 +519,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
               />
             </div>
 
-            {/* Difficulty and Impact - Auto-detected or Manual */}
-            <div className="border border-gray-600 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-medium text-gray-300">📊 Assessment Scores</h4>
-                {aiCategoryAnalysis?.autoScoring && (
-                  <span className="text-xs text-green-400 bg-green-900/20 px-2 py-1 rounded">
-                    🤖 AI Detected
-                  </span>
-                )}
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Difficulty (1-10)
-                  </label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    value={formData.metadata.difficulty}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      metadata: { ...prev.metadata, difficulty: parseInt(e.target.value) }
-                    }))}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-gray-400 mt-1">
-                    <span>Easy</span>
-                    <span className="font-medium text-white">{formData.metadata.difficulty}</span>
-                    <span>Hard</span>
-                  </div>
-                  {aiCategoryAnalysis?.autoScoring?.difficulty && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      💡 {aiCategoryAnalysis.autoScoring.difficulty.reasoning}
-                    </p>
-                  )}
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Impact (1-10)
-                  </label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    value={formData.metadata.impact}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      metadata: { ...prev.metadata, impact: parseInt(e.target.value) }
-                    }))}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-gray-400 mt-1">
-                    <span>Low</span>
-                    <span className="font-medium text-white">{formData.metadata.impact}</span>
-                    <span>High</span>
-                  </div>
-                  {aiCategoryAnalysis?.autoScoring?.impact && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      💡 {aiCategoryAnalysis.autoScoring.impact.reasoning}
-                    </p>
-                  )}
-                </div>
-              </div>
-              
-              <p className="text-xs text-gray-400 mt-3 text-center">
-                💡 Tip: Run "AI Analyze" above to automatically detect difficulty and impact
-              </p>
-            </div>
 
             {/* Show Manual Fields Only When Requested */}
             {showManualFields && (
@@ -601,6 +578,78 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
                       placeholder="Associated project name"
                     />
                   </div>
+                </div>
+
+                {/* Assessment Scores - Auto-detected or Manual */}
+                <div className="border border-gray-600 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-medium text-gray-300">📊 Assessment Scores</h4>
+                    {aiCategoryAnalysis?.autoScoring && (
+                      <span className="text-xs text-green-400 bg-green-900/20 px-2 py-1 rounded">
+                        🤖 AI Detected
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Difficulty (1-10)
+                      </label>
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={formData.metadata.difficulty}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          metadata: { ...prev.metadata, difficulty: parseInt(e.target.value) }
+                        }))}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>Easy</span>
+                        <span className="font-medium text-white">{formData.metadata.difficulty}</span>
+                        <span>Hard</span>
+                      </div>
+                      {aiCategoryAnalysis?.autoScoring?.difficulty && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          💡 {aiCategoryAnalysis.autoScoring.difficulty.reasoning}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Impact (1-10)
+                      </label>
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={formData.metadata.impact}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          metadata: { ...prev.metadata, impact: parseInt(e.target.value) }
+                        }))}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>Low</span>
+                        <span className="font-medium text-white">{formData.metadata.impact}</span>
+                        <span>High</span>
+                      </div>
+                      {aiCategoryAnalysis?.autoScoring?.impact && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          💡 {aiCategoryAnalysis.autoScoring.impact.reasoning}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <p className="text-xs text-gray-400 mt-3 text-center">
+                    💡 AI will automatically detect difficulty and impact
+                  </p>
                 </div>
 
                 {/* Architecture Diagrams with Upload */}
@@ -939,7 +988,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
               className="bg-blue-600 hover:bg-blue-700"
               disabled={isSaving}
             >
-              {isSaving ? '💾 Saving...' : (isCreating ? '📝 Create Entry' : '💾 Save Changes')}
+              {isSaving ? (isAutoSubmitting ? '🤖 AI Processing & Saving...' : '💾 Saving...') : (isCreating ? '📝 Create Entry' : '💾 Save Changes')}
             </Button>
           </div>
         </form>

@@ -81,11 +81,15 @@ class DatabaseService {
     }
 
     try {
+      // Temporarily disable SSL verification for development
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      
       this.pool = new Pool({
         connectionString: this.connectionString,
         max: this.poolSize,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 5000,
+        ssl: { rejectUnauthorized: false }
       });
 
       // Test connection with timeout
