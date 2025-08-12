@@ -366,7 +366,7 @@ class JournalService {
         // Delete journal entry
         const result = await client.query('DELETE FROM journal_entries WHERE id = $1', [id]);
         
-        return result.rowCount > 0;
+        return (result.rowCount ?? 0) > 0;
       } finally {
         client.release();
       }
@@ -568,7 +568,7 @@ class JournalService {
           [new Date(), suggestionId]
         );
         
-        return result.rowCount > 0;
+        return (result.rowCount ?? 0) > 0;
       } finally {
         client.release();
       }
