@@ -52,7 +52,7 @@ Generate a complete, professional journal entry with these fields:
    - Expand on challenges and solutions
    - Maintain the original intent but enhance clarity and depth
    - Use proper markdown formatting for readability
-3. CATEGORY: Choose the best fit from: architecture, decision, reflection, planning, problem-solving, milestone
+3. CATEGORY: Choose the best fit from: architecture, decision, reflection, planning, problem-solving, milestone, learning
 4. PROJECT DETECTION: Analyze content to detect which project this relates to (sales-jobs, portfolio, etc.)
 5. SMART TAGS: Generate relevant technical and contextual tags
 6. ASSESSMENT SCORES: Auto-assess difficulty (1-10) and impact (1-10) based on technical complexity and business value

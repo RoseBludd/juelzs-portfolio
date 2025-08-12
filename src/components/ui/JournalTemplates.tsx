@@ -503,6 +503,133 @@ Rate your productivity and focus today (1-10):
         learnings: [],
         nextSteps: ['Execute tomorrow\'s plan', 'Follow up on blockers']
       }
+    },
+
+    // Learning Templates
+    {
+      id: 'book-insights',
+      name: 'Book Insights & Notes',
+      description: 'Capture key insights, quotes, and applications from books',
+      category: 'learning',
+      icon: '📚',
+      title: 'Book Notes: [Book Title] by [Author]',
+      content: `## Book Information
+**Title**: 
+**Author**: 
+**Chapter/Section**: 
+
+## Key Quote/Insight
+> "Quote or key insight here"
+
+## My Interpretation
+What does this mean to me? How do I understand this concept?
+
+## Application to My Work
+How can I apply this insight to my current projects or engineering practices?
+
+## Related Concepts
+What other ideas, books, or experiences does this connect to?
+
+## Action Items
+What specific steps will I take based on this learning?
+
+## Questions for Further Exploration
+What questions does this raise that I want to investigate further?`,
+      tags: ['books', 'learning', 'insights', 'professional-development'],
+      metadata: {
+        difficulty: 3,
+        impact: 6,
+        learnings: ['Document learning for future reference', 'Connect new knowledge to existing experience'],
+        nextSteps: ['Apply one insight to current project', 'Share learning with team if relevant']
+      }
+    },
+
+    {
+      id: 'course-notes',
+      name: 'Course & Training Notes',
+      description: 'Document key learnings from courses, workshops, or training sessions',
+      category: 'learning',
+      icon: '🎓',
+      title: 'Course Notes: [Course/Training Title]',
+      content: `## Course Information
+**Course**: 
+**Instructor/Platform**: 
+**Date**: 
+**Duration**: 
+
+## Key Concepts Learned
+1. 
+2. 
+3. 
+
+## Practical Examples
+Concrete examples or demos that stood out:
+
+## Technical Skills Gained
+New tools, frameworks, or techniques:
+
+## Immediate Applications
+How I can use this knowledge right away:
+
+## Long-term Value
+How this fits into my career development:
+
+## Resources & References
+- Links to course materials
+- Additional reading recommendations
+- Tools or resources mentioned`,
+      tags: ['courses', 'training', 'skills', 'professional-development'],
+      metadata: {
+        difficulty: 4,
+        impact: 7,
+        learnings: ['Structured approach to course note-taking', 'Connect learning to practical applications'],
+        nextSteps: ['Practice new skills in a project', 'Schedule follow-up learning']
+      }
+    },
+
+    {
+      id: 'research-findings',
+      name: 'Research & Investigation',
+      description: 'Document findings from technical research, articles, or exploration',
+      category: 'learning',
+      icon: '🔬',
+      title: 'Research: [Topic/Question]',
+      content: `## Research Question/Goal
+What am I trying to learn or understand?
+
+## Sources Investigated
+- Article/Documentation links
+- Stack Overflow discussions
+- GitHub repositories
+- Expert opinions
+
+## Key Findings
+1. **Finding 1**: 
+   - Evidence: 
+   - Implications: 
+
+2. **Finding 2**: 
+   - Evidence: 
+   - Implications: 
+
+## Comparisons & Trade-offs
+How do different approaches compare?
+
+## Recommended Approach
+Based on my research, what's the best path forward?
+
+## Open Questions
+What still needs investigation?
+
+## Related Learning
+What should I research next to build on this knowledge?`,
+      tags: ['research', 'investigation', 'technical-analysis'],
+      metadata: {
+        difficulty: 5,
+        impact: 6,
+        learnings: ['Systematic approach to technical research', 'Document findings for team knowledge'],
+        nextSteps: ['Share findings with team', 'Implement recommended approach']
+      }
     }
   ];
 
@@ -512,7 +639,8 @@ Rate your productivity and focus today (1-10):
     { value: 'problem-solving', label: 'Problem Solving', icon: '🔧' },
     { value: 'reflection', label: 'Reflection', icon: '💭' },
     { value: 'milestone', label: 'Milestones', icon: '🎯' },
-    { value: 'planning', label: 'Planning', icon: '📅' }
+    { value: 'planning', label: 'Planning', icon: '📅' },
+    { value: 'learning', label: 'Learning', icon: '📚' }
   ];
 
   const filteredTemplates = selectedCategory === 'all' 

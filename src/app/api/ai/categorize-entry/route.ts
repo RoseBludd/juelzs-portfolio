@@ -44,6 +44,7 @@ Available Templates/Categories:
 4. "planning" - Planning - For ideas, future features, roadmap planning
 5. "problem-solving" - Problem Solving - For team issues, performance investigations, debugging
 6. "milestone" - Milestone - For project achievements, milestone reflections
+7. "learning" - Learning - For book insights, course notes, educational content, knowledge acquisition
 
 Analyze the content and determine:
 1. Which template/category best fits this entry

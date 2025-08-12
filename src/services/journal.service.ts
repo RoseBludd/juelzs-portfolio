@@ -5,7 +5,7 @@ export interface JournalEntry {
   id: string;
   title: string;
   content: string;
-  category: 'architecture' | 'decision' | 'reflection' | 'planning' | 'problem-solving' | 'milestone';
+  category: 'architecture' | 'decision' | 'reflection' | 'planning' | 'problem-solving' | 'milestone' | 'learning';
   projectId?: string;
   projectName?: string;
   tags: string[];

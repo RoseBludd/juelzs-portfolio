@@ -6,7 +6,7 @@ import FileUploadComponent from './FileUploadComponent';
 import TagAutocomplete from './TagAutocomplete';
 import { JournalEntry } from '@/services/journal.service';
 
-type JournalCategory = 'architecture' | 'decision' | 'reflection' | 'planning' | 'problem-solving' | 'milestone';
+type JournalCategory = 'architecture' | 'decision' | 'reflection' | 'planning' | 'problem-solving' | 'milestone' | 'learning';
 
 interface JournalEntryModalProps {
   entry: JournalEntry | null;
@@ -22,7 +22,8 @@ const categories = [
   { value: 'reflection', label: '💭 Reflection', description: 'Retrospective thoughts and analysis' },
   { value: 'planning', label: '📅 Planning', description: 'Future planning and roadmaps' },
   { value: 'problem-solving', label: '🔧 Problem Solving', description: 'Solutions to technical challenges' },
-  { value: 'milestone', label: '🎯 Milestone', description: 'Important achievements and milestones' }
+  { value: 'milestone', label: '🎯 Milestone', description: 'Important achievements and milestones' },
+  { value: 'learning', label: '📚 Learning', description: 'Book insights, courses, educational content, and knowledge acquisition' }
 ];
 
 export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCreating }: JournalEntryModalProps) {

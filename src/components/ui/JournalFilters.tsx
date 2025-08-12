@@ -16,7 +16,8 @@ const categories = [
   { value: 'reflection', label: '💭 Reflection' },
   { value: 'planning', label: '📅 Planning' },
   { value: 'problem-solving', label: '🔧 Problem Solving' },
-  { value: 'milestone', label: '🎯 Milestone' }
+  { value: 'milestone', label: '🎯 Milestone' },
+  { value: 'learning', label: '📚 Learning' }
 ];
 
 export default function JournalFilters({ filters, onFiltersChange }: JournalFiltersProps) {
