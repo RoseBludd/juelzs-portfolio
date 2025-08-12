@@ -6,6 +6,8 @@ import FileUploadComponent from './FileUploadComponent';
 import TagAutocomplete from './TagAutocomplete';
 import { JournalEntry } from '@/services/journal.service';
 
+type JournalCategory = 'architecture' | 'decision' | 'reflection' | 'planning' | 'problem-solving' | 'milestone';
+
 interface JournalEntryModalProps {
   entry: JournalEntry | null;
   isOpen: boolean;
@@ -27,7 +29,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    category: 'architecture' as const,
+    category: 'architecture' as JournalCategory,
     projectId: '',
     projectName: '',
     tags: [] as string[],
@@ -76,7 +78,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
       setFormData({
         title: '',
         content: '',
-        category: 'architecture',
+        category: 'architecture' as JournalCategory,
         projectId: '',
         projectName: '',
         tags: [],
