@@ -54,6 +54,8 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiCategoryAnalysis, setAiCategoryAnalysis] = useState<any>(null);
   const [autoReminders, setAutoReminders] = useState(true);
+  const [isAutoFilling, setIsAutoFilling] = useState(false);
+  const [showManualFields, setShowManualFields] = useState(false);
 
   useEffect(() => {
     if (entry && !isCreating) {
@@ -182,6 +184,63 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
     }
   };
 
+  const autoFillFromContent = async () => {
+    if (!formData.content || formData.content.trim().length < 10) {
+      setError('Please enter at least 10 characters of content for AI to analyze');
+      return;
+    }
+
+    setIsAutoFilling(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/ai/auto-journal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: formData.content,
+          files: [...formData.architectureDiagrams, ...formData.relatedFiles],
+          currentDate: new Date().toISOString()
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to auto-generate entry');
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.optimizedEntry) {
+        const optimized = data.optimizedEntry;
+        setFormData(prev => ({
+          ...prev,
+          title: optimized.title,
+          category: optimized.category as JournalCategory,
+          projectId: optimized.projectId || '',
+          projectName: optimized.projectName || '',
+          tags: optimized.tags || [],
+          metadata: {
+            difficulty: optimized.metadata.difficulty || 5,
+            impact: optimized.metadata.impact || 5,
+            learnings: optimized.metadata.learnings || [],
+            nextSteps: optimized.metadata.nextSteps || [],
+            resources: optimized.metadata.resources || []
+          }
+        }));
+        
+        setAiCategoryAnalysis(data.aiAnalysis);
+        setShowManualFields(true); // Show all fields after AI fills them
+      }
+    } catch (error) {
+      console.error('Error auto-filling entry:', error);
+      setError('Failed to auto-generate entry with AI');
+    } finally {
+      setIsAutoFilling(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -292,71 +351,40 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
 
           {/* Content */}
           <div className="p-6 space-y-6">
-            {/* Basic Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter a descriptive title for your journal entry"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Category *
-                </label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value as any }))}
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  {categories.map(cat => (
-                    <option key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-gray-400 mt-1">
-                  {categories.find(c => c.value === formData.category)?.description}
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Project Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.projectName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, projectName: e.target.value }))}
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Associated project name"
-                />
-              </div>
-            </div>
-
-            {/* Content with AI Analysis */}
+            {/* Streamlined Content Entry with AI Auto-Fill */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium text-gray-300">
-                  Content *
+                  Content * {!showManualFields && <span className="text-gray-500 text-xs">(AI will fill everything else)</span>}
                 </label>
-                <Button
-                  type="button"
-                  onClick={analyzeEntry}
-                  disabled={isAnalyzing || !formData.title.trim() || !formData.content.trim()}
-                  className="text-xs bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
-                >
-                  {isAnalyzing ? '🤖 Analyzing...' : '🤖 AI Analyze'}
-                </Button>
+                <div className="flex gap-2">
+                  {formData.content.trim().length >= 10 && !showManualFields && (
+                    <Button
+                      type="button"
+                      onClick={autoFillFromContent}
+                      disabled={isAutoFilling}
+                      className="text-xs bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {isAutoFilling ? '🤖 Auto-Filling...' : '✨ AI Auto-Fill All'}
+                    </Button>
+                  )}
+                  {showManualFields && (
+                    <Button
+                      type="button"
+                      onClick={() => setShowManualFields(false)}
+                      className="text-xs bg-gray-600 hover:bg-gray-700"
+                    >
+                      ⬆️ Minimize
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    onClick={() => setShowManualFields(true)}
+                    className="text-xs bg-purple-600 hover:bg-purple-700"
+                  >
+                    ⚙️ Manual
+                  </Button>
+                </div>
               </div>
               <textarea
                 value={formData.content}
@@ -516,8 +544,67 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
               </p>
             </div>
 
-            {/* Architecture Diagrams with Upload */}
-            <div>
+            {/* Show Manual Fields Only When Requested */}
+            {showManualFields && (
+              <div className="space-y-6 border-t border-gray-700 pt-6">
+                <div className="text-center">
+                  <h3 className="text-lg font-medium text-white mb-2">Manual Configuration</h3>
+                  <p className="text-sm text-gray-400">Configure all fields manually or let AI handle them</p>
+                </div>
+
+                {/* Basic Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Title *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter a descriptive title for your journal entry"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Category *
+                    </label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value as any }))}
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      {categories.map(cat => (
+                        <option key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {categories.find(c => c.value === formData.category)?.description}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Project Name
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.projectName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, projectName: e.target.value }))}
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Associated project name"
+                    />
+                  </div>
+                </div>
+
+                {/* Architecture Diagrams with Upload */}
+                <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Architecture Diagrams
               </label>
@@ -795,6 +882,45 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
                   : "Next steps will not create automatic reminders"
                 }
               </p>
+            </div>
+              </div>
+            )}
+
+            {/* File Upload Section - Always Visible */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-white">Files & Images</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Architecture Diagrams
+                  </label>
+                  <FileUploadComponent
+                    onFileUploaded={(file) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        architectureDiagrams: [...prev.architectureDiagrams, file.url]
+                      }));
+                    }}
+                    acceptedTypes="image/*,.pdf,.svg"
+                    category="diagram"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Related Files & Screenshots
+                  </label>
+                  <FileUploadComponent
+                    onFileUploaded={(file) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        relatedFiles: [...prev.relatedFiles, file.url]
+                      }));
+                    }}
+                    acceptedTypes="*"
+                    category="document"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
