@@ -51,7 +51,12 @@ Generate a complete, professional journal entry with these fields:
 5. ASSESSMENT SCORES: Auto-assess difficulty (1-10) and impact (1-10) based on technical complexity and business value
 6. NEXT STEPS: Extract or infer logical next steps from the content
 7. KEY LEARNINGS: Identify important insights or lessons
-8. RESOURCES: List any tools, documentation, or references mentioned
+8. RESOURCES: ONLY include actual, real resources that are:
+   - Specific URLs mentioned in the content
+   - Named tools/services referenced (e.g., "AWS S3", "DocuSign API", "PostgreSQL")  
+   - Documentation links if explicitly mentioned
+   - Leave EMPTY array [] if no specific resources are identified
+   - NEVER use placeholder text like "Resource 1" or "Tool 1"
 
 Respond in JSON format:
 {
@@ -67,7 +72,7 @@ Respond in JSON format:
       "impact": 8,
       "learnings": ["Key insight 1", "Key insight 2"],
       "nextSteps": ["Action 1", "Action 2"],
-      "resources": ["Tool 1", "Reference 2"]
+      "resources": []
     }
   },
   "aiAnalysis": {

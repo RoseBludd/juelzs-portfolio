@@ -223,17 +223,32 @@ export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSugges
               <div>
                 <h4 className="text-sm font-medium text-gray-300 mb-2">📚 Resources</h4>
                 <div className="flex flex-wrap gap-2">
-                  {entry.metadata.resources.map((resource, index) => (
-                    <a
-                      key={index}
-                      href={resource}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-green-900/30 text-green-300 border border-green-700 hover:bg-green-900/50 transition-colors"
-                    >
-                      🔗 Resource {index + 1}
-                    </a>
-                  ))}
+                  {entry.metadata.resources.map((resource, index) => {
+                    // Check if it's a URL or just a text reference
+                    const isUrl = resource.startsWith('http') || resource.startsWith('www.');
+                    const displayName = isUrl 
+                      ? new URL(resource.startsWith('www.') ? `https://${resource}` : resource).hostname.replace('www.', '')
+                      : resource;
+                    
+                    return isUrl ? (
+                      <a
+                        key={index}
+                        href={resource.startsWith('www.') ? `https://${resource}` : resource}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-green-900/30 text-green-300 border border-green-700 hover:bg-green-900/50 transition-colors"
+                      >
+                        🔗 {displayName}
+                      </a>
+                    ) : (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-700"
+                      >
+                        🛠️ {resource}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             )}
