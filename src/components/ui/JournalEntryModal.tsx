@@ -26,6 +26,14 @@ const categories = [
   { value: 'learning', label: '📚 Learning', description: 'Book insights, courses, educational content, and knowledge acquisition' }
 ];
 
+interface ProjectOption {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  techStack: string[];
+}
+
 export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCreating }: JournalEntryModalProps) {
   const [formData, setFormData] = useState({
     title: '',
@@ -44,6 +52,8 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
       resources: [] as string[]
     }
   });
+  const [projects, setProjects] = useState<ProjectOption[]>([]);
+  const [loadingProjects, setLoadingProjects] = useState(false);
   const [currentTag, setCurrentTag] = useState('');
   const [currentLearning, setCurrentLearning] = useState('');
   const [currentStep, setCurrentStep] = useState('');
@@ -59,6 +69,32 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
   const [showManualFields, setShowManualFields] = useState(false);
   const [isAutoSubmitting, setIsAutoSubmitting] = useState(false);
   const [aiProgress, setAiProgress] = useState('');
+
+  // Load projects for dropdown
+  const loadProjects = async () => {
+    if (loadingProjects || projects.length > 0) return;
+    
+    try {
+      setLoadingProjects(true);
+      const response = await fetch('/api/admin/projects?format=dropdown');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setProjects(data.projects);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+    } finally {
+      setLoadingProjects(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      loadProjects();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (entry && !isCreating) {
@@ -205,7 +241,8 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
         body: JSON.stringify({
           content: formData.content,
           files: [...formData.architectureDiagrams, ...formData.relatedFiles],
-          currentDate: new Date().toISOString()
+          currentDate: new Date().toISOString(),
+          projectContext: formData.projectId ? projects.find(p => p.id === formData.projectId) : null
         }),
       });
 
@@ -271,7 +308,8 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
             body: JSON.stringify({
               content: formData.content,
               files: [...formData.architectureDiagrams, ...formData.relatedFiles],
-              currentDate: new Date().toISOString()
+              currentDate: new Date().toISOString(),
+              projectContext: formData.projectId ? projects.find(p => p.id === formData.projectId) : null
             }),
           });
 
@@ -286,6 +324,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
                 ...finalFormData,
                 title: optimized.title || finalFormData.title || 'Untitled Entry',
                 content: optimized.content || finalFormData.content, // Use AI-optimized content
+                originalContent: finalFormData.content, // Preserve the original content before AI enhancement
                 category: optimized.category || finalFormData.category,
                 projectId: optimized.projectId || finalFormData.projectId,
                 projectName: optimized.projectName || finalFormData.projectName,
@@ -393,18 +432,18 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-lg border border-gray-700 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-gray-800 rounded-lg border border-gray-700 w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-700">
-            <h2 className="text-xl font-semibold text-white">
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-700">
+            <h2 className="text-lg sm:text-xl font-semibold text-white pr-2">
               {isCreating ? '📝 Create New Journal Entry' : '✏️ Edit Journal Entry'}
             </h2>
             <Button
               type="button"
               onClick={onClose}
-              className="text-gray-400 hover:text-white bg-transparent hover:bg-gray-700"
+              className="text-gray-400 hover:text-white bg-transparent hover:bg-gray-700 flex-shrink-0"
             >
               ✕
             </Button>
@@ -412,25 +451,25 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
 
           {/* Error Display */}
           {error && (
-            <div className="mx-6 mt-4 bg-red-900/20 border border-red-700 rounded-lg p-4">
-              <p className="text-red-400">{error}</p>
+            <div className="mx-4 sm:mx-6 mt-4 bg-red-900/20 border border-red-700 rounded-lg p-3 sm:p-4">
+              <p className="text-red-400 text-sm">{error}</p>
             </div>
           )}
 
           {/* Content */}
-          <div className="p-6 space-y-6">
+          <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             {/* Streamlined Content Entry */}
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
                 <label className="block text-sm font-medium text-gray-300">
-                  Content * {!showManualFields && <span className="text-gray-500 text-xs">(AI will optimize content & auto-fill all fields)</span>}
+                  Content * {!showManualFields && <span className="text-gray-500 text-xs hidden sm:inline">(AI will optimize content & auto-fill all fields)</span>}
                 </label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-shrink-0">
                   {showManualFields && (
                     <Button
                       type="button"
                       onClick={() => setShowManualFields(false)}
-                      className="text-xs bg-gray-600 hover:bg-gray-700"
+                      className="text-xs bg-gray-600 hover:bg-gray-700 px-2 py-1"
                     >
                       ⬆️ Simple Mode
                     </Button>
@@ -438,7 +477,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
                   <Button
                     type="button"
                     onClick={() => setShowManualFields(true)}
-                    className="text-xs bg-purple-600 hover:bg-purple-700"
+                    className="text-xs bg-purple-600 hover:bg-purple-700 px-2 py-1"
                   >
                     ⚙️ Advanced
                   </Button>
@@ -447,8 +486,8 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
               <textarea
                 value={formData.content}
                 onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                rows={10}
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={8}
+                className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 placeholder="Write your journal entry content here... AI will enhance and optimize it automatically!"
                 required
               />
@@ -530,7 +569,53 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
               />
             </div>
 
-
+            {/* Project Selection - Available in Simple Mode */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Related Project <span className="text-gray-500 text-xs">(helps AI understand context)</span>
+              </label>
+              <select
+                value={formData.projectId}
+                onChange={(e) => {
+                  const selectedProject = projects.find(p => p.id === e.target.value);
+                  setFormData(prev => ({ 
+                    ...prev, 
+                    projectId: e.target.value,
+                    projectName: selectedProject?.title || ''
+                  }));
+                }}
+                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={loadingProjects}
+              >
+                <option value="">
+                  {loadingProjects ? 'Loading projects...' : 'Select a project (optional)'}
+                </option>
+                {projects.map(project => (
+                  <option key={project.id} value={project.id}>
+                    {project.title} ({project.category})
+                  </option>
+                ))}
+              </select>
+              {formData.projectId && (
+                <div className="mt-2 p-2 bg-gray-800 rounded text-xs">
+                  {(() => {
+                    const selectedProject = projects.find(p => p.id === formData.projectId);
+                    return selectedProject && (
+                      <div>
+                        <p className="text-gray-300">{selectedProject.description}</p>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {selectedProject.techStack.map((tech, idx) => (
+                            <span key={idx} className="px-2 py-1 bg-blue-900/30 text-blue-300 rounded text-xs">
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
 
             {/* Show Manual Fields Only When Requested */}
             {showManualFields && (
@@ -577,18 +662,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
                     </p>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Project Name
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.projectName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, projectName: e.target.value }))}
-                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Associated project name"
-                    />
-                  </div>
+
                 </div>
 
                 {/* Assessment Scores - Auto-detected or Manual */}
@@ -985,18 +1059,18 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-4 p-6 border-t border-gray-700">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 p-4 sm:p-6 border-t border-gray-700">
             <Button
               type="button"
               onClick={onClose}
-              className="bg-gray-600 hover:bg-gray-700"
+              className="bg-gray-600 hover:bg-gray-700 text-sm sm:text-base py-2 sm:py-2 order-2 sm:order-1"
               disabled={isSaving}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 text-sm sm:text-base py-2 sm:py-2 order-1 sm:order-2"
               disabled={isSaving}
             >
               {isSaving ? (aiProgress || '💾 Saving...') : (isCreating ? '📝 Create Entry' : '💾 Save Changes')}

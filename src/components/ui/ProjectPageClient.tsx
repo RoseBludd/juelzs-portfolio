@@ -111,6 +111,12 @@ export default function ProjectPageClient({
       badge: null
     },
     {
+      id: 'development-journal',
+      label: 'Development Journal',
+      icon: '📝',
+      badge: 'Live'
+    },
+    {
       id: 'showcase',
       label: 'Project Showcase',
       icon: '📸',
@@ -175,6 +181,10 @@ export default function ProjectPageClient({
       <div className="mt-8">
         {activeTab === 'overview' && (
           <ProjectOverviewTab projectOverview={projectOverview} />
+        )}
+        
+        {activeTab === 'development-journal' && (
+          <ProjectDevelopmentJournalTab />
         )}
         
         {activeTab === 'showcase' && (
@@ -1240,4 +1250,247 @@ function MermaidDiagram({ diagram }: { diagram: string }) {
   }
 
   return <div ref={diagramRef} className="w-full" />;
+}
+
+interface TimelineItem {
+  id: string;
+  type: 'journal-entry' | 'meeting-video';
+  title: string;
+  content?: string;
+  category?: string;
+  linkType: string;
+  relevanceScore?: number;
+  impactType?: string;
+  difficulty?: number;
+  impact?: number;
+  tags?: string[];
+  aiSuggestions?: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+interface ProjectStats {
+  totalEntries: number;
+  decisionCount: number;
+  learningCount: number;
+  impactDistribution: {
+    high: number;
+    medium: number;
+    low: number;
+  };
+}
+
+function ProjectDevelopmentJournalTab() {
+  const [timeline, setTimeline] = useState<TimelineItem[]>([]);
+  const [stats, setStats] = useState<ProjectStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Get project ID from URL
+  const projectId = typeof window !== 'undefined' ? 
+    window.location.pathname.split('/projects/')[1] : '';
+
+  useEffect(() => {
+    const fetchTimeline = async () => {
+      if (!projectId) return;
+      
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/admin/projects/${projectId}/timeline`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch project timeline');
+        }
+        
+        const data = await response.json();
+        if (data.success) {
+          setTimeline(data.timeline);
+          setStats(data.stats);
+        }
+      } catch (err) {
+        console.error('Error fetching timeline:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load timeline');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTimeline();
+  }, [projectId]);
+
+  if (loading) {
+    return (
+      <div className="text-center py-16">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <p className="text-gray-400 mt-4">Loading development timeline...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-16">
+        <div className="text-4xl mb-4">❌</div>
+        <h3 className="text-lg font-medium text-white mb-2">Failed to Load Timeline</h3>
+        <p className="text-gray-300">{error}</p>
+      </div>
+    );
+  }
+
+  if (timeline.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <div className="text-4xl mb-4">📝</div>
+        <h3 className="text-lg font-medium text-white mb-2">No Development History Yet</h3>
+        <p className="text-gray-300 mb-4">
+          Journal entries and decisions related to this project will appear here as they&apos;re created.
+        </p>
+        <p className="text-gray-400 text-sm">
+          This creates a living timeline of architectural decisions, learnings, and project evolution.
+        </p>
+      </div>
+    );
+  }
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'journal-entry': return '📝';
+      case 'meeting-video': return '🎥';
+      default: return '📋';
+    }
+  };
+
+  const getLinkTypeColor = (linkType: string) => {
+    switch (linkType) {
+      case 'architecture-decision': return 'bg-blue-900/30 text-blue-300 border-blue-700';
+      case 'technical-challenge': return 'bg-red-900/30 text-red-300 border-red-700';
+      case 'milestone': return 'bg-green-900/30 text-green-300 border-green-700';
+      case 'learning': return 'bg-purple-900/30 text-purple-300 border-purple-700';
+      case 'planning': return 'bg-yellow-900/30 text-yellow-300 border-yellow-700';
+      default: return 'bg-gray-900/30 text-gray-300 border-gray-700';
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Development Stats */}
+      {stats && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <div className="text-2xl font-bold text-blue-400">{stats.totalEntries}</div>
+            <div className="text-sm text-gray-400">Total Entries</div>
+          </div>
+          <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <div className="text-2xl font-bold text-green-400">{stats.decisionCount}</div>
+            <div className="text-sm text-gray-400">Decisions</div>
+          </div>
+          <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <div className="text-2xl font-bold text-purple-400">{stats.learningCount}</div>
+            <div className="text-sm text-gray-400">Learnings</div>
+          </div>
+          <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <div className="text-2xl font-bold text-orange-400">
+              {stats.impactDistribution.high + stats.impactDistribution.medium}
+            </div>
+            <div className="text-sm text-gray-400">High Impact</div>
+          </div>
+        </div>
+      )}
+
+      {/* Timeline */}
+      <div className="space-y-4">
+        <h3 className="text-xl font-bold text-white flex items-center gap-3">
+          <span>🗓️</span>
+          Development Timeline
+        </h3>
+        
+        <div className="space-y-4">
+          {timeline.map((item) => (
+            <div key={item.id} className="bg-gray-800 border border-gray-700 rounded-lg p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+                  <span className="text-sm">{getTypeIcon(item.type)}</span>
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h4 className="text-lg font-medium text-white mb-2">{item.title}</h4>
+                      
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium border ${getLinkTypeColor(item.linkType)}`}>
+                          {item.linkType?.replace('-', ' ')}
+                        </span>
+                        
+                        {item.category && (
+                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-700 text-gray-300 border border-gray-600">
+                            {item.category}
+                          </span>
+                        )}
+                        
+                        {item.impactType && (
+                          <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                            item.impactType === 'high' ? 'bg-red-900/30 text-red-300' :
+                            item.impactType === 'medium' ? 'bg-yellow-900/30 text-yellow-300' :
+                            'bg-green-900/30 text-green-300'
+                          }`}>
+                            {item.impactType} impact
+                          </span>
+                        )}
+                        
+                        {item.aiSuggestions && item.aiSuggestions > 0 && (
+                          <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-700">
+                            🤖 {item.aiSuggestions} AI suggestions
+                          </span>
+                        )}
+                      </div>
+                      
+                      {item.content && (
+                        <p className="text-gray-300 text-sm line-clamp-3">
+                          {item.content.length > 200 ? `${item.content.substring(0, 200)}...` : item.content}
+                        </p>
+                      )}
+                      
+                      {item.notes && (
+                        <p className="text-gray-400 text-sm mt-2">
+                          <strong>Notes:</strong> {item.notes}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="text-right text-sm text-gray-400">
+                      <div>{formatDate(item.createdAt)}</div>
+                      {item.relevanceScore && (
+                        <div className="mt-1">
+                          <span className="text-xs">Relevance: {item.relevanceScore}%</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="mt-8 p-4 bg-blue-900/20 border border-blue-700 rounded-lg">
+        <p className="text-blue-300 text-sm">
+          💡 <strong>Living Documentation:</strong> This timeline automatically captures and links all journal entries, 
+          decisions, and meetings related to this project, creating a comprehensive development history.
+        </p>
+      </div>
+    </div>
+  );
 } 

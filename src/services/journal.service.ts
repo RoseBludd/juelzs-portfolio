@@ -5,6 +5,7 @@ export interface JournalEntry {
   id: string;
   title: string;
   content: string;
+  originalContent?: string; // Original content before AI enhancement (if applicable)
   category: 'architecture' | 'decision' | 'reflection' | 'planning' | 'problem-solving' | 'milestone' | 'learning';
   projectId?: string;
   projectName?: string;
@@ -35,6 +36,18 @@ export interface AISuggestion {
   createdAt: Date;
 }
 
+export interface ProjectJournalLink {
+  id: string;
+  projectId: string;
+  journalEntryId: string;
+  linkType: 'architecture-decision' | 'technical-challenge' | 'milestone' | 'learning' | 'planning' | 'general';
+  relevanceScore: number; // 0-100
+  impactType?: 'low' | 'medium' | 'high';
+  decisionCategory?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface JournalStats {
   totalEntries: number;
   entriesByCategory: Record<string, number>;
@@ -51,6 +64,12 @@ export interface JournalSearchFilters {
   dateFrom?: Date;
   dateTo?: Date;
   hasAISuggestions?: boolean;
+  impactLevel?: 'low' | 'medium' | 'high';
+  difficultyLevel?: 'low' | 'medium' | 'high';
+  linkType?: 'architecture-decision' | 'technical-challenge' | 'milestone' | 'learning' | 'planning' | 'general';
+  hasOriginalContent?: boolean;
+  dateFilter?: 'today' | 'yesterday' | 'this-week' | 'last-week' | 'this-month' | 'last-month' | 'this-year' | 'custom';
+  specificDate?: Date;
 }
 
 export interface Reminder {
@@ -108,10 +127,10 @@ class JournalService {
         
         const query = `
           INSERT INTO journal_entries (
-            id, title, content, category, project_id, project_name, 
+            id, title, content, original_content, category, project_id, project_name, 
             tags, architecture_diagrams, related_files, metadata, 
             created_at, updated_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
           RETURNING *
         `;
         
@@ -119,6 +138,7 @@ class JournalService {
           id,
           entry.title,
           entry.content,
+          (entry as any).originalContent || null,
           entry.category,
           entry.projectId || null,
           entry.projectName || null,
@@ -142,6 +162,13 @@ class JournalService {
         if ((entry as any).autoReminders && entry.metadata?.nextSteps && entry.metadata.nextSteps.length > 0) {
           this.createRemindersFromNextSteps(newEntry.id, entry.metadata.nextSteps).catch(error =>
             console.error('Failed to create auto-reminders:', error)
+          );
+        }
+
+        // Create project link if journal entry is associated with a project
+        if (entry.projectId) {
+          this.createProjectLink(newEntry).catch(error =>
+            console.error('Failed to create project link:', error)
           );
         }
         
@@ -211,8 +238,57 @@ class JournalService {
             values.push(filters.dateTo);
           }
           
+          // Handle specific date filter
+          if (filters.specificDate) {
+            const startOfDay = new Date(filters.specificDate.getFullYear(), filters.specificDate.getMonth(), filters.specificDate.getDate());
+            const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+            conditions.push(`je.created_at >= $${++paramCount} AND je.created_at < $${++paramCount}`);
+            values.push(startOfDay, endOfDay);
+          }
+          
           if (filters.hasAISuggestions) {
             conditions.push(`EXISTS (SELECT 1 FROM ai_suggestions WHERE journal_entry_id = je.id)`);
+          }
+          
+          // Impact level filter
+          if (filters.impactLevel) {
+            if (filters.impactLevel === 'high') {
+              conditions.push(`(je.metadata->>'impact')::int >= 8`);
+            } else if (filters.impactLevel === 'medium') {
+              conditions.push(`(je.metadata->>'impact')::int BETWEEN 5 AND 7`);
+            } else if (filters.impactLevel === 'low') {
+              conditions.push(`(je.metadata->>'impact')::int BETWEEN 1 AND 4`);
+            }
+          }
+          
+          // Difficulty level filter
+          if (filters.difficultyLevel) {
+            if (filters.difficultyLevel === 'high') {
+              conditions.push(`(je.metadata->>'difficulty')::int >= 8`);
+            } else if (filters.difficultyLevel === 'medium') {
+              conditions.push(`(je.metadata->>'difficulty')::int BETWEEN 5 AND 7`);
+            } else if (filters.difficultyLevel === 'low') {
+              conditions.push(`(je.metadata->>'difficulty')::int BETWEEN 1 AND 4`);
+            }
+          }
+          
+          // Link type filter (requires joining with project_journal_links)
+          if (filters.linkType) {
+            conditions.push(`EXISTS (
+              SELECT 1 FROM project_journal_links pjl 
+              WHERE pjl.journal_entry_id = je.id 
+              AND pjl.link_type = $${++paramCount}
+            )`);
+            values.push(filters.linkType);
+          }
+          
+          // Original content filter
+          if (filters.hasOriginalContent !== undefined) {
+            if (filters.hasOriginalContent) {
+              conditions.push(`je.original_content IS NOT NULL`);
+            } else {
+              conditions.push(`je.original_content IS NULL`);
+            }
           }
         }
         
@@ -221,7 +297,7 @@ class JournalService {
         }
         
         query += `
-          GROUP BY je.id, je.title, je.content, je.category, je.project_id, 
+          GROUP BY je.id, je.title, je.content, je.original_content, je.category, je.project_id, 
                    je.project_name, je.tags, je.architecture_diagrams, 
                    je.related_files, je.metadata, je.created_at, je.updated_at
           ORDER BY je.updated_at DESC
@@ -495,8 +571,65 @@ class JournalService {
           values.push(filters.projectId);
         }
         
+        // Add date filters to search
+        if (filters?.dateFrom) {
+          searchQuery += ` AND je.created_at >= $${++paramCount}`;
+          values.push(filters.dateFrom);
+        }
+        
+        if (filters?.dateTo) {
+          searchQuery += ` AND je.created_at <= $${++paramCount}`;
+          values.push(filters.dateTo);
+        }
+        
+        // Handle specific date filter in search
+        if (filters?.specificDate) {
+          const startOfDay = new Date(filters.specificDate.getFullYear(), filters.specificDate.getMonth(), filters.specificDate.getDate());
+          const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+          searchQuery += ` AND je.created_at >= $${++paramCount} AND je.created_at < $${++paramCount}`;
+          values.push(startOfDay, endOfDay);
+        }
+        
+        // Add new filter support to search
+        if (filters?.impactLevel) {
+          if (filters.impactLevel === 'high') {
+            searchQuery += ` AND (je.metadata->>'impact')::int >= 8`;
+          } else if (filters.impactLevel === 'medium') {
+            searchQuery += ` AND (je.metadata->>'impact')::int BETWEEN 5 AND 7`;
+          } else if (filters.impactLevel === 'low') {
+            searchQuery += ` AND (je.metadata->>'impact')::int BETWEEN 1 AND 4`;
+          }
+        }
+        
+        if (filters?.difficultyLevel) {
+          if (filters.difficultyLevel === 'high') {
+            searchQuery += ` AND (je.metadata->>'difficulty')::int >= 8`;
+          } else if (filters.difficultyLevel === 'medium') {
+            searchQuery += ` AND (je.metadata->>'difficulty')::int BETWEEN 5 AND 7`;
+          } else if (filters.difficultyLevel === 'low') {
+            searchQuery += ` AND (je.metadata->>'difficulty')::int BETWEEN 1 AND 4`;
+          }
+        }
+        
+        if (filters?.linkType) {
+          searchQuery += ` AND EXISTS (
+            SELECT 1 FROM project_journal_links pjl 
+            WHERE pjl.journal_entry_id = je.id 
+            AND pjl.link_type = $${++paramCount}
+          )`;
+          values.push(filters.linkType);
+        }
+        
+        if (filters?.hasOriginalContent !== undefined) {
+          if (filters.hasOriginalContent) {
+            searchQuery += ` AND je.original_content IS NOT NULL`;
+          } else {
+            searchQuery += ` AND je.original_content IS NULL`;
+          }
+        }
+        
         searchQuery += `
-          GROUP BY je.id, je.title, je.content, je.category, je.project_id, 
+          GROUP BY je.id, je.title, je.content, je.original_content, je.category, je.project_id, 
                    je.project_name, je.tags, je.architecture_diagrams, 
                    je.related_files, je.metadata, je.created_at, je.updated_at
           ORDER BY je.updated_at DESC
@@ -798,6 +931,193 @@ class JournalService {
     }
   }
 
+  /**
+   * Create project link for journal entry
+   */
+  async createProjectLink(entry: JournalEntry): Promise<ProjectJournalLink | null> {
+    if (!entry.projectId) return null;
+
+    try {
+      const client = await this.getClient();
+      
+      try {
+        const linkId = this.generateId();
+        const now = new Date();
+        
+        // Determine link type based on journal entry category and content
+        const linkType = this.determineLinkType(entry);
+        const relevanceScore = this.calculateRelevanceScore(entry);
+        const impactType = this.determineImpactType(entry);
+        
+        const query = `
+          INSERT INTO project_journal_links (
+            id, project_id, journal_entry_id, link_type, relevance_score, 
+            impact_type, decision_category, created_at, updated_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          RETURNING *
+        `;
+        
+        const values = [
+          linkId,
+          entry.projectId,
+          entry.id,
+          linkType,
+          relevanceScore,
+          impactType,
+          entry.category,
+          now,
+          now
+        ];
+        
+        const result = await client.query(query, values);
+        return this.mapRowToProjectLink(result.rows[0]);
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error('Error creating project link:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get journal entries for a specific project with timeline
+   */
+  async getProjectJournalTimeline(projectId: string): Promise<(JournalEntry & { linkInfo: ProjectJournalLink })[]> {
+    try {
+      const client = await this.getClient();
+      
+      try {
+        const query = `
+          SELECT 
+            je.*,
+            pjl.id as link_id,
+            pjl.link_type,
+            pjl.relevance_score,
+            pjl.impact_type,
+            pjl.decision_category,
+            pjl.created_at as link_created_at,
+            pjl.updated_at as link_updated_at,
+            COALESCE(json_agg(
+              json_build_object(
+                'id', ais.id,
+                'type', ais.type,
+                'suggestion', ais.suggestion,
+                'reasoning', ais.reasoning,
+                'confidence', ais.confidence,
+                'resources', ais.resources,
+                'implementationComplexity', ais.implementation_complexity,
+                'estimatedTimeToImplement', ais.estimated_time_to_implement,
+                'createdAt', ais.created_at
+              )
+            ) FILTER (WHERE ais.id IS NOT NULL), '[]') as ai_suggestions
+          FROM journal_entries je
+          INNER JOIN project_journal_links pjl ON je.id = pjl.journal_entry_id
+          LEFT JOIN ai_suggestions ais ON je.id = ais.journal_entry_id
+          WHERE pjl.project_id = $1
+          GROUP BY je.id, pjl.id, pjl.link_type, pjl.relevance_score, pjl.impact_type, 
+                   pjl.decision_category, pjl.created_at, pjl.updated_at
+          ORDER BY je.created_at DESC
+        `;
+        
+        const result = await client.query(query, [projectId]);
+        
+        return result.rows.map(row => {
+          const entry = this.mapRowToEntry(row);
+          entry.aiSuggestions = row.ai_suggestions || [];
+          
+          const linkInfo: ProjectJournalLink = {
+            id: row.link_id,
+            projectId: projectId,
+            journalEntryId: row.id,
+            linkType: row.link_type,
+            relevanceScore: row.relevance_score,
+            impactType: row.impact_type,
+            decisionCategory: row.decision_category,
+            createdAt: new Date(row.link_created_at),
+            updatedAt: new Date(row.link_updated_at)
+          };
+          
+          return { ...entry, linkInfo };
+        });
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error('Error fetching project journal timeline:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Helper methods for project linking
+   */
+  private determineLinkType(entry: JournalEntry): string {
+    const content = entry.content.toLowerCase();
+    const category = entry.category;
+    
+    if (category === 'architecture' || content.includes('architecture') || content.includes('design')) {
+      return 'architecture-decision';
+    } else if (category === 'problem-solving' || content.includes('challenge') || content.includes('issue')) {
+      return 'technical-challenge';
+    } else if (category === 'milestone' || content.includes('milestone') || content.includes('completed')) {
+      return 'milestone';
+    } else if (category === 'learning' || content.includes('learned') || content.includes('discovery')) {
+      return 'learning';
+    } else if (category === 'planning' || content.includes('plan') || content.includes('future')) {
+      return 'planning';
+    }
+    
+    return 'general';
+  }
+
+  private calculateRelevanceScore(entry: JournalEntry): number {
+    let score = 50; // Base score
+    
+    // Increase score based on category
+    const highValueCategories = ['architecture', 'decision', 'milestone'];
+    if (highValueCategories.includes(entry.category)) {
+      score += 20;
+    }
+    
+    // Increase score based on metadata
+    if (entry.metadata?.impact && entry.metadata.impact >= 7) {
+      score += 15;
+    }
+    if (entry.metadata?.difficulty && entry.metadata.difficulty >= 7) {
+      score += 10;
+    }
+    
+    // Increase score if has AI suggestions
+    if (entry.aiSuggestions && entry.aiSuggestions.length > 0) {
+      score += 10;
+    }
+    
+    return Math.min(100, Math.max(10, score));
+  }
+
+  private determineImpactType(entry: JournalEntry): string {
+    const impact = entry.metadata?.impact || 5;
+    
+    if (impact >= 8) return 'high';
+    if (impact >= 6) return 'medium';
+    return 'low';
+  }
+
+  private mapRowToProjectLink(row: any): ProjectJournalLink {
+    return {
+      id: row.id,
+      projectId: row.project_id,
+      journalEntryId: row.journal_entry_id,
+      linkType: row.link_type,
+      relevanceScore: row.relevance_score,
+      impactType: row.impact_type,
+      decisionCategory: row.decision_category,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at)
+    };
+  }
+
   // Private helper methods
   private async getClient(): Promise<PoolClient> {
     // Use the singleton DatabaseService which already handles SSL and connection pooling
@@ -822,6 +1142,7 @@ class JournalService {
             id VARCHAR(255) PRIMARY KEY,
             title VARCHAR(500) NOT NULL,
             content TEXT NOT NULL,
+            original_content TEXT,
             category VARCHAR(50) NOT NULL,
             project_id VARCHAR(255),
             project_name VARCHAR(255),
@@ -870,6 +1191,21 @@ class JournalService {
           )
         `);
 
+        // Create project_journal_links table for tracking project development history
+        await client.query(`
+          CREATE TABLE IF NOT EXISTS project_journal_links (
+            id VARCHAR(255) PRIMARY KEY,
+            project_id VARCHAR(255) NOT NULL,
+            journal_entry_id VARCHAR(255) REFERENCES journal_entries(id) ON DELETE CASCADE,
+            link_type VARCHAR(50) DEFAULT 'general',
+            relevance_score INTEGER DEFAULT 50,
+            impact_type VARCHAR(50),
+            decision_category VARCHAR(100),
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+          )
+        `);
+
         // Create indexes for better performance
         await client.query(`
           CREATE INDEX IF NOT EXISTS idx_journal_entries_category ON journal_entries(category);
@@ -881,6 +1217,9 @@ class JournalService {
           CREATE INDEX IF NOT EXISTS idx_reminders_due_date ON reminders(due_date);
           CREATE INDEX IF NOT EXISTS idx_reminders_priority ON reminders(priority);
           CREATE INDEX IF NOT EXISTS idx_reminders_related_entry ON reminders(related_entry_id);
+          CREATE INDEX IF NOT EXISTS idx_project_journal_links_project_id ON project_journal_links(project_id);
+          CREATE INDEX IF NOT EXISTS idx_project_journal_links_created_at ON project_journal_links(created_at);
+          CREATE INDEX IF NOT EXISTS idx_project_journal_links_link_type ON project_journal_links(link_type);
         `);
 
         console.log('Journal tables initialized successfully');
@@ -956,6 +1295,7 @@ class JournalService {
       id: row.id,
       title: row.title,
       content: row.content,
+      originalContent: row.original_content || undefined,
       category: row.category,
       projectId: row.project_id,
       projectName: row.project_name,

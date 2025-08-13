@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { content, files = [], currentDate = new Date().toISOString() } = body;
+    const { content, files = [], currentDate = new Date().toISOString(), projectContext = null } = body;
 
     if (!content || content.trim().length < 10) {
       return NextResponse.json(
@@ -42,6 +42,20 @@ ${content}
 
 ${files.length > 0 ? `FILES PROVIDED: ${files.map((f: any) => f.name || f.url || f).join(', ')}` : ''}
 
+${projectContext ? `
+PROJECT CONTEXT:
+- Project: ${projectContext.title}
+- Description: ${projectContext.description}
+- Category: ${projectContext.category}
+- Tech Stack: ${projectContext.techStack.join(', ')}
+
+Consider how this journal entry relates to this specific project. Think about:
+- How this decision/learning impacts the project's architecture
+- What specific technical challenges or solutions relate to the project's tech stack
+- How this affects the project's timeline, scalability, or maintainability
+- Any team coordination or technical debt implications for this project
+` : ''}
+
 Generate a complete, professional journal entry with these fields:
 
 1. OPTIMAL TITLE: Create a clear, descriptive title that captures the essence
@@ -53,8 +67,8 @@ Generate a complete, professional journal entry with these fields:
    - Maintain the original intent but enhance clarity and depth
    - Use proper markdown formatting for readability
 3. CATEGORY: Choose the best fit from: architecture, decision, reflection, planning, problem-solving, milestone, learning
-4. PROJECT DETECTION: Analyze content to detect which project this relates to (sales-jobs, portfolio, etc.)
-5. SMART TAGS: Generate relevant technical and contextual tags
+4. PROJECT ASSOCIATION: ${projectContext ? `Use the provided project context (${projectContext.title})` : 'Analyze content to detect which project this relates to (sales-jobs, portfolio, etc.)'}
+5. SMART TAGS: Generate relevant technical and contextual tags${projectContext ? ` (include tags related to: ${projectContext.techStack.slice(0, 5).join(', ')})` : ''}
 6. ASSESSMENT SCORES: Auto-assess difficulty (1-10) and impact (1-10) based on technical complexity and business value
 7. NEXT STEPS: Extract or infer logical next steps from the content
 8. KEY LEARNINGS: Identify important insights or lessons
@@ -70,9 +84,9 @@ Respond in JSON format:
   "optimizedEntry": {
     "title": "Generated optimal title",
     "category": "best_category",
-    "projectId": "detected_project_or_null",
-    "projectName": "detected_project_name_or_empty",
-    "tags": ["technical-tag1", "context-tag2", "domain-tag3"],
+    "projectId": ${projectContext ? `"${projectContext.id}"` : '"detected_project_or_null"'},
+    "projectName": ${projectContext ? `"${projectContext.title}"` : '"detected_project_name_or_empty"'},
+    "tags": ["technical-tag1", "context-tag2", "domain-tag3"${projectContext ? `, "${projectContext.category}", "${projectContext.techStack[0] || ''}"` : ''}],
     "content": "Enhanced and optimized content with better structure, technical depth, and professional formatting",
     "metadata": {
       "difficulty": 7,

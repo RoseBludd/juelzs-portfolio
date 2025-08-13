@@ -285,20 +285,20 @@ export default function JournalPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Portfolio Journal</h1>
-          <p className="text-gray-400 mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Portfolio Journal</h1>
+          <p className="text-gray-400 mt-1 text-sm sm:text-base">
             Track architecture decisions, project reflections, and AI-guided insights
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowTemplates(true)} className="bg-purple-600 hover:bg-purple-700">
+        <div className="flex gap-2 flex-shrink-0">
+          <Button onClick={() => setShowTemplates(true)} className="bg-purple-600 hover:bg-purple-700 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2">
             📋 From Template
           </Button>
-          <Button onClick={handleCreateEntry} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={handleCreateEntry} className="bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2">
             📝 New Entry
           </Button>
         </div>
@@ -319,7 +319,7 @@ export default function JournalPage() {
 
       {/* Tab Navigation */}
       <div className="bg-gray-800 rounded-lg">
-        <div className="flex border-b border-gray-700">
+        <div className="flex overflow-x-auto border-b border-gray-700">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -329,16 +329,17 @@ export default function JournalPage() {
                   loadReminders();
                 }
               }}
-              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-3 text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'text-blue-400 border-b-2 border-blue-400 bg-gray-750'
                   : 'text-gray-400 hover:text-gray-300'
               }`}
             >
-              <span className="text-lg">{tab.icon}</span>
-              {tab.label}
+              <span className="text-base sm:text-lg">{tab.icon}</span>
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">{tab.label.slice(0, 3)}</span>
               {tab.count !== undefined && (
-                <span className="ml-1 px-2 py-1 text-xs bg-gray-600 text-gray-300 rounded-full">
+                <span className="ml-1 px-1 sm:px-2 py-1 text-xs bg-gray-600 text-gray-300 rounded-full">
                   {tab.count}
                 </span>
               )}
@@ -347,47 +348,49 @@ export default function JournalPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="p-6">
+        <div className="p-3 sm:p-6">
           {activeTab === 'entries' && (
             <div className="space-y-6">
               {/* Collapsible Search and Filters */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-white">Search & Filter</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <h3 className="text-base sm:text-lg font-medium text-white">Search & Filter</h3>
                   <Button 
                     onClick={() => setShowFilters(!showFilters)}
-                    className="text-sm bg-gray-700 hover:bg-gray-600"
+                    className="text-xs sm:text-sm bg-gray-700 hover:bg-gray-600 px-3 py-2"
                   >
                     {showFilters ? '▼ Hide Filters' : '▶ Show Filters'}
                   </Button>
                 </div>
                 
                 {showFilters && (
-                  <div className="bg-gray-700 rounded-lg p-4 space-y-4">
-                    <div className="flex gap-4">
+                  <div className="bg-gray-700 rounded-lg p-3 sm:p-4 space-y-4">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                       <div className="flex-1">
                         <input
                           type="text"
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder="Search journal entries..."
-                          className="w-full px-4 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 sm:px-4 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                           onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                         />
                       </div>
-                      <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700">
-                        🔍 Search
-                      </Button>
-                      <Button 
-                        onClick={() => {
-                          setSearchQuery('');
-                          setFilters({});
-                          loadEntries();
-                        }} 
-                        className="bg-gray-600 hover:bg-gray-500"
-                      >
-                        Clear
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm px-3 py-2">
+                          🔍 Search
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            setSearchQuery('');
+                            setFilters({});
+                            loadEntries();
+                          }} 
+                          className="bg-gray-600 hover:bg-gray-500 text-xs sm:text-sm px-3 py-2"
+                        >
+                          Clear
+                        </Button>
+                      </div>
                     </div>
                     
                     <JournalFilters 
@@ -399,7 +402,7 @@ export default function JournalPage() {
               </div>
 
               {/* Journal Entries */}
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {isLoading ? (
                   <div className="text-center py-8">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>

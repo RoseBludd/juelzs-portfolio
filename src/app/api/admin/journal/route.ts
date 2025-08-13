@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
     const entry = await journalService.createEntry({
       title: body.title,
       content: body.content,
+      originalContent: body.originalContent,
       category: body.category,
       projectId: body.projectId,
       projectName: body.projectName,
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
       architectureDiagrams: body.architectureDiagrams || [],
       relatedFiles: body.relatedFiles || [],
       metadata: body.metadata || {}
-    });
+    } as any);
 
     return NextResponse.json({ success: true, entry }, { status: 201 });
   } catch (error) {
@@ -135,6 +136,7 @@ export async function PUT(request: NextRequest) {
     const updatedEntry = await journalService.updateEntry(body.id, {
       title: body.title,
       content: body.content,
+      originalContent: body.originalContent,
       category: body.category,
       projectId: body.projectId,
       projectName: body.projectName,

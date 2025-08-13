@@ -43,6 +43,7 @@ export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSugges
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAISuggestions, setShowAISuggestions] = useState(false);
   const [activeTab, setActiveTab] = useState<'content' | 'analysis'>('content');
+  const [showOriginalContent, setShowOriginalContent] = useState(false);
   const [analysis, setAnalysis] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
@@ -117,28 +118,33 @@ export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSugges
   return (
     <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
       {/* Header */}
-      <div className="p-6 border-b border-gray-700">
-        <div className="flex items-start justify-between">
+      <div className="p-4 sm:p-6 border-b border-gray-700">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${categoryColors[entry.category]}`}>
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${categoryColors[entry.category]}`}>
                 {categoryIcons[entry.category]} {entry.category}
               </span>
               {entry.projectName && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-300 border border-gray-600">
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-300 border border-gray-600">
                   💼 {entry.projectName}
                 </span>
               )}
               {entry.aiSuggestions && entry.aiSuggestions.length > 0 && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-700">
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-700">
                   🤖 {entry.aiSuggestions.length} AI Suggestion{entry.aiSuggestions.length !== 1 ? 's' : ''}
+                </span>
+              )}
+              {entry.originalContent && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-900/30 text-orange-300 border border-orange-700">
+                  📋 Has Original
                 </span>
               )}
             </div>
             
-            <h3 className="text-xl font-semibold text-white mb-2">{entry.title}</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-white mb-2 pr-2">{entry.title}</h3>
             
-            <div className="flex items-center gap-4 text-sm text-gray-400">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
               <span>📅 {formatDate(entry.createdAt)}</span>
               {entry.updatedAt !== entry.createdAt && (
                 <span>✏️ Updated {formatDate(entry.updatedAt)}</span>
@@ -152,13 +158,13 @@ export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSugges
             </div>
           </div>
           
-          <div className="flex items-center gap-2 ml-4">
+          <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
             <Button
               onClick={() => {
                 setIsExpanded(!isExpanded);
                 if (!isExpanded) setActiveTab('content');
               }}
-              className="text-sm bg-gray-700 hover:bg-gray-600"
+              className="text-xs sm:text-sm bg-gray-700 hover:bg-gray-600 px-2 py-1"
             >
               {isExpanded ? '👁️ Collapse' : '👁️ Expand'}
             </Button>
@@ -166,7 +172,7 @@ export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSugges
               <>
                 <Button
                   onClick={() => setActiveTab('content')}
-                  className={`text-sm ${
+                  className={`text-xs sm:text-sm px-2 py-1 ${
                     activeTab === 'content'
                       ? 'bg-blue-600 hover:bg-blue-700'
                       : 'bg-gray-700 hover:bg-gray-600'
@@ -174,10 +180,22 @@ export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSugges
                 >
                   📄 Content
                 </Button>
+                {entry.originalContent && activeTab === 'content' && (
+                  <Button
+                    onClick={() => setShowOriginalContent(!showOriginalContent)}
+                    className={`text-xs sm:text-sm px-2 py-1 ${
+                      showOriginalContent
+                        ? 'bg-orange-600 hover:bg-orange-700'
+                        : 'bg-gray-700 hover:bg-gray-600'
+                    }`}
+                  >
+                    {showOriginalContent ? '📝 Show Enhanced' : '📋 Show Original'}
+                  </Button>
+                )}
                 <Button
                   onClick={fetchAnalysis}
                   disabled={isAnalyzing}
-                  className={`text-sm ${
+                  className={`text-xs sm:text-sm px-2 py-1 ${
                     activeTab === 'analysis'
                       ? 'bg-purple-600 hover:bg-purple-700'
                       : 'bg-gray-700 hover:bg-gray-600'
@@ -189,13 +207,13 @@ export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSugges
             )}
             <Button
               onClick={() => onEdit(entry)}
-              className="text-sm bg-blue-600 hover:bg-blue-700"
+              className="text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 px-2 py-1"
             >
               ✏️ Edit
             </Button>
             <Button
               onClick={() => onDelete(entry.id)}
-              className="text-sm bg-red-600 hover:bg-red-700"
+              className="text-xs sm:text-sm bg-red-600 hover:bg-red-700 px-2 py-1"
             >
               🗑️ Delete
             </Button>
@@ -204,7 +222,7 @@ export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSugges
       </div>
 
       {/* Content */}
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {!isExpanded ? (
           // Collapsed view - show truncated content
           <div className="prose prose-invert max-w-none">
@@ -215,11 +233,35 @@ export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSugges
         ) : activeTab === 'content' ? (
           // Content tab - show full entry details
           <div className="space-y-4">
-            <div className="prose prose-invert max-w-none">
-              <p className="text-gray-300 whitespace-pre-wrap">
-                {entry.content}
-              </p>
-            </div>
+            {entry.originalContent && showOriginalContent ? (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs font-medium text-orange-400 bg-orange-900/30 px-2 py-1 rounded border border-orange-700">
+                    📋 Original Content
+                  </span>
+                </div>
+                <div className="prose prose-invert max-w-none">
+                  <p className="text-gray-300 whitespace-pre-wrap">
+                    {entry.originalContent}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div>
+                {entry.originalContent && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-medium text-blue-400 bg-blue-900/30 px-2 py-1 rounded border border-blue-700">
+                      🤖 AI Enhanced Content
+                    </span>
+                  </div>
+                )}
+                <div className="prose prose-invert max-w-none">
+                  <p className="text-gray-300 whitespace-pre-wrap">
+                    {entry.content}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Tags */}
             {entry.tags && entry.tags.length > 0 && (
