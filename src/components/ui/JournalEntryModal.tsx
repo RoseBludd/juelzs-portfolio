@@ -320,11 +320,13 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
             if (data.success && data.optimizedEntry) {
               setAiProgress('✨ Applying optimized content & insights...');
               const optimized = data.optimizedEntry;
+              // Store the original content before AI optimization
+              const originalContent = finalFormData.content;
+              
               finalFormData = {
                 ...finalFormData,
                 title: optimized.title || finalFormData.title || 'Untitled Entry',
                 content: optimized.content || finalFormData.content, // Use AI-optimized content
-                originalContent: finalFormData.content, // Preserve the original content before AI enhancement
                 category: optimized.category || finalFormData.category,
                 projectId: optimized.projectId || finalFormData.projectId,
                 projectName: optimized.projectName || finalFormData.projectName,
@@ -337,6 +339,9 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
                   resources: optimized.metadata.resources || finalFormData.metadata.resources
                 }
               };
+
+              // Add originalContent as a separate property since it's not in the form data type
+              (finalFormData as any).originalContent = originalContent;
             }
           }
         } catch (aiError) {
