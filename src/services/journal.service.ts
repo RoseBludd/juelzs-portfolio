@@ -230,12 +230,12 @@ class JournalService {
           
           if (filters.dateFrom) {
             conditions.push(`je.created_at >= $${++paramCount}`);
-            values.push(filters.dateFrom);
+            values.push(filters.dateFrom.toISOString());
           }
           
           if (filters.dateTo) {
             conditions.push(`je.created_at <= $${++paramCount}`);
-            values.push(filters.dateTo);
+            values.push(filters.dateTo.toISOString());
           }
           
           // Handle specific date filter
@@ -243,7 +243,7 @@ class JournalService {
             const startOfDay = new Date(filters.specificDate.getFullYear(), filters.specificDate.getMonth(), filters.specificDate.getDate());
             const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
             conditions.push(`je.created_at >= $${++paramCount} AND je.created_at < $${++paramCount}`);
-            values.push(startOfDay, endOfDay);
+            values.push(startOfDay.toISOString(), endOfDay.toISOString());
           }
           
           if (filters.hasAISuggestions) {
@@ -574,12 +574,12 @@ class JournalService {
         // Add date filters to search
         if (filters?.dateFrom) {
           searchQuery += ` AND je.created_at >= $${++paramCount}`;
-          values.push(filters.dateFrom);
+          values.push(filters.dateFrom.toISOString());
         }
         
         if (filters?.dateTo) {
           searchQuery += ` AND je.created_at <= $${++paramCount}`;
-          values.push(filters.dateTo);
+          values.push(filters.dateTo.toISOString());
         }
         
         // Handle specific date filter in search
@@ -587,7 +587,7 @@ class JournalService {
           const startOfDay = new Date(filters.specificDate.getFullYear(), filters.specificDate.getMonth(), filters.specificDate.getDate());
           const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
           searchQuery += ` AND je.created_at >= $${++paramCount} AND je.created_at < $${++paramCount}`;
-          values.push(startOfDay, endOfDay);
+          values.push(startOfDay.toISOString(), endOfDay.toISOString());
         }
         
         // Add new filter support to search
