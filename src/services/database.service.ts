@@ -51,12 +51,12 @@ class DatabaseService {
   private poolSize: number;
 
   private constructor() {
-    this.connectionString = process.env.SUPABASE_DB || '';
+    this.connectionString = process.env.VIBEZS_DB || '';
     // Use singleton connection in dev, pool in production
     this.poolSize = process.env.NODE_ENV === 'development' ? 1 : 10;
     
     if (!this.connectionString) {
-      console.warn('SUPABASE_DB connection string not found in environment variables');
+      console.warn('VIBEZS_DB connection string not found in environment variables');
     }
   }
 
@@ -148,9 +148,9 @@ class DatabaseService {
             name,
             type,
             description,
-            category,
-            module_count,
-            technologies,
+            'General' as category,
+            1 as module_count,
+            dependencies as technologies,
             created_at,
             updated_at,
             metadata
@@ -196,9 +196,9 @@ class DatabaseService {
             name,
             type,
             description,
-            category,
-            module_count,
-            technologies,
+            'General' as category,
+            1 as module_count,
+            dependencies as technologies,
             created_at,
             updated_at,
             metadata
@@ -279,9 +279,8 @@ class DatabaseService {
 
         // Get top categories
         const categoryQuery = `
-          SELECT category, COUNT(*) as count 
+          SELECT 'General' as category, COUNT(*) as count 
           FROM module_registry 
-          GROUP BY category 
           ORDER BY count DESC 
           LIMIT 5
         `;
@@ -320,9 +319,9 @@ class DatabaseService {
             name,
             type,
             description,
-            category,
-            module_count,
-            technologies,
+            'General' as category,
+            1 as module_count,
+            dependencies as technologies,
             created_at,
             updated_at,
             metadata
@@ -330,8 +329,8 @@ class DatabaseService {
           WHERE 
             name ILIKE $1 OR 
             description ILIKE $1 OR 
-            category ILIKE $1 OR 
-            array_to_string(technologies, ' ') ILIKE $1
+            type ILIKE $1 OR 
+            array_to_string(dependencies, ' ') ILIKE $1
           ORDER BY updated_at DESC
         `;
         

@@ -38,7 +38,7 @@ GITHUB_USERNAME=RoseBludd
 
 #### 🗄️ Optional (Database features)
 ```
-SUPABASE_DB=your-database-connection-string
+VIBEZS_DB=your-database-connection-string
 ```
 
 ### 3. Deploy Settings

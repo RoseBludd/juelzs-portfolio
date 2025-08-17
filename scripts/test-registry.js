@@ -13,11 +13,11 @@ async function testDatabaseConnection() {
     // Import after env is loaded
     const { Pool } = require('pg');
     
-    const connectionString = process.env.SUPABASE_DB;
+    const connectionString = process.env.VIBEZS_DB;
     
     if (!connectionString) {
-      console.log('❌ SUPABASE_DB connection string not found in environment variables');
-      console.log('   Make sure to add SUPABASE_DB to your .env file');
+      console.log('❌ VIBEZS_DB connection string not found in environment variables');
+      console.log('   Make sure to add VIBEZS_DB to your .env file');
       return false;
     }
     
@@ -200,7 +200,7 @@ async function testRegistryService() {
 async function main() {
   console.log('Environment variables:');
   console.log(`   NODE_ENV: ${process.env.NODE_ENV || 'not set'}`);
-  console.log(`   SUPABASE_DB: ${process.env.SUPABASE_DB ? 'configured' : 'not set'}`);
+  console.log(`   VIBEZS_DB: ${process.env.VIBEZS_DB ? 'configured' : 'not set'}`);
   
   // Test database connection
   const { pool, connected } = await testDatabaseConnection();

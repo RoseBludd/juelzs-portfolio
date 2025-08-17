@@ -466,7 +466,7 @@ OPENAI_API_KEY="your-openai-api-key"
 ADMIN_LOGIN="your-secure-admin-password"
 
 # Required for journal system and database features
-SUPABASE_DB="postgres://user:password@host:5432/database?sslmode=require"
+VIBEZS_DB="postgres://user:password@host:5432/database?sslmode=require"
 
 # AWS SES for email system (optional - contact form graceful fallback)
 AWS_ACCESS_KEY_ID="your-aws-access-key"
@@ -811,7 +811,7 @@ OPENAI_API_KEY=your-openai-api-key
 ADMIN_LOGIN=your-secure-admin-password
 
 # Database connection (required for journal system)
-SUPABASE_DB=postgres://user:password@host:5432/database?sslmode=require
+VIBEZS_DB=postgres://user:password@host:5432/database?sslmode=require
 
 # AWS SES for email system
 AWS_ACCESS_KEY_ID=your-aws-access-key

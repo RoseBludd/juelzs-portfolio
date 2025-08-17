@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const pool = new Pool({
-  connectionString: process.env.SUPABASE_DB,
+  connectionString: process.env.VIBEZS_DB,
   max: 1,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
