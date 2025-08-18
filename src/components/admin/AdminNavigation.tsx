@@ -44,6 +44,11 @@ const navigation = [
     href: '/admin/journal',
     icon: '📝',
   },
+  {
+    name: 'CADIS Journal',
+    href: '/admin/cadis-journal',
+    icon: '🧠',
+  },
 ];
 
 export default function AdminNavigation() {
