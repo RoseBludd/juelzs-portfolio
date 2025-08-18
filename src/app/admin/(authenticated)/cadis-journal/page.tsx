@@ -22,7 +22,25 @@ function getDreamVariationType(content: string) {
 // Component for individual CADIS entry with expandable content
 function CADISEntryCard({ entry }: { entry: CADISJournalEntry }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const contentPreview = entry.content.substring(0, 300) + '...';
+  
+  // Extract content from JSON if needed and create preview
+  const getCleanContent = (content: string) => {
+    if (content.startsWith('{"content":"') || content.startsWith('{\"content\":\"')) {
+      try {
+        const parsed = JSON.parse(content);
+        return parsed.content || content;
+      } catch (e) {
+        const match = content.match(/["']content["']\s*:\s*["'](.*?)["']/s);
+        if (match) {
+          return match[1];
+        }
+      }
+    }
+    return content;
+  };
+  
+  const cleanContent = getCleanContent(entry.content);
+  const contentPreview = cleanContent.substring(0, 300) + '...';
   
   // Check if this is a self-advancement dream
   const isSelfAdvancement = entry.title.toLowerCase().includes('cadis self-advancement') || 
@@ -105,15 +123,17 @@ function CADISEntryCard({ entry }: { entry: CADISJournalEntry }) {
         <div 
           className="text-gray-300"
           dangerouslySetInnerHTML={{ 
-            __html: (isExpanded ? entry.content : contentPreview)
-              .replace(/\\n/g, '\n')  // Convert escaped newlines to actual newlines first
-              .replace(/# (.*)/g, '<h3 class="text-lg font-semibold text-white mb-3">$1</h3>')
-              .replace(/## (.*)/g, '<h4 class="text-base font-medium text-white mb-2">$1</h4>')
-              .replace(/### (.*)/g, '<h5 class="text-sm font-medium text-white mb-2">$1</h5>')
+            __html: (isExpanded ? cleanContent : contentPreview)
+              .replace(/\\n/g, '\n')  // Convert escaped newlines to actual newlines
+              .replace(/\\"/g, '"')   // Convert escaped quotes
+              .replace(/# ([^\n]+)/g, '<h3 class="text-lg font-semibold text-white mb-3">$1</h3>')
+              .replace(/## ([^\n]+)/g, '<h4 class="text-base font-medium text-white mb-2">$1</h4>')
+              .replace(/### ([^\n]+)/g, '<h5 class="text-sm font-medium text-white mb-2">$1</h5>')
               .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
-              .replace(/^- (.*)/gm, '<li class="text-gray-300 ml-4">$1</li>')
+              .replace(/^- (.*)/gm, '<li class="text-gray-300 ml-4 list-disc">$1</li>')
               .replace(/\n\n/g, '</p><p class="mb-3">')
               .replace(/^(?!<[h|l])/gm, '<p class="mb-3 text-gray-300">')
+              .replace(/<p class="mb-3 text-gray-300"><\/p>/g, '') // Remove empty paragraphs
           }}
         />
         
@@ -738,10 +758,38 @@ export default function CADISJournalPage() {
                                   🔮 CADIS Revelation:
                                 </h5>
                                 <div className="bg-gray-700/50 rounded-lg p-3 text-xs">
-                                  <div className="text-gray-200 leading-relaxed whitespace-pre-line">
-                                    {entry.content.length > 300 
-                                      ? `${entry.content.substring(0, 300).replace(/\\n/g, '\n')}...` 
-                                      : entry.content.replace(/\\n/g, '\n')}
+                                  <div className="text-gray-200 leading-relaxed">
+                                    {(() => {
+                                      let content = entry.content.length > 300 
+                                        ? `${entry.content.substring(0, 300)}...` 
+                                        : entry.content;
+                                      
+                                      // Extract from JSON if needed
+                                      if (content.startsWith('{"content":"') || content.startsWith('{\"content\":\"')) {
+                                        try {
+                                          const parsed = JSON.parse(entry.content);
+                                          content = parsed.content || content;
+                                          if (entry.content.length > 300) {
+                                            content = `${content.substring(0, 300)}...`;
+                                          }
+                                        } catch (e) {
+                                          const match = content.match(/["']content["']\s*:\s*["'](.*?)["']/s);
+                                          if (match) {
+                                            content = match[1];
+                                            if (content.length > 300) {
+                                              content = `${content.substring(0, 300)}...`;
+                                            }
+                                          }
+                                        }
+                                      }
+                                      
+                                      return content
+                                        .replace(/\\n/g, '\n')
+                                        .replace(/\\"/g, '"')
+                                        .replace(/# ([^\n]+)/g, '📋 $1\n')
+                                        .replace(/## ([^\n]+)/g, '🔹 $1\n')
+                                        .replace(/### ([^\n]+)/g, '• $1\n');
+                                    })()}
                                   </div>
                                   {entry.content.length > 300 && (
                                     <button 
@@ -1181,9 +1229,39 @@ export default function CADISJournalPage() {
                   🧠 Complete CADIS Analysis
                 </h3>
                 <div className="bg-gray-700/30 rounded-lg p-4">
-                  <div className="text-gray-200 text-sm leading-relaxed whitespace-pre-line">
-                    {selectedInsightModal.content.replace(/\\n/g, '\n')}
-                  </div>
+                  <div 
+                    className="text-gray-200 text-sm leading-relaxed"
+                    dangerouslySetInnerHTML={{
+                      __html: (() => {
+                        let content = selectedInsightModal.content;
+                        
+                        // Extract from JSON if needed
+                        if (content.startsWith('{"content":"') || content.startsWith('{\"content\":\"')) {
+                          try {
+                            const parsed = JSON.parse(content);
+                            content = parsed.content || content;
+                          } catch (e) {
+                            const match = content.match(/["']content["']\s*:\s*["'](.*?)["']/s);
+                            if (match) {
+                              content = match[1];
+                            }
+                          }
+                        }
+                        
+                        return content
+                          .replace(/\\n/g, '\n')
+                          .replace(/\\"/g, '"')
+                          .replace(/# ([^\n]+)/g, '<h3 class="text-xl font-bold text-white mb-4 border-b border-gray-600 pb-2">$1</h3>')
+                          .replace(/## ([^\n]+)/g, '<h4 class="text-lg font-semibold text-white mb-3">$1</h4>')
+                          .replace(/### ([^\n]+)/g, '<h5 class="text-base font-medium text-white mb-2">$1</h5>')
+                          .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+                          .replace(/^- (.*)/gm, '<li class="text-gray-300 ml-4 mb-1">$1</li>')
+                          .replace(/\n\n/g, '</p><p class="mb-4">')
+                          .replace(/^(?!<[h|l])/gm, '<p class="mb-4 text-gray-200">')
+                          .replace(/<p class="mb-4 text-gray-200"><\/p>/g, '');
+                      })()
+                    }}
+                  />
                 </div>
               </div>
 
