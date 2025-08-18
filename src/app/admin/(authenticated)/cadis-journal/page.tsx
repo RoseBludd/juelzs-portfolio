@@ -126,14 +126,16 @@ function CADISEntryCard({ entry }: { entry: CADISJournalEntry }) {
             __html: (isExpanded ? cleanContent : contentPreview)
               .replace(/\\n/g, '\n')  // Convert escaped newlines to actual newlines
               .replace(/\\"/g, '"')   // Convert escaped quotes
-              .replace(/# ([^\n]+)/g, '<h3 class="text-lg font-semibold text-white mb-3">$1</h3>')
-              .replace(/## ([^\n]+)/g, '<h4 class="text-base font-medium text-white mb-2">$1</h4>')
-              .replace(/### ([^\n]+)/g, '<h5 class="text-sm font-medium text-white mb-2">$1</h5>')
+              .replace(/^#{1,3}\s*$/gm, '')  // Remove standalone hash symbols
+              .replace(/^# ([^\n]+)/gm, '<h3 class="text-lg font-semibold text-white mb-3 border-b border-gray-600 pb-2">$1</h3>')
+              .replace(/^## ([^\n]+)/gm, '<h4 class="text-base font-medium text-white mb-2">$1</h4>')
+              .replace(/^### ([^\n]+)/gm, '<h5 class="text-sm font-medium text-white mb-2">$1</h5>')
               .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
-              .replace(/^- (.*)/gm, '<li class="text-gray-300 ml-4 list-disc">$1</li>')
-              .replace(/\n\n/g, '</p><p class="mb-3">')
+              .replace(/^- (.*)/gm, '<li class="text-gray-300 ml-4 list-disc mb-1">$1</li>')
+              .replace(/\n\n+/g, '</p><p class="mb-3">')  // Handle multiple newlines
               .replace(/^(?!<[h|l])/gm, '<p class="mb-3 text-gray-300">')
               .replace(/<p class="mb-3 text-gray-300"><\/p>/g, '') // Remove empty paragraphs
+              .replace(/(<\/li>)\s*(<li)/g, '$1$2') // Clean up list formatting
           }}
         />
         
@@ -1251,14 +1253,16 @@ export default function CADISJournalPage() {
                         return content
                           .replace(/\\n/g, '\n')
                           .replace(/\\"/g, '"')
-                          .replace(/# ([^\n]+)/g, '<h3 class="text-xl font-bold text-white mb-4 border-b border-gray-600 pb-2">$1</h3>')
-                          .replace(/## ([^\n]+)/g, '<h4 class="text-lg font-semibold text-white mb-3">$1</h4>')
-                          .replace(/### ([^\n]+)/g, '<h5 class="text-base font-medium text-white mb-2">$1</h5>')
+                          .replace(/^#{1,3}\s*$/gm, '')  // Remove standalone hash symbols
+                          .replace(/^# ([^\n]+)/gm, '<h3 class="text-xl font-bold text-white mb-4 border-b border-gray-600 pb-2">$1</h3>')
+                          .replace(/^## ([^\n]+)/gm, '<h4 class="text-lg font-semibold text-white mb-3">$1</h4>')
+                          .replace(/^### ([^\n]+)/gm, '<h5 class="text-base font-medium text-white mb-2">$1</h5>')
                           .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
-                          .replace(/^- (.*)/gm, '<li class="text-gray-300 ml-4 mb-1">$1</li>')
-                          .replace(/\n\n/g, '</p><p class="mb-4">')
+                          .replace(/^- (.*)/gm, '<li class="text-gray-300 ml-4 mb-1 list-disc">$1</li>')
+                          .replace(/\n\n+/g, '</p><p class="mb-4">')  // Handle multiple newlines
                           .replace(/^(?!<[h|l])/gm, '<p class="mb-4 text-gray-200">')
-                          .replace(/<p class="mb-4 text-gray-200"><\/p>/g, '');
+                          .replace(/<p class="mb-4 text-gray-200"><\/p>/g, '')
+                          .replace(/(<\/li>)\s*(<li)/g, '$1$2'); // Clean up list formatting
                       })()
                     }}
                   />
