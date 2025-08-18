@@ -178,136 +178,371 @@ export default function StrategicArchitectMasterclass() {
           </div>
         </div>
 
-        {/* Analysis Overview */}
+        {/* Philosophical Alignment in Action */}
         {analysis && (
-          <Card className="mb-8 border-indigo-500/30">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-indigo-400">
-                  {(analysis.totalCharacters / 1000000).toFixed(1)}M
-                </div>
-                <div className="text-sm text-gray-400">Characters</div>
-                <div className="text-xs text-gray-500">~300 pages</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-400">
+          <div className="mb-8 space-y-6">
+            {/* Core Philosophy Demonstration */}
+            <Card className="border-green-500/30 bg-gradient-to-r from-green-500/5 to-emerald-500/5">
+              <div className="text-center mb-6">
+                <div className="text-5xl font-bold text-green-400 mb-2">
                   {analysis.philosophicalAlignment}/100
                 </div>
-                <div className="text-sm text-gray-400">Philosophical Alignment</div>
-                <div className="text-xs text-gray-500">Perfect consistency</div>
+                <h3 className="text-2xl font-semibold text-white mb-2">Philosophical Alignment</h3>
+                <p className="text-gray-300">Every principle consistently demonstrated across 1.9M characters</p>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-yellow-400">
-                  {analysis.strategicRatio}%
-                </div>
-                <div className="text-sm text-gray-400">Strategic Focus</div>
-                <div className="text-xs text-gray-500">vs {100 - analysis.strategicRatio}% technical</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-400">
-                  {analysis.totalExchanges}
-                </div>
-                <div className="text-sm text-gray-400">Total Exchanges</div>
-                <div className="text-xs text-gray-500">Deep interaction</div>
-              </div>
-            </div>
 
-            <div className="bg-indigo-500/10 rounded-lg p-6 border border-indigo-500/20">
-              <h3 className="text-lg font-semibold text-indigo-300 mb-4">Evolution Phases</h3>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {analysis.evolutionPhases.map((phase, index) => (
-                  <div key={phase.phase} className="text-center">
-                    <div className="bg-gray-800/50 rounded-lg p-4 mb-2">
-                      <div className="text-2xl mb-2">
-                        {index === 0 ? '🎯' : index === 1 ? '🔍' : index === 2 ? '🧠' : '🚀'}
-                      </div>
-                      <div className="text-sm font-medium text-white">{phase.phase}</div>
-                      <div className="text-xs text-gray-400 mt-1">{phase.focus}</div>
-                      <div className="text-xs text-indigo-400 mt-1">
-                        {phase.strategicIntensity} strategic patterns
-                      </div>
+                <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/20 text-center">
+                  <div className="text-3xl mb-2">⚡</div>
+                  <div className="text-lg font-bold text-green-400">If it needs to be done, do it</div>
+                  <div className="text-sm text-gray-400 mt-2">440 execution commands</div>
+                  <div className="text-xs text-green-300 mt-1">"proceed", "implement", "build"</div>
+                </div>
+                <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/20 text-center">
+                  <div className="text-3xl mb-2">🧩</div>
+                  <div className="text-lg font-bold text-blue-400">Make it modular</div>
+                  <div className="text-sm text-gray-400 mt-2">524 modular patterns</div>
+                  <div className="text-xs text-blue-300 mt-1">"singleton", "service", "component"</div>
+                </div>
+                <div className="bg-purple-500/10 rounded-lg p-4 border border-purple-500/20 text-center">
+                  <div className="text-3xl mb-2">♻️</div>
+                  <div className="text-lg font-bold text-purple-400">Make it reusable</div>
+                  <div className="text-sm text-gray-400 mt-2">493 reusability focuses</div>
+                  <div className="text-xs text-purple-300 mt-1">"framework", "systematic", "scale"</div>
+                </div>
+                <div className="bg-yellow-500/10 rounded-lg p-4 border border-yellow-500/20 text-center">
+                  <div className="text-3xl mb-2">📚</div>
+                  <div className="text-lg font-bold text-yellow-400">Make it teachable</div>
+                  <div className="text-sm text-gray-400 mt-2">250 teaching moments</div>
+                  <div className="text-xs text-yellow-300 mt-1">"document", "framework", "define"</div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Strategic Architect Patterns in Action */}
+            <Card className="border-indigo-500/30">
+              <h3 className="text-2xl font-semibold text-indigo-300 mb-6 text-center">
+                Strategic Architect Patterns in Action
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <div className="bg-indigo-500/10 rounded-lg p-4 border border-indigo-500/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="text-2xl">🎯</div>
+                    <div>
+                      <div className="font-bold text-indigo-300">Direction-Giving</div>
+                      <div className="text-sm text-gray-400">652 instances</div>
                     </div>
                   </div>
-                ))}
+                  <div className="text-xs text-gray-300 bg-gray-800/50 rounded p-2">
+                    "proceed and make sure that CADIS is using the developer information properly"
+                  </div>
+                </div>
+
+                <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="text-2xl">🧠</div>
+                    <div>
+                      <div className="font-bold text-blue-300">System Thinking</div>
+                      <div className="text-sm text-gray-400">2,894 instances</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-300 bg-gray-800/50 rounded p-2">
+                    "comprehensive developer intelligence... ecosystem analysis... CADIS integration"
+                  </div>
+                </div>
+
+                <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="text-2xl">🔍</div>
+                    <div>
+                      <div className="font-bold text-green-300">Quality Control</div>
+                      <div className="text-sm text-gray-400">314 instances</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-300 bg-gray-800/50 rounded p-2">
+                    "verify", "confirm", "check", "proper", "should be doing as it should"
+                  </div>
+                </div>
+
+                <div className="bg-purple-500/10 rounded-lg p-4 border border-purple-500/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="text-2xl">🔄</div>
+                    <div>
+                      <div className="font-bold text-purple-300">Iterative Refinement</div>
+                      <div className="text-sm text-gray-400">Real-time evolution</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-300 bg-gray-800/50 rounded p-2">
+                    "but should also be getting... what about... make sure it also..."
+                  </div>
+                </div>
+
+                <div className="bg-red-500/10 rounded-lg p-4 border border-red-500/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="text-2xl">🔧</div>
+                    <div>
+                      <div className="font-bold text-red-300">Problem Diagnosis</div>
+                      <div className="text-sm text-gray-400">Deep investigation</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-300 bg-gray-800/50 rounded p-2">
+                    "why not...", "what is the real issue", "understand the gap", "optimize"
+                  </div>
+                </div>
+
+                <div className="bg-yellow-500/10 rounded-lg p-4 border border-yellow-500/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="text-2xl">🎭</div>
+                    <div>
+                      <div className="font-bold text-yellow-300">Meta-Analysis</div>
+                      <div className="text-sm text-gray-400">217 instances</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-300 bg-gray-800/50 rounded p-2">
+                    "analyze our current conversation", "define the styles", "framework creation"
+                  </div>
+                </div>
               </div>
-            </div>
-          </Card>
+
+              <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-lg p-4 border border-indigo-500/20 text-center">
+                <div className="text-lg font-semibold text-indigo-300 mb-2">
+                  66% Strategic Focus vs 34% Technical Implementation
+                </div>
+                <div className="text-sm text-gray-400">
+                  Perfect balance: Strategic leadership with hands-on execution capability
+                </div>
+              </div>
+            </Card>
+          </div>
         )}
 
-        {/* Controls */}
-        <div className="flex flex-col lg:flex-row gap-4 mb-8">
-          <div className="flex-1">
-            <div className="relative">
-              <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search conversation content, patterns, or insights..."
-                className="w-full pl-10 pr-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none"
-              />
+        {/* Key Strategic Moments */}
+        <Card className="mb-8 border-amber-500/30">
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-semibold text-amber-300 mb-2">
+              Key Strategic Moments
+            </h3>
+            <p className="text-gray-400">
+              Witness execution-led refinement in action - no search required
+            </p>
+          </div>
+
+          {/* Curated Key Moments */}
+          <div className="space-y-4">
+            {/* Moment 1: Initial Strategic Direction */}
+            <div className="bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-lg p-6 border border-indigo-500/20">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                    👤
+                  </div>
+                  <div>
+                    <div className="font-medium text-white">Strategic Direction</div>
+                    <div className="text-xs text-gray-400">Opening Command</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-medium text-green-400">95/100 Strategic</div>
+                  <div className="text-xs text-green-300">Perfect execution focus</div>
+                </div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-4 mb-4">
+                <div className="text-gray-300 text-sm leading-relaxed">
+                  <strong className="text-indigo-400">"proceed and make sure that CADIS is using the developer information in the database properly.. we recently ran script confirming how the data was. proceed with that. and confirm it is doing as it should in regards to insights about developers and what they are creating, their efficiencies, if they are following my principles and whatever else data we can get on them based on my setup. proceed."</strong>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-xs">
+                <div className="bg-indigo-500/20 rounded p-2 text-center">
+                  <div className="text-indigo-300 font-medium">Direction-Giving</div>
+                  <div className="text-gray-400">5 commands</div>
+                </div>
+                <div className="bg-blue-500/20 rounded p-2 text-center">
+                  <div className="text-blue-300 font-medium">Quality Control</div>
+                  <div className="text-gray-400">"confirm", "proper"</div>
+                </div>
+                <div className="bg-green-500/20 rounded p-2 text-center">
+                  <div className="text-green-300 font-medium">System Focus</div>
+                  <div className="text-gray-400">CADIS ecosystem</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Moment 2: Iterative Refinement */}
+            <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg p-6 border border-purple-500/20">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                    👤
+                  </div>
+                  <div>
+                    <div className="font-medium text-white">Iterative Refinement</div>
+                    <div className="text-xs text-gray-400">Scope Expansion</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-medium text-green-400">88/100 Strategic</div>
+                  <div className="text-xs text-green-300">Perfect refinement pattern</div>
+                </div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-4 mb-4">
+                <div className="text-gray-300 text-sm leading-relaxed">
+                  <strong className="text-purple-400">"yes.. the info it got is cool but should also be getting individual developer (active) info and them as an individual.. proceed."</strong>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-xs">
+                <div className="bg-purple-500/20 rounded p-2 text-center">
+                  <div className="text-purple-300 font-medium">Refinement</div>
+                  <div className="text-gray-400">"but should also"</div>
+                </div>
+                <div className="bg-pink-500/20 rounded p-2 text-center">
+                  <div className="text-pink-300 font-medium">Individual Focus</div>
+                  <div className="text-gray-400">Developer-specific</div>
+                </div>
+                <div className="bg-red-500/20 rounded p-2 text-center">
+                  <div className="text-red-300 font-medium">Action Command</div>
+                  <div className="text-gray-400">"proceed"</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Moment 3: Meta-Analysis */}
+            <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg p-6 border border-yellow-500/20">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-yellow-500/20 text-yellow-400 flex items-center justify-center">
+                    👤
+                  </div>
+                  <div>
+                    <div className="font-medium text-white">Meta-Analysis</div>
+                    <div className="text-xs text-gray-400">Framework Creation</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-medium text-green-400">100/100 Strategic</div>
+                  <div className="text-xs text-green-300">Perfect meta-cognitive</div>
+                </div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-4 mb-4">
+                <div className="text-gray-300 text-sm leading-relaxed">
+                  <strong className="text-yellow-400">"what about guiding and directing.. ? are any using the ai like, i am conversating with you here.. analyze our current conversation. anyone using and developing like i am.. lets make a md and define the styles so can understand difference (so CADIS can as well)"</strong>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-xs">
+                <div className="bg-yellow-500/20 rounded p-2 text-center">
+                  <div className="text-yellow-300 font-medium">Meta-Analysis</div>
+                  <div className="text-gray-400">"analyze our conversation"</div>
+                </div>
+                <div className="bg-orange-500/20 rounded p-2 text-center">
+                  <div className="text-orange-300 font-medium">Framework Creation</div>
+                  <div className="text-gray-400">"define the styles"</div>
+                </div>
+                <div className="bg-red-500/20 rounded p-2 text-center">
+                  <div className="text-red-300 font-medium">System Enhancement</div>
+                  <div className="text-gray-400">"so CADIS can as well"</div>
+                </div>
+              </div>
             </div>
           </div>
-          
-          <div className="flex gap-3">
-            <select
-              value={selectedPhase}
-              onChange={(e) => setSelectedPhase(e.target.value)}
-              className="px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none"
-            >
-              <option value="all">All Phases</option>
-              {analysis?.evolutionPhases.map(phase => (
-                <option key={phase.phase} value={phase.phase}>{phase.phase}</option>
-              ))}
-            </select>
-            
-            <button
-              onClick={() => setShowOnlyStrategic(!showOnlyStrategic)}
-              className={`px-4 py-3 rounded-lg border transition-colors ${
-                showOnlyStrategic 
-                  ? 'bg-indigo-600 border-indigo-500 text-white' 
-                  : 'bg-gray-800 border-gray-600 text-gray-300 hover:border-indigo-500'
-              }`}
-            >
-              <IconFilter size={16} className="inline mr-2" />
-              Strategic Only
-            </button>
-            
-            <Button variant="outline" size="sm">
-              <IconDownload size={16} className="mr-2" />
-              Export
-            </Button>
-            
-            <Button variant="outline" size="sm">
-              <IconShare size={16} className="mr-2" />
-              Share
-            </Button>
+
+          {/* Advanced Exploration */}
+          <div className="mt-8 text-center">
+            <div className="bg-gray-800/30 rounded-lg p-4 mb-4">
+              <p className="text-gray-400 text-sm mb-3">
+                Want to explore the full conversation? Advanced search and filtering available below.
+              </p>
+              <button
+                onClick={() => {
+                  const advancedSection = document.getElementById('advanced-exploration');
+                  advancedSection?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="text-indigo-400 hover:text-indigo-300 text-sm flex items-center gap-2 mx-auto"
+              >
+                <IconArrowRight size={16} />
+                Explore Full Conversation Archive
+              </button>
+            </div>
           </div>
+        </Card>
+
+        {/* Advanced Exploration Section */}
+        <div id="advanced-exploration" className="mb-8">
+          <Card className="border-gray-600">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-semibold text-gray-300 mb-2">
+                Advanced Conversation Exploration
+              </h3>
+              <p className="text-gray-400 text-sm">
+                Search, filter, and analyze specific patterns across all 78 conversation segments
+              </p>
+            </div>
+
+            {/* Advanced Controls */}
+            <div className="flex flex-col lg:flex-row gap-4 mb-6">
+              <div className="flex-1">
+                <div className="relative">
+                  <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search conversation content, patterns, or insights..."
+                    className="w-full pl-10 pr-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <select
+                  value={selectedPhase}
+                  onChange={(e) => setSelectedPhase(e.target.value)}
+                  className="px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none"
+                >
+                  <option value="all">All Phases</option>
+                  {analysis?.evolutionPhases.map(phase => (
+                    <option key={phase.phase} value={phase.phase}>{phase.phase}</option>
+                  ))}
+                </select>
+                
+                <button
+                  onClick={() => setShowOnlyStrategic(!showOnlyStrategic)}
+                  className={`px-4 py-3 rounded-lg border transition-colors ${
+                    showOnlyStrategic 
+                      ? 'bg-indigo-600 border-indigo-500 text-white' 
+                      : 'bg-gray-800 border-gray-600 text-gray-300 hover:border-indigo-500'
+                  }`}
+                >
+                  <IconFilter size={16} className="inline mr-2" />
+                  Strategic Only
+                </button>
+              </div>
+            </div>
+
+            {/* Results Info */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-gray-400">
+                Showing {filteredSegments.length} of {conversationData.length} conversation segments
+              </div>
+              {(searchTerm || selectedPhase !== 'all' || showOnlyStrategic) && (
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedPhase('all');
+                    setShowOnlyStrategic(false);
+                  }}
+                  className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 text-sm"
+                >
+                  <IconX size={14} />
+                  Clear Filters
+                </button>
+              )}
+            </div>
+          </Card>
         </div>
 
-        {/* Results Info */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="text-gray-400">
-            Showing {filteredSegments.length} of {conversationData.length} conversation segments
-          </div>
-          {(searchTerm || selectedPhase !== 'all' || showOnlyStrategic) && (
-            <button
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedPhase('all');
-                setShowOnlyStrategic(false);
-              }}
-              className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 text-sm"
-            >
-              <IconX size={14} />
-              Clear Filters
-            </button>
-          )}
-        </div>
-
-        {/* Conversation Segments */}
+        {/* Filtered Conversation Segments */}
         <div className="space-y-6">
-          {filteredSegments.map((segment, index) => (
+          {filteredSegments.slice(0, 10).map((segment, index) => (
             <Card 
               key={segment.id} 
               className={`border-gray-700 hover:border-gray-600 transition-all ${
