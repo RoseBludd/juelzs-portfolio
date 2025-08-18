@@ -222,7 +222,30 @@ class CursorChatAnalysisService {
         technicalTopics: [],
         avgContentLength: 0,
         chatFrequency: 'low',
-        learningVelocity: 'moderate'
+        learningVelocity: 'moderate',
+        conversationAnalysis: {
+          avgExchanges: 0,
+          avgConversationQuality: 0,
+          engagementScore: 0,
+          questionRate: 0,
+          problemSolvingRate: 0,
+          codeSharingRate: 0,
+          learningRate: 0,
+          coachingRecommendations: ['Cursor chat analysis unavailable'],
+          conversationInsights: ['Error analyzing cursor conversations'],
+          interactionStyle: {
+            primaryStyle: 'technical_implementer',
+            styleConfidence: 0,
+            styleBreakdown: {
+              strategicArchitect: 0,
+              technicalImplementer: 0,
+              learningExplorer: 0,
+              rapidPrototyper: 0,
+              creativeCollaborator: 0
+            },
+            styleInsights: ['Style analysis unavailable']
+          }
+        }
       };
     }
   }
@@ -279,6 +302,18 @@ class CursorChatAnalysisService {
     learningRate: number;
     coachingRecommendations: string[];
     conversationInsights: string[];
+    interactionStyle: {
+      primaryStyle: 'strategic_architect' | 'technical_implementer' | 'learning_explorer' | 'rapid_prototyper' | 'creative_collaborator';
+      styleConfidence: number;
+      styleBreakdown: {
+        strategicArchitect: number;
+        technicalImplementer: number;
+        learningExplorer: number;
+        rapidPrototyper: number;
+        creativeCollaborator: number;
+      };
+      styleInsights: string[];
+    };
   }> {
     try {
       // Get recent conversations for detailed analysis
@@ -304,7 +339,19 @@ class CursorChatAnalysisService {
           codeSharingRate: 0,
           learningRate: 0,
           coachingRecommendations: ['Encourage cursor usage for development assistance'],
-          conversationInsights: ['No detailed conversation data available']
+          conversationInsights: ['No detailed conversation data available'],
+          interactionStyle: {
+            primaryStyle: 'technical_implementer',
+            styleConfidence: 0,
+            styleBreakdown: {
+              strategicArchitect: 0,
+              technicalImplementer: 0,
+              learningExplorer: 0,
+              rapidPrototyper: 0,
+              creativeCollaborator: 0
+            },
+            styleInsights: ['Insufficient conversation data for style analysis']
+          }
         };
       }
       
