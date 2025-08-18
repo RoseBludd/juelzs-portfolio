@@ -44,6 +44,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
     tags: [] as string[],
     architectureDiagrams: [] as string[],
     relatedFiles: [] as string[],
+    isPrivate: false,
     metadata: {
       difficulty: 5,
       impact: 5,
@@ -107,6 +108,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
         tags: entry.tags || [],
         architectureDiagrams: entry.architectureDiagrams || [],
         relatedFiles: entry.relatedFiles || [],
+        isPrivate: entry.isPrivate || false,
         metadata: {
           difficulty: entry.metadata?.difficulty || 5,
           impact: entry.metadata?.impact || 5,
@@ -125,6 +127,7 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
         tags: [],
         architectureDiagrams: [],
         relatedFiles: [],
+        isPrivate: false,
         metadata: {
           difficulty: 5,
           impact: 5,
@@ -667,6 +670,21 @@ export default function JournalEntryModal({ entry, isOpen, onClose, onSave, isCr
                     </p>
                   </div>
 
+                  {/* Privacy Toggle */}
+                  <div>
+                    <label className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        checked={formData.isPrivate}
+                        onChange={(e) => setFormData(prev => ({ ...prev, isPrivate: e.target.checked }))}
+                        className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                      />
+                      <div>
+                        <span className="text-sm font-medium text-gray-300">🔒 Private Entry</span>
+                        <p className="text-xs text-gray-400">Hide this entry from the public insights page</p>
+                      </div>
+                    </label>
+                  </div>
 
                 </div>
 

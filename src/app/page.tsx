@@ -60,7 +60,7 @@ export default async function Home() {
               I don&apos;t just build features—I build the <span className="text-blue-400 font-semibold">systems that build features</span>, 
               <span className="text-purple-400 font-semibold"> train themselves</span>, and 
               <span className="text-green-400 font-semibold"> evolve with the team</span>. 
-              Creator of <strong>Prompt-Led Flow Architecture</strong> and the <strong>CADIS</strong> intelligence system.
+              Creator of <strong>Prompt-Led Flow Architecture</strong>, the <strong>CADIS</strong> intelligence system, and <strong>Vibezs.io</strong> - an AI-powered business platform builder.
             </p>
             
             {/* Core Philosophy Quote */}
@@ -76,9 +76,120 @@ export default async function Home() {
               <Button href="/philosophy" variant="outline" size="lg" className="w-full sm:w-auto">
                 Learn My Architecture
               </Button>
-                              <Button href="/contact" variant="ghost" size="lg" className="w-full sm:w-auto">
-                  Let&apos;s Build Together
-                </Button>
+              <Button href="/contact" variant="ghost" size="lg" className="w-full sm:w-auto">
+                Let&apos;s Build Together
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Vibezs Platform Showcase */}
+      <section className="px-4 sm:px-6 lg:px-8 py-20 bg-gradient-to-r from-purple-900/20 via-blue-900/20 to-purple-900/20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="mb-6">
+              <span className="px-4 py-2 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium">
+                🚀 FLAGSHIP PLATFORM
+              </span>
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+              Introducing <span className="gradient-text">Vibezs.io</span>
+            </h2>
+            <p className="text-xl text-gray-300 max-w-4xl mx-auto mb-8">
+              The revolutionary AI-powered business platform builder that transforms how businesses create custom solutions. 
+              Built with <strong>CADIS intelligence</strong>, <strong>1,045+ real business widgets</strong>, and the <strong>Tower of Babel architecture</strong>.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Platform Features */}
+            <div className="space-y-6">
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-2xl">🧠</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2 text-blue-300">CADIS AI Intelligence</h3>
+                  <p className="text-gray-400">Context-aware AI that learns your business and generates intelligent recommendations with 92% accuracy.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-2xl">🏗️</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2 text-purple-300">Tower of Babel Architecture</h3>
+                  <p className="text-gray-400">Revolutionary singleton pattern with multi-branch scaling - one root, unlimited specialized integrations.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-2xl">🌟</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2 text-green-300">DreamState Intelligence</h3>
+                  <p className="text-gray-400">Advanced business simulation and modeling system that creates intelligent digital twins of business processes with predictive capabilities.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-2xl">⚡</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2 text-orange-300">Progressive Enhancement</h3>
+                  <p className="text-gray-400">Built following my core philosophy - start small, test thoroughly, fix issues, scale gradually.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Platform Stats & CTA */}
+            <div className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700/50">
+              <div className="grid grid-cols-2 gap-6 mb-8">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-400 mb-2">1,045+</div>
+                  <div className="text-sm text-gray-400">Business Widgets</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-400 mb-2">25</div>
+                  <div className="text-sm text-gray-400">Live Repositories</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-400 mb-2">92%</div>
+                  <div className="text-sm text-gray-400">AI Accuracy</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-orange-400 mb-2">5</div>
+                  <div className="text-sm text-gray-400">Design Variations</div>
+                </div>
+              </div>
+
+              <div className="text-center">
+                <h3 className="text-2xl font-bold mb-4">Experience the Future of Business Platforms</h3>
+                <p className="text-gray-400 mb-6">
+                  See how AI-powered architecture and real business intelligence come together to create production-ready systems in minutes, not months.
+                </p>
+                <div className="space-y-3">
+                  <Button 
+                    href="https://vibezs.io" 
+                    size="lg" 
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  >
+                    🚀 Launch Vibezs.io Platform
+                  </Button>
+                  <Button 
+                    href="https://vibezs.io/dreamstate" 
+                    variant="outline" 
+                    size="lg" 
+                    className="w-full"
+                  >
+                    🌟 Experience DreamState
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

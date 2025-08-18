@@ -34,20 +34,20 @@ export const metadata: Metadata = {
   creator: "Juelzs",
   icons: {
     icon: [
-      { url: "/favicon-cropped.svg?v=2", sizes: "32x32", type: "image/svg+xml" },
-      { url: "/favicon-16.svg?v=2", sizes: "16x16", type: "image/svg+xml" },
-      { url: "/favicon.ico?v=2", type: "image/svg+xml" },
-      { url: "/favicon-cropped.svg?v=2", sizes: "any", type: "image/svg+xml" },
+      { url: "/profile-logo.png?v=3", sizes: "32x32", type: "image/png" },
+      { url: "/profile-logo.png?v=3", sizes: "16x16", type: "image/png" },
+      { url: "/profile-logo.png?v=3", sizes: "48x48", type: "image/png" },
+      { url: "/profile-logo.png?v=3", sizes: "any", type: "image/png" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" }
     ],
     apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+      { url: "/profile-logo.png", sizes: "180x180", type: "image/png" }
     ],
-    shortcut: "/favicon-cropped.svg?v=2",
+    shortcut: "/profile-logo.png?v=3",
     other: [
       {
         rel: "mask-icon",
-        url: "/favicon-cropped.svg?v=2",
+        url: "/profile-logo.png?v=3",
         color: "#3b82f6",
       },
     ]

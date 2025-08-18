@@ -24,6 +24,9 @@ export async function GET(request: NextRequest) {
     // Filter for public-appropriate content
     const publicEntries = allEntries
       .filter(entry => {
+        // Exclude entries explicitly marked as private
+        if (entry.isPrivate) return false;
+        
         // Exclude sensitive categories
         const privateTags = ['team-issues', 'personal', 'confidential', 'internal'];
         const hasPrivateTags = entry.tags.some(tag => 

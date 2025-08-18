@@ -13,6 +13,7 @@ export interface JournalEntry {
   architectureDiagrams?: string[]; // S3 URLs for uploaded diagrams
   relatedFiles?: string[]; // File paths or URLs
   aiSuggestions?: AISuggestion[];
+  isPrivate?: boolean; // Whether entry should be hidden from public insights page
   createdAt: Date;
   updatedAt: Date;
   metadata?: {
@@ -128,9 +129,9 @@ class JournalService {
         const query = `
           INSERT INTO journal_entries (
             id, title, content, original_content, category, project_id, project_name, 
-            tags, architecture_diagrams, related_files, metadata, 
+            tags, architecture_diagrams, related_files, metadata, is_private,
             created_at, updated_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
           RETURNING *
         `;
         
@@ -146,6 +147,7 @@ class JournalService {
           JSON.stringify(entry.architectureDiagrams || []),
           JSON.stringify(entry.relatedFiles || []),
           JSON.stringify(entry.metadata || {}),
+          entry.isPrivate || false,
           now,
           now
         ];
@@ -1302,6 +1304,7 @@ class JournalService {
       tags: parseJsonField(row.tags, []),
       architectureDiagrams: parseJsonField(row.architecture_diagrams, []),
       relatedFiles: parseJsonField(row.related_files, []),
+      isPrivate: row.is_private || false,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
       metadata: parseJsonField(row.metadata, {})

@@ -13,6 +13,7 @@ export interface SystemProject {
   videoUrl?: string;
   githubUrl?: string;
   liveUrl?: string;
+  externalUrl?: string;
   uniqueDecisions: string[];
   category: 'ai' | 'architecture' | 'leadership' | 'systems';
   stars?: number;
@@ -22,6 +23,7 @@ export interface SystemProject {
   language?: string;
   createdAt?: string;
   source: 'manual' | 'github' | 'hybrid';
+  status?: string;
 }
 
 export interface LeadershipVideo {

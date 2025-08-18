@@ -99,6 +99,7 @@ export async function POST(request: NextRequest) {
       tags: body.tags || [],
       architectureDiagrams: body.architectureDiagrams || [],
       relatedFiles: body.relatedFiles || [],
+      isPrivate: body.isPrivate || false,
       metadata: body.metadata || {}
     } as any);
 

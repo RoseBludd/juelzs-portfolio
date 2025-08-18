@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import Logo from '@/components/ui/Logo';
 
+interface FooterLink {
+  name: string;
+  href: string;
+  external?: boolean;
+}
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
@@ -34,7 +40,7 @@ const Footer = () => {
     },
   ];
 
-  const footerLinks = [
+  const footerLinks: { title: string; links: FooterLink[] }[] = [
     {
       title: 'Navigation',
       links: [
@@ -68,6 +74,7 @@ const Footer = () => {
         { name: 'Contact', href: '/contact' },
       ],
     },
+
   ];
 
   return (
