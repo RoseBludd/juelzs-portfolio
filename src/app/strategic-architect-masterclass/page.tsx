@@ -168,6 +168,8 @@ function TeachabilityPrincipleView({ segments }: { segments: ConversationSegment
 }
 
 function StrategicPatternsView({ segments }: { segments: ConversationSegment[] }) {
+  const [expandedSegment, setExpandedSegment] = useState<string | null>(null);
+  
   const strategicSegments = segments.filter(segment => 
     segment.speaker === 'User' && segment.strategicScore >= 70
   );
@@ -182,7 +184,14 @@ function StrategicPatternsView({ segments }: { segments: ConversationSegment[] }
       </div>
       
       {strategicSegments.slice(0, 20).map((segment, index) => (
-        <StrategicSegmentCard key={segment.id} segment={segment} />
+        <StrategicSegmentCard 
+          key={segment.id} 
+          segment={segment}
+          isExpanded={expandedSegment === segment.id}
+          onToggleExpand={() => setExpandedSegment(
+            expandedSegment === segment.id ? null : segment.id
+          )}
+        />
       ))}
     </div>
   );
@@ -277,14 +286,65 @@ function AllSegmentsView({
               )}
             </div>
 
-            {/* Expanded View */}
+            {/* Expanded Full Segment View */}
             {selectedSegment === segment.id && (
-              <div className="border-t border-gray-700 pt-4 space-y-4">
-                <div className="bg-gray-800/50 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-gray-300 mb-3">Full Content</h4>
-                  <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
-                    {segment.content}
+              <div className="border-t border-indigo-500/30 pt-6 space-y-4">
+                <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-lg p-6 border border-indigo-500/20">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-indigo-300 flex items-center gap-2">
+                      📖 Full Segment Content
+                      <span className="px-2 py-1 bg-indigo-600/20 text-indigo-300 rounded-full text-xs">
+                        {segment.content.length.toLocaleString()} characters
+                      </span>
+                    </h4>
+                    <button
+                      onClick={() => setSelectedSegment(null)}
+                      className="text-gray-400 hover:text-gray-300 flex items-center gap-1 text-sm"
+                    >
+                      <IconX size={16} />
+                      Close
+                    </button>
                   </div>
+                  
+                  <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50 max-h-96 overflow-y-auto">
+                    <div className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap font-mono">
+                      {segment.content}
+                    </div>
+                  </div>
+                  
+                  {/* Segment Analysis */}
+                  <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="text-lg font-bold text-green-400">{segment.strategicScore}</div>
+                      <div className="text-xs text-gray-400">Strategic Score</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="text-lg font-bold text-blue-400">{segment.alignmentScore}</div>
+                      <div className="text-xs text-gray-400">Alignment Score</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="text-lg font-bold text-purple-400">{segment.keyInsights.length}</div>
+                      <div className="text-xs text-gray-400">Key Insights</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="text-lg font-bold text-yellow-400">{segment.speaker}</div>
+                      <div className="text-xs text-gray-400">Speaker</div>
+                    </div>
+                  </div>
+                  
+                  {/* Key Insights */}
+                  {segment.keyInsights.length > 0 && (
+                    <div className="mt-4">
+                      <h5 className="text-sm font-semibold text-gray-300 mb-2">🔍 Key Insights</h5>
+                      <div className="space-y-2">
+                        {segment.keyInsights.map((insight, idx) => (
+                          <div key={idx} className="bg-gray-800/30 rounded-lg p-3 border border-gray-600/30">
+                            <div className="text-gray-300 text-sm">{insight}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -363,7 +423,326 @@ function PrincipleSegmentCard({
   );
 }
 
-function StrategicSegmentCard({ segment }: { segment: ConversationSegment }) {
+// Learning Goal Categories Component
+function LearningGoalCategories({ 
+  segments, 
+  onCategorySelect, 
+  selectedGoal 
+}: { 
+  segments: ConversationSegment[];
+  onCategorySelect: (category: string, filteredSegments: ConversationSegment[]) => void;
+  selectedGoal: string;
+}) {
+  const learningGoals = [
+    {
+      id: 'all',
+      title: '🔍 All Segments',
+      description: 'Browse all conversation segments',
+      icon: IconEye,
+      color: 'border-gray-600 bg-gray-800/50',
+      activeColor: 'border-indigo-500 bg-indigo-600/20',
+      filter: () => segments
+    },
+    {
+      id: 'strategic-leadership',
+      title: '👑 Strategic Leadership',
+      description: 'Direction-setting, vision casting, and high-level decision making',
+      icon: IconTarget,
+      color: 'border-purple-600 bg-purple-800/20',
+      activeColor: 'border-purple-400 bg-purple-600/30',
+      filter: () => segments.filter(s => 
+        s.speaker === 'User' && 
+        (s.strategicPatterns.directionGiving >= 3 || 
+         s.strategicPatterns.systemThinking >= 3 ||
+         s.strategicScore >= 85)
+      )
+    },
+    {
+      id: 'technical-implementation',
+      title: '⚡ Technical Implementation',
+      description: 'Code analysis, system architecture, and deep technical workflows',
+      icon: IconBrain,
+      color: 'border-blue-600 bg-blue-800/20',
+      activeColor: 'border-blue-400 bg-blue-600/30',
+      filter: () => segments.filter(s => 
+        s.speaker === 'Cursor' && 
+        (s.content.includes('```') || 
+         s.content.includes('async function') ||
+         s.content.includes('class ') ||
+         s.content.includes('interface ') ||
+         s.content.length > 2000)
+      )
+    },
+    {
+      id: 'problem-solving',
+      title: '🔧 Problem Solving',
+      description: 'Debugging, troubleshooting, and systematic problem resolution',
+      icon: IconChartBar,
+      color: 'border-orange-600 bg-orange-800/20',
+      activeColor: 'border-orange-400 bg-orange-600/30',
+      filter: () => segments.filter(s => 
+        s.strategicPatterns.problemDiagnosis >= 2 ||
+        s.content.toLowerCase().includes('error') ||
+        s.content.toLowerCase().includes('fix') ||
+        s.content.toLowerCase().includes('debug') ||
+        s.content.toLowerCase().includes('issue')
+      )
+    },
+    {
+      id: 'iterative-refinement',
+      title: '🔄 Iterative Refinement',
+      description: 'Course corrections, feedback loops, and continuous improvement',
+      icon: IconTrendingUp,
+      color: 'border-green-600 bg-green-800/20',
+      activeColor: 'border-green-400 bg-green-600/30',
+      filter: () => segments.filter(s => 
+        s.strategicPatterns.iterativeRefinement >= 2 ||
+        s.content.toLowerCase().includes('proceed') ||
+        s.content.toLowerCase().includes('also') ||
+        s.content.toLowerCase().includes('refine') ||
+        s.content.toLowerCase().includes('improve')
+      )
+    },
+    {
+      id: 'meta-analysis',
+      title: '🧠 Meta-Analysis',
+      description: 'System design thinking, framework creation, and higher-order analysis',
+      icon: IconBook,
+      color: 'border-cyan-600 bg-cyan-800/20',
+      activeColor: 'border-cyan-400 bg-cyan-600/30',
+      filter: () => segments.filter(s => 
+        s.strategicPatterns.metaAnalysis >= 2 ||
+        s.content.toLowerCase().includes('analyze') ||
+        s.content.toLowerCase().includes('framework') ||
+        s.content.toLowerCase().includes('pattern') ||
+        s.content.toLowerCase().includes('architecture')
+      )
+    },
+    {
+      id: 'coaching-insights',
+      title: '📈 Coaching & Insights',
+      description: 'Performance analysis, recommendations, and developer evaluation',
+      icon: IconMessageCircle,
+      color: 'border-yellow-600 bg-yellow-800/20',
+      activeColor: 'border-yellow-400 bg-yellow-600/30',
+      filter: () => segments.filter(s => 
+        s.content.toLowerCase().includes('developer') ||
+        s.content.toLowerCase().includes('performance') ||
+        s.content.toLowerCase().includes('analysis') ||
+        s.content.toLowerCase().includes('recommendation') ||
+        s.content.toLowerCase().includes('insight')
+      )
+    }
+  ];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+      {learningGoals.map((goal) => {
+        const filteredSegments = goal.filter();
+        const isSelected = selectedGoal === goal.id;
+        const IconComponent = goal.icon;
+        
+        return (
+          <button
+            key={goal.id}
+            onClick={() => onCategorySelect(goal.id, filteredSegments)}
+            className={`p-4 rounded-lg border-2 transition-all duration-200 text-left hover:scale-105 ${
+              isSelected ? goal.activeColor : goal.color
+            } hover:border-opacity-80`}
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <IconComponent size={24} className={isSelected ? 'text-white' : 'text-gray-400'} />
+              <div className="flex-1">
+                <h4 className={`font-semibold text-sm ${isSelected ? 'text-white' : 'text-gray-300'}`}>
+                  {goal.title}
+                </h4>
+              </div>
+              <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                isSelected 
+                  ? 'bg-white/20 text-white' 
+                  : 'bg-gray-600/50 text-gray-400'
+              }`}>
+                {filteredSegments.length}
+              </span>
+            </div>
+            <p className={`text-xs leading-relaxed ${
+              isSelected ? 'text-gray-200' : 'text-gray-500'
+            }`}>
+              {goal.description}
+            </p>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// Learning Recommendations Component
+function LearningRecommendations({ 
+  learningGoal, 
+  segmentCount, 
+  segments 
+}: { 
+  learningGoal: string;
+  segmentCount: number;
+  segments: ConversationSegment[];
+}) {
+  const getRecommendations = (goal: string) => {
+    const recommendations = {
+      'strategic-leadership': {
+        icon: '👑',
+        title: 'Strategic Leadership Learning Path',
+        insights: [
+          'Study how initial direction is given and problems are framed',
+          'Notice the balance between high-level vision and specific action items',
+          'Observe how complex technical requirements are communicated simply',
+          'Look for patterns in decision-making and priority setting'
+        ],
+        keyQuestions: [
+          'How does the leader set context before giving direction?',
+          'What makes the communication clear and actionable?',
+          'How are trade-offs and constraints communicated?'
+        ]
+      },
+      'technical-implementation': {
+        icon: '⚡',
+        title: 'Technical Implementation Deep Dive',
+        insights: [
+          'Analyze complete code solutions and architectural patterns',
+          'Study how complex systems are broken down into manageable parts',
+          'Learn database design and service integration patterns',
+          'Observe testing and debugging methodologies'
+        ],
+        keyQuestions: [
+          'What makes this code modular and maintainable?',
+          'How are edge cases and error handling addressed?',
+          'What patterns can be reused in other projects?'
+        ]
+      },
+      'problem-solving': {
+        icon: '🔧',
+        title: 'Systematic Problem Resolution',
+        insights: [
+          'Study the diagnostic process from symptom to root cause',
+          'Learn how to systematically eliminate possibilities',
+          'Observe how debugging information is gathered and analyzed',
+          'Notice how solutions are tested and validated'
+        ],
+        keyQuestions: [
+          'What was the hypothesis and how was it tested?',
+          'How was the problem scope defined and limited?',
+          'What preventive measures were put in place?'
+        ]
+      },
+      'iterative-refinement': {
+        icon: '🔄',
+        title: 'Continuous Improvement Mastery',
+        insights: [
+          'Study how feedback loops are established and maintained',
+          'Learn to recognize when course correction is needed',
+          'Observe how scope expansion is managed strategically',
+          'Notice how improvements build on previous work'
+        ],
+        keyQuestions: [
+          'What triggers the need for refinement?',
+          'How is the balance between perfection and progress maintained?',
+          'What criteria determine when something is "good enough"?'
+        ]
+      },
+      'meta-analysis': {
+        icon: '🧠',
+        title: 'Higher-Order Thinking Development',
+        insights: [
+          'Study how systems are analyzed at multiple levels',
+          'Learn to create frameworks and mental models',
+          'Observe pattern recognition across different contexts',
+          'Notice how abstract concepts are made concrete'
+        ],
+        keyQuestions: [
+          'What patterns emerge across different scenarios?',
+          'How are complex systems simplified for understanding?',
+          'What frameworks help organize this information?'
+        ]
+      },
+      'coaching-insights': {
+        icon: '📈',
+        title: 'Performance Analysis & Coaching',
+        insights: [
+          'Study how performance is measured and evaluated',
+          'Learn to identify improvement opportunities',
+          'Observe how feedback is structured and delivered',
+          'Notice how development plans are created'
+        ],
+        keyQuestions: [
+          'What metrics indicate strong performance?',
+          'How is constructive feedback balanced with recognition?',
+          'What development paths are most effective?'
+        ]
+      }
+    };
+
+    return recommendations[goal] || recommendations['strategic-leadership'];
+  };
+
+  const rec = getRecommendations(learningGoal);
+  const avgStrategicScore = Math.round(
+    segments.reduce((sum, s) => sum + s.strategicScore, 0) / segments.length
+  );
+
+  return (
+    <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-lg p-6 border border-indigo-500/20 mb-6">
+      <div className="flex items-center gap-3 mb-4">
+        <span className="text-2xl">{rec.icon}</span>
+        <h3 className="text-lg font-semibold text-white">{rec.title}</h3>
+        <span className="px-3 py-1 bg-indigo-600/20 text-indigo-300 rounded-full text-sm">
+          {segmentCount} segments • Avg Score: {avgStrategicScore}/100
+        </span>
+      </div>
+      
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <h4 className="font-semibold text-indigo-300 mb-3 flex items-center gap-2">
+            <IconTarget size={16} />
+            Key Learning Insights
+          </h4>
+          <ul className="space-y-2">
+            {rec.insights.map((insight, index) => (
+              <li key={index} className="text-gray-300 text-sm flex items-start gap-2">
+                <span className="text-indigo-400 mt-1">•</span>
+                {insight}
+              </li>
+            ))}
+          </ul>
+        </div>
+        
+        <div>
+          <h4 className="font-semibold text-indigo-300 mb-3 flex items-center gap-2">
+            <IconMessageCircle size={16} />
+            Questions to Ask Yourself
+          </h4>
+          <ul className="space-y-2">
+            {rec.keyQuestions.map((question, index) => (
+              <li key={index} className="text-gray-300 text-sm flex items-start gap-2">
+                <span className="text-purple-400 mt-1">?</span>
+                {question}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StrategicSegmentCard({ 
+  segment, 
+  isExpanded, 
+  onToggleExpand 
+}: { 
+  segment: ConversationSegment;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
+}) {
   return (
     <Card className="border-indigo-500/30 bg-indigo-500/5">
       <div className="space-y-3">
@@ -382,16 +761,38 @@ function StrategicSegmentCard({ segment }: { segment: ConversationSegment }) {
             </div>
           </div>
           
-          <div className="text-right">
-            <div className="text-sm font-medium text-green-400">{segment.alignmentScore}/100</div>
-            <div className="text-xs text-green-300">Alignment</div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-sm font-medium text-green-400">{segment.alignmentScore}/100</div>
+              <div className="text-xs text-green-300">Alignment</div>
+            </div>
+            {onToggleExpand && (
+              <button
+                onClick={onToggleExpand}
+                className="text-gray-400 hover:text-indigo-400 transition-colors"
+              >
+                <IconEye size={18} />
+              </button>
+            )}
           </div>
         </div>
         
         <div className="bg-gray-800/30 rounded-lg p-3">
-          <div className="text-gray-300 text-sm leading-relaxed">
-            {segment.content.substring(0, 300)}{segment.content.length > 300 ? '...' : ''}
+          <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+            {isExpanded 
+              ? segment.content
+              : `${segment.content.substring(0, 300)}${segment.content.length > 300 ? '...' : ''}`
+            }
           </div>
+          
+          {!isExpanded && segment.content.length > 300 && onToggleExpand && (
+            <button
+              onClick={onToggleExpand}
+              className="text-indigo-400 hover:text-indigo-300 text-sm mt-2 flex items-center gap-1"
+            >
+              Read Full Segment <IconArrowRight size={14} />
+            </button>
+          )}
         </div>
 
         {/* Strategic Patterns */}
@@ -412,11 +813,23 @@ function StrategicSegmentCard({ segment }: { segment: ConversationSegment }) {
 
         {segment.keyInsights.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {segment.keyInsights.slice(0, 2).map((insight, idx) => (
+            {(isExpanded ? segment.keyInsights : segment.keyInsights.slice(0, 2)).map((insight, idx) => (
               <div key={idx} className="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded">
                 {insight}
               </div>
             ))}
+          </div>
+        )}
+
+        {isExpanded && onToggleExpand && (
+          <div className="pt-3 border-t border-indigo-500/20">
+            <button
+              onClick={onToggleExpand}
+              className="text-gray-400 hover:text-gray-300 flex items-center gap-1 text-sm w-full justify-center"
+            >
+              <IconX size={16} />
+              Collapse Segment
+            </button>
           </div>
         )}
       </div>
@@ -433,9 +846,24 @@ export default function StrategicArchitectMasterclass() {
   const [mainTab, setMainTab] = useState<string>('moments'); // 'moments', 'principles', or 'exploration'
   const [showOnlyStrategic, setShowOnlyStrategic] = useState(false);
   const [selectedSegment, setSelectedSegment] = useState<string | null>(null);
+  const [learningGoal, setLearningGoal] = useState<string>('all');
+  const [filteredByGoal, setFilteredByGoal] = useState<ConversationSegment[]>([]);
 
   useEffect(() => {
     loadConversationData();
+    
+    // Check for anchor navigation to learning-goal explorer
+    const hash = window.location.hash;
+    if (hash === '#learning-explorer' || hash === '#exploration') {
+      setMainTab('exploration');
+      // Scroll to the learning explorer section after a brief delay
+      setTimeout(() => {
+        const explorerElement = document.getElementById('learning-goal-explorer');
+        if (explorerElement) {
+          explorerElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
   }, []);
 
   const loadConversationData = async () => {
@@ -458,7 +886,10 @@ export default function StrategicArchitectMasterclass() {
   };
 
   const filteredSegments = useMemo(() => {
-    let filtered = conversationData;
+    // Start with learning goal filtered segments if available
+    let filtered = learningGoal !== 'all' && filteredByGoal.length > 0 
+      ? filteredByGoal 
+      : conversationData;
 
     // Search filter
     if (searchTerm) {
@@ -475,8 +906,8 @@ export default function StrategicArchitectMasterclass() {
       filtered = filtered.filter(segment => segment.strategicScore >= 70);
     }
 
-    // Phase filter
-    if (selectedPhase !== 'all') {
+    // Phase filter (only if not using learning goal filter)
+    if (selectedPhase !== 'all' && learningGoal === 'all') {
       const phaseIndex = analysis?.evolutionPhases.findIndex(p => p.phase === selectedPhase);
       if (phaseIndex !== undefined && phaseIndex >= 0) {
         const segmentsPerPhase = Math.floor(conversationData.length / (analysis?.evolutionPhases.length || 1));
@@ -487,7 +918,7 @@ export default function StrategicArchitectMasterclass() {
     }
 
     return filtered;
-  }, [conversationData, searchTerm, showOnlyStrategic, selectedPhase, analysis]);
+  }, [conversationData, filteredByGoal, learningGoal, searchTerm, showOnlyStrategic, selectedPhase, analysis]);
 
   const getStrategicColor = (score: number) => {
     if (score >= 80) return 'text-green-400';
@@ -1040,18 +1471,28 @@ export default function StrategicArchitectMasterclass() {
         )}
 
         {mainTab === 'exploration' && (
-          <Card className="mb-8 border-gray-600">
+          <Card className="mb-8 border-gray-600" id="learning-goal-explorer">
             <div className="text-center mb-6">
               <h3 className="text-xl font-semibold text-gray-300 mb-2">
-                Advanced Conversation Exploration
+                🎯 Learning-Goal-Based Segment Explorer
               </h3>
               <p className="text-gray-400 text-sm">
-                Search, filter, and analyze specific patterns across all {conversationData.length} conversation segments
+                Choose your learning objective to find the most relevant conversation segments from {conversationData.length} total segments
               </p>
             </div>
 
-            {/* Advanced Controls */}
-            <div className="flex flex-col lg:flex-row gap-4 mb-6">
+            {/* Learning Goal Categories */}
+            <LearningGoalCategories 
+              segments={conversationData}
+              onCategorySelect={(category, segments) => {
+                setLearningGoal(category);
+                setFilteredByGoal(segments);
+              }}
+              selectedGoal={learningGoal}
+            />
+
+            {/* Advanced Search & Filters */}
+            <div className="flex flex-col lg:flex-row gap-4 mb-6 mt-6">
               <div className="flex-1">
                 <div className="relative">
                   <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -1059,7 +1500,7 @@ export default function StrategicArchitectMasterclass() {
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search conversation content, patterns, or insights..."
+                    placeholder="Refine your search within selected learning goal..."
                     className="w-full pl-10 pr-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none"
                   />
                 </div>
@@ -1080,24 +1521,62 @@ export default function StrategicArchitectMasterclass() {
               </div>
             </div>
 
+            {/* Learning Goal Status & Results Info */}
+            {learningGoal !== 'all' && (
+              <div className="bg-indigo-500/10 rounded-lg p-4 border border-indigo-500/20 mb-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-3 h-3 bg-indigo-400 rounded-full animate-pulse"></div>
+                  <h4 className="font-semibold text-indigo-300">
+                    Learning Goal Active: {learningGoal.split('-').map(word => 
+                      word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ')}
+                  </h4>
+                </div>
+                <p className="text-gray-400 text-sm">
+                  Showing segments specifically filtered for your learning objective. Use search to refine further.
+                </p>
+              </div>
+            )}
+            
             {/* Results Info */}
             <div className="flex items-center justify-between mb-6">
               <div className="text-gray-400">
-                Showing {filteredSegments.length} of {conversationData.length} conversation segments
+                Showing <span className="text-white font-semibold">{filteredSegments.length}</span> of <span className="text-gray-300">{conversationData.length}</span> conversation segments
+                {learningGoal !== 'all' && (
+                  <span className="ml-2 px-2 py-1 bg-indigo-600/20 text-indigo-300 rounded-full text-xs">
+                    Goal Filtered
+                  </span>
+                )}
+                {searchTerm && (
+                  <span className="ml-2 px-2 py-1 bg-blue-600/20 text-blue-300 rounded-full text-xs">
+                    Search: "{searchTerm}"
+                  </span>
+                )}
               </div>
-              {(searchTerm || showOnlyStrategic) && (
+              {(searchTerm || showOnlyStrategic || learningGoal !== 'all') && (
                 <button
                   onClick={() => {
                     setSearchTerm('');
                     setShowOnlyStrategic(false);
+                    setLearningGoal('all');
+                    setFilteredByGoal([]);
                   }}
                   className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 text-sm"
                 >
                   <IconX size={14} />
-                  Clear Filters
+                  Clear All Filters
                 </button>
               )}
             </div>
+
+            {/* Learning Recommendations */}
+            {learningGoal !== 'all' && filteredSegments.length > 0 && (
+              <LearningRecommendations 
+                learningGoal={learningGoal}
+                segmentCount={filteredSegments.length}
+                segments={filteredSegments}
+              />
+            )}
 
             {/* All Segments View */}
             <AllSegmentsView segments={filteredSegments} selectedSegment={selectedSegment} setSelectedSegment={setSelectedSegment} />

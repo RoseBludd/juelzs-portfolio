@@ -10,6 +10,7 @@ export interface CADISHealthMetrics {
   systemEfficiency: number; // 1-100
   selfReflectionHealth: number; // 1-100 - NEW: CADIS self-advancement capability
   metaCognitiveAwareness: number; // 1-100 - NEW: CADIS self-awareness level
+  strategicArchitectHealth: number; // 1-100 - NEW: Strategic Architect conversation analysis health
   overallHealth: number; // 1-100
 }
 
@@ -56,29 +57,32 @@ class CADISMaintenanceService {
 
   /**
    * Perform comprehensive CADIS health analysis and maintenance
+   * Now includes Strategic Architect Masterclass conversation analysis context
    */
   async performMaintenanceAnalysis(): Promise<CADISPerformanceAnalysis> {
-    console.log('🔧 CADIS Maintenance Service - Analyzing system health and philosophical alignment...');
+    console.log('🔧 CADIS Maintenance Service - Analyzing system health, philosophical alignment, and Strategic Architect conversation patterns...');
     
     try {
       const client = await this.getClient();
       
       try {
-        // Analyze CADIS performance across multiple dimensions
+        // Analyze CADIS performance across multiple dimensions including Strategic Architect patterns
         const [
           insightQuality,
           philosophicalAlignment,
           predictionAccuracy,
           systemEfficiency,
           selfReflectionHealth,
-          metaCognitiveAwareness
+          metaCognitiveAwareness,
+          strategicArchitectHealth
         ] = await Promise.all([
           this.analyzeInsightQuality(client),
           this.analyzePhilosophicalAlignment(client),
           this.analyzePredictionAccuracy(client),
           this.analyzeSystemEfficiency(client),
           this.analyzeSelfReflectionHealth(client),
-          this.analyzeMetaCognitiveAwareness(client)
+          this.analyzeMetaCognitiveAwareness(client),
+          this.analyzeStrategicArchitectHealth(client)
         ]);
 
         const actionableRecommendations = await this.calculateActionabilityScore(client);
@@ -91,7 +95,8 @@ class CADISMaintenanceService {
           systemEfficiency,
           selfReflectionHealth,
           metaCognitiveAwareness,
-          overallHealth: Math.round((insightQuality + philosophicalAlignment + predictionAccuracy + systemEfficiency + selfReflectionHealth + metaCognitiveAwareness) / 6)
+          strategicArchitectHealth,
+          overallHealth: Math.round((insightQuality + philosophicalAlignment + predictionAccuracy + systemEfficiency + selfReflectionHealth + metaCognitiveAwareness + strategicArchitectHealth) / 7)
         };
 
         // Detect patterns and anomalies
@@ -953,6 +958,103 @@ ${analysis.recommendations.philosophical.map(r => `- ${r}`).join('\n')}
     } catch (error) {
       console.error('Error analyzing meta-cognitive awareness:', error);
       return 50; // Default score on error
+    }
+  }
+
+  /**
+   * Analyze Strategic Architect conversation patterns and health
+   * NEW: Monitors the health of strategic conversation analysis system
+   */
+  private async analyzeStrategicArchitectHealth(client: PoolClient): Promise<number> {
+    try {
+      console.log('🎓 Analyzing Strategic Architect conversation system health...');
+
+      // Check if Strategic Architect conversations exist and are being processed
+      const strategicArchitectData = await client.query(`
+        SELECT 
+          cc.id, cc.title, cc.content, cc.metadata, cc.created_at,
+          d.name as developer_name, d.role
+        FROM cursor_chats cc
+        JOIN developers d ON cc.developer_id = d.id
+        WHERE d.role = 'strategic_architect'
+        AND cc.title LIKE '%CADIS Developer Intelligence Enhancement%'
+        ORDER BY cc.created_at DESC
+        LIMIT 5
+      `);
+
+      if (strategicArchitectData.rows.length === 0) {
+        console.log('⚠️ No Strategic Architect conversations found');
+        return 30; // Low score if no conversations
+      }
+
+      let totalHealthScore = 0;
+      let conversationCount = 0;
+
+      for (const conversation of strategicArchitectData.rows) {
+        const content = conversation.content;
+        if (!content || content.length < 1000) continue;
+
+        conversationCount++;
+        let conversationHealth = 0;
+
+        // Check conversation completeness (User + Cursor exchanges)
+        const userMarkers = (content.match(/\*\*User\*\*/g) || []).length;
+        const cursorMarkers = (content.match(/\*\*Cursor\*\*/g) || []).length;
+        const exchangeCompleteness = Math.min(100, (Math.min(userMarkers, cursorMarkers) / Math.max(userMarkers, cursorMarkers, 1)) * 100);
+        
+        // Check strategic pattern richness
+        const strategicPatterns = [
+          /\b(proceed|implement|ensure|make sure|analyze|optimize|verify|confirm)\b/gi,
+          /\b(system|architecture|cadis|developer|comprehensive|overall)\b/gi,
+          /\b(quality|proper|right|should|correct|working|functional)\b/gi,
+          /\b(but|however|also|additionally|what about|should also|refine)\b/gi
+        ];
+        
+        let patternScore = 0;
+        strategicPatterns.forEach(pattern => {
+          const matches = (content.match(pattern) || []).length;
+          patternScore += Math.min(25, matches * 5);
+        });
+        
+        // Check content depth and learning value
+        const contentDepth = Math.min(100, (content.length / 10000) * 100);
+        
+        // Check philosophical alignment indicators
+        const alignmentIndicators = [
+          /\b(modular|component|service|singleton|module|reusable)\b/gi,
+          /\b(framework|pattern|template|systematic|scale)\b/gi,
+          /\b(document|explain|understand|define|teach|learn)\b/gi,
+          /\b(enhance|improve|upgrade|build on|progressive)\b/gi
+        ];
+        
+        let alignmentScore = 0;
+        alignmentIndicators.forEach(indicator => {
+          const matches = (content.match(indicator) || []).length;
+          alignmentScore += Math.min(25, matches * 8);
+        });
+        
+        conversationHealth = Math.round((exchangeCompleteness + patternScore + contentDepth + alignmentScore) / 4);
+        totalHealthScore += conversationHealth;
+        
+        console.log(`   Conversation ${conversation.id}: ${conversationHealth}% health`);
+      }
+
+      const avgHealth = conversationCount > 0 ? Math.round(totalHealthScore / conversationCount) : 50;
+      
+      // Bonus for recent activity
+      const latestConversation = strategicArchitectData.rows[0];
+      const daysSinceLatest = Math.floor((Date.now() - new Date(latestConversation.created_at).getTime()) / (1000 * 60 * 60 * 24));
+      const recencyBonus = Math.max(0, 20 - daysSinceLatest); // Up to 20 point bonus for recent activity
+      
+      const finalScore = Math.min(100, avgHealth + recencyBonus);
+      
+      console.log(`🎓 Strategic Architect health: ${finalScore}% (${conversationCount} conversations analyzed, ${daysSinceLatest} days since latest)`);
+      
+      return Math.max(0, Math.min(100, finalScore));
+
+    } catch (error) {
+      console.error('Error analyzing Strategic Architect health:', error);
+      return 40; // Default score on error
     }
   }
 

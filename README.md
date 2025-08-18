@@ -642,6 +642,67 @@ Based on complexity, utility, and apparent quality
 - **Private Repository Friendly**: Perfect for showcasing proprietary and confidential projects
 - **Comprehensive Coverage**: Every project gets meaningful analysis regardless of GitHub visibility settings
 
+### 🎓 **Strategic Architect Masterclass - Conversation Analysis System**
+
+**AI-Powered Learning Platform** - Transform real development conversations into structured learning experiences:
+
+#### **Complete Conversation Analysis** (`/strategic-architect-masterclass`)
+**Full 1.85M Character Archive** - Comprehensive analysis of strategic development conversations:
+
+- **50+ Conversation Segments**: Complete User-Cursor exchanges with full context preservation
+- **Strategic Pattern Recognition**: AI identifies direction-giving, system thinking, and meta-analysis patterns
+- **Philosophical Alignment Scoring**: Measures alignment with execution-led principles (modularity, reusability, teachability)
+- **Learning-Goal-Based Exploration**: 7 distinct learning categories for targeted skill development
+- **Complete Conversation Context**: Full segments show both User requests AND Cursor responses for complete learning context
+
+#### **Learning Goal Categories**
+**Intelligent Segment Filtering** - Choose your learning objective to find the most relevant conversation segments:
+
+1. **👑 Strategic Leadership** - Direction-setting, vision casting, high-level decision making
+2. **⚡ Technical Implementation** - Code analysis, system architecture, deep technical workflows
+3. **🔧 Problem Solving** - Debugging, troubleshooting, systematic problem resolution
+4. **🔄 Iterative Refinement** - Feedback loops, course corrections, continuous improvement
+5. **🧠 Meta-Analysis** - Framework creation, pattern recognition, higher-order thinking
+6. **📈 Coaching & Insights** - Performance analysis, recommendations, developer evaluation
+7. **🔍 All Segments** - Browse complete conversation archive
+
+#### **Enhanced Learning Features**
+**Comprehensive Learning Support** - Each segment includes detailed analysis and learning guidance:
+
+- **Strategic Scoring**: 0-100 strategic value assessment based on direction-giving and system thinking patterns
+- **Alignment Scoring**: Philosophical alignment with execution-led development principles
+- **Key Insights Extraction**: AI-generated learning points and strategic patterns
+- **Full Conversation Context**: Complete User request + Cursor response for comprehensive understanding
+- **Learning Recommendations**: Contextual guidance on what to study and questions to ask yourself
+- **Pattern Analysis**: Detailed breakdown of strategic patterns (direction-giving, system thinking, quality control, etc.)
+
+#### **Advanced Segment Display**
+**Professional Learning Interface** - Optimized for knowledge extraction and skill development:
+
+- **Expandable Segments**: Click "Read Full Segment" to see complete conversation exchanges
+- **Character Count Display**: Know exactly how much content you're reading (up to 10,000+ characters per segment)
+- **Strategic Analysis Dashboard**: Visual breakdown of strategic scores, alignment metrics, and key insights
+- **Learning Context**: Each segment shows why it's valuable for your selected learning goal
+- **Search & Filter**: Refine segments within your chosen learning category
+- **Progress Tracking**: Visual indicators of learning goal selection and active filters
+
+#### **Conversation Parsing Intelligence**
+**Advanced Content Processing** - Sophisticated parsing ensures complete learning context:
+
+- **Exchange-Based Parsing**: Groups User requests with corresponding Cursor responses
+- **Context Preservation**: Full conversation flow maintained for complete understanding
+- **Strategic Analysis**: User messages scored for strategic value (direction-giving, system thinking)
+- **Technical Analysis**: Cursor responses analyzed for implementation patterns and technical depth
+- **Learning Optimization**: Content structured specifically for skill development and pattern recognition
+
+#### **Benefits for Professional Development**
+- **Strategic Thinking Development**: Learn how to give direction and set technical vision
+- **Problem-Solving Methodology**: Study systematic approaches to complex technical challenges  
+- **Meta-Cognitive Skills**: Develop higher-order thinking about development processes
+- **Leadership Pattern Recognition**: Understand what makes technical leadership effective
+- **Complete Context Learning**: See both the strategic request AND the technical implementation
+- **Self-Paced Learning**: Choose your focus area and depth of exploration
+
 ## 🏗️ **Advanced Technical Architecture**
 
 ### **Core Service Architecture**

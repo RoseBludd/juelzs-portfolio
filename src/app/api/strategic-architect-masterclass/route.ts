@@ -85,41 +85,144 @@ export async function GET(request: NextRequest) {
 function parseConversationSegments(content: string) {
   const segments = [];
   
-  // Split by User/Cursor markers
-  const parts = content.split(/(?=\*\*(?:User|Cursor)\*\*)/);
+  // Split by --- separators to get individual conversation parts
+  const parts = content.split(/\n---\n/);
+  
+  let exchangeNumber = 1;
+  let currentUserMessage = null;
   
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i].trim();
     if (!part) continue;
     
-    // Determine speaker
-    const isUser = part.startsWith('**User**');
-    const isCursor = part.startsWith('**Cursor**');
+    // Check if this part contains User or Cursor markers
+    const isUser = part.includes('**User**');
+    const isCursor = part.includes('**Cursor**');
     
     if (!isUser && !isCursor) continue;
     
-    const speaker = isUser ? 'User' : 'Cursor';
-    
-    // Extract content (remove speaker marker and separators)
-    let segmentContent = part
-      .replace(/^\*\*(?:User|Cursor)\*\*/, '')
-      .replace(/^---/, '')
-      .trim();
-    
-    if (segmentContent.length < 50) continue; // Skip very short segments
-    
-    // Generate segment analysis
-    const strategicPatterns = analyzeStrategicPatterns(segmentContent);
-    const philosophicalAlignment = analyzePhilosophicalAlignment(segmentContent);
-    const strategicScore = calculateStrategicScore(strategicPatterns);
-    const alignmentScore = calculateAlignmentScore(philosophicalAlignment);
-    const keyInsights = generateKeyInsights(segmentContent, speaker, strategicPatterns, philosophicalAlignment);
+    if (isUser) {
+      // If we have a pending user message without response, create standalone segment
+      if (currentUserMessage) {
+        const strategicPatterns = analyzeStrategicPatterns(currentUserMessage.content);
+        const philosophicalAlignment = analyzePhilosophicalAlignment(currentUserMessage.content);
+        const strategicScore = calculateStrategicScore(strategicPatterns, 'User');
+        const alignmentScore = calculateAlignmentScore(philosophicalAlignment, 'User');
+        const keyInsights = generateKeyInsights(currentUserMessage.content, 'User', strategicPatterns, philosophicalAlignment);
+        
+        segments.push({
+          id: `segment-${segments.length + 1}`,
+          speaker: 'User',
+          content: currentUserMessage.content,
+          timestamp: `Exchange ${currentUserMessage.exchangeNumber}`,
+          strategicPatterns,
+          philosophicalAlignment,
+          strategicScore,
+          alignmentScore,
+          keyInsights
+        });
+      }
+      
+      // Extract new user content
+      const userContent = part
+        .replace(/^\*\*User\*\*/, '')
+        .trim();
+      
+      if (userContent.length < 10) continue; // Very lenient threshold
+      
+      currentUserMessage = {
+        content: userContent,
+        exchangeNumber: exchangeNumber
+      };
+      
+      exchangeNumber++;
+      
+    } else if (isCursor && currentUserMessage) {
+      // Extract cursor content
+      const cursorContent = part
+        .replace(/^\*\*Cursor\*\*/, '')
+        .trim();
+      
+      if (cursorContent.length < 20) continue; // Very lenient threshold
+      
+      // Create complete conversation exchange - THIS IS THE MAIN SEGMENT
+      const fullConversation = `**USER REQUEST:**
+${currentUserMessage.content}
+
+**CURSOR RESPONSE:**
+${cursorContent}`;
+      
+      // ANALYZE THE COMPLETE EXCHANGE for alignment (User + Cursor together)
+      const combinedContent = currentUserMessage.content + ' ' + cursorContent;
+      const strategicPatterns = analyzeStrategicPatterns(currentUserMessage.content); // Strategic patterns from user
+      const philosophicalAlignment = analyzePhilosophicalAlignment(combinedContent); // Alignment from complete exchange
+      const strategicScore = calculateStrategicScore(strategicPatterns, 'Exchange');
+      const alignmentScore = calculateAlignmentScore(philosophicalAlignment, 'Exchange');
+      const keyInsights = generateKeyInsights(combinedContent, 'Exchange', strategicPatterns, philosophicalAlignment);
+      
+      segments.push({
+        id: `segment-${segments.length + 1}`,
+        speaker: 'Exchange', // Complete conversation exchange
+        content: fullConversation,
+        userContent: currentUserMessage.content,
+        cursorContent: cursorContent,
+        timestamp: `Exchange ${currentUserMessage.exchangeNumber}`,
+        strategicPatterns,
+        philosophicalAlignment,
+        strategicScore,
+        alignmentScore,
+        keyInsights
+      });
+      
+      currentUserMessage = null; // Clear after pairing
+      
+    } else if (isCursor && !currentUserMessage) {
+      // Orphaned cursor response - still create segment
+      const cursorContent = part
+        .replace(/^\*\*Cursor\*\*/, '')
+        .trim();
+      
+      if (cursorContent.length < 50) continue;
+      
+      const fullConversation = `**CURSOR RESPONSE:**
+${cursorContent}
+
+*Note: This is a continuation response with valuable technical implementation insights.*`;
+      
+      const strategicPatterns = analyzeStrategicPatterns(cursorContent);
+      const philosophicalAlignment = analyzePhilosophicalAlignment(cursorContent);
+      const strategicScore = calculateStrategicScore(strategicPatterns, 'Cursor');
+      const alignmentScore = calculateAlignmentScore(philosophicalAlignment, 'Cursor');
+      const keyInsights = generateKeyInsights(cursorContent, 'Cursor', strategicPatterns, philosophicalAlignment);
+      
+      segments.push({
+        id: `segment-${segments.length + 1}`,
+        speaker: 'Cursor',
+        content: fullConversation,
+        cursorContent: cursorContent,
+        timestamp: `Technical Response ${Math.floor(exchangeNumber / 2)}`,
+        strategicPatterns,
+        philosophicalAlignment,
+        strategicScore,
+        alignmentScore,
+        keyInsights
+      });
+    }
+  }
+  
+  // Handle final pending user message
+  if (currentUserMessage) {
+    const strategicPatterns = analyzeStrategicPatterns(currentUserMessage.content);
+    const philosophicalAlignment = analyzePhilosophicalAlignment(currentUserMessage.content);
+    const strategicScore = calculateStrategicScore(strategicPatterns, 'User');
+    const alignmentScore = calculateAlignmentScore(philosophicalAlignment, 'User');
+    const keyInsights = generateKeyInsights(currentUserMessage.content, 'User', strategicPatterns, philosophicalAlignment);
     
     segments.push({
-      id: `segment-${i}`,
-      speaker,
-      content: segmentContent,
-      timestamp: `Exchange ${Math.floor(i / 2) + 1}`,
+      id: `segment-${segments.length + 1}`,
+      speaker: 'User',
+      content: currentUserMessage.content,
+      timestamp: `Exchange ${currentUserMessage.exchangeNumber}`,
       strategicPatterns,
       philosophicalAlignment,
       strategicScore,
@@ -147,55 +250,177 @@ function analyzeStrategicPatterns(content: string) {
 function analyzePhilosophicalAlignment(content: string) {
   const lowerContent = content.toLowerCase();
   
+  // Enhanced pattern matching with more comprehensive keywords
   const patterns = {
-    execution: (lowerContent.match(/\b(proceed|implement|build|create|fix|solve|execute|action|do it)\b/g) || []).length,
-    modularity: (lowerContent.match(/\b(modular|component|service|singleton|module|reusable)\b/g) || []).length,
-    reusability: (lowerContent.match(/\b(reusable|framework|pattern|template|systematic|scale)\b/g) || []).length,
-    teachability: (lowerContent.match(/\b(document|explain|understand|framework|define|teach|learn)\b/g) || []).length,
-    progressiveEnhancement: (lowerContent.match(/\b(enhance|improve|upgrade|build on|add to|progressive)\b/g) || []).length
+    execution: (lowerContent.match(/\b(proceed|implement|build|create|fix|solve|execute|action|do it|make sure|ensure|verify|confirm|run|test|check|analyze|optimize|go ahead|start|begin|complete|finish|handle|process|setup|configure|deploy)\b/g) || []).length,
+    modularity: (lowerContent.match(/\b(modular|component|service|singleton|module|reusable|separate|individual|independent|isolated|architecture|system|structure|organize|clean|maintainable)\b/g) || []).length,
+    reusability: (lowerContent.match(/\b(reusable|framework|pattern|template|systematic|scale|standard|consistent|library|utility|helper|common|shared|generic|flexible|adaptable)\b/g) || []).length,
+    teachability: (lowerContent.match(/\b(document|explain|understand|framework|define|teach|learn|analyze|study|review|examine|investigate|explore|discover|insight|knowledge|comprehend|clarify)\b/g) || []).length,
+    progressiveEnhancement: (lowerContent.match(/\b(enhance|improve|upgrade|build on|add to|progressive|expand|extend|optimize|refine|evolve|advance|develop|grow|scale|iterate|better|enhancement)\b/g) || []).length
   };
   
-  // Convert to scores out of 100
-  const maxCount = Math.max(...Object.values(patterns), 1);
+  // Calculate base scores with more generous scoring
+  const baseScores = {
+    execution: Math.min(100, patterns.execution * 12), // Higher multiplier for execution
+    modularity: Math.min(100, patterns.modularity * 15),
+    reusability: Math.min(100, patterns.reusability * 15),
+    teachability: Math.min(100, patterns.teachability * 10),
+    progressiveEnhancement: Math.min(100, patterns.progressiveEnhancement * 12)
+  };
+  
+  // Apply minimum baseline scores for strategic content
+  const totalPatterns = Object.values(patterns).reduce((sum, count) => sum + count, 0);
+  const hasStrategicContent = totalPatterns > 0;
+  
   return {
-    execution: Math.min(100, Math.round((patterns.execution / maxCount) * 100)),
-    modularity: Math.min(100, Math.round((patterns.modularity / maxCount) * 100)),
-    reusability: Math.min(100, Math.round((patterns.reusability / maxCount) * 100)),
-    teachability: Math.min(100, Math.round((patterns.teachability / maxCount) * 100)),
-    progressiveEnhancement: Math.min(100, Math.round((patterns.progressiveEnhancement / maxCount) * 100))
+    execution: Math.max(hasStrategicContent ? 40 : 0, baseScores.execution),
+    modularity: Math.max(hasStrategicContent ? 30 : 0, baseScores.modularity),
+    reusability: Math.max(hasStrategicContent ? 35 : 0, baseScores.reusability),
+    teachability: Math.max(hasStrategicContent ? 45 : 0, baseScores.teachability),
+    progressiveEnhancement: Math.max(hasStrategicContent ? 40 : 0, baseScores.progressiveEnhancement)
   };
 }
 
-function calculateStrategicScore(patterns: any) {
+function calculateStrategicScore(patterns: any, speaker: string = 'User') {
   const total = Object.values(patterns).reduce((sum: number, count: any) => sum + count, 0);
   
-  // Strategic Architect scoring - you demonstrate high strategic thinking
-  // Base score starts at 60 for any strategic patterns
-  let score = total > 0 ? 60 : 0;
+  // Exchange segments (User + Cursor) get full strategic scoring based on User patterns
+  if (speaker === 'Exchange' || speaker === 'User') {
+    // Enhanced Strategic Architect scoring - your leadership style deserves recognition
+    // More generous base scoring for strategic content
+    let score = total > 0 ? 50 : 0; // Lower base, higher pattern rewards
+    
+    // Enhanced scoring for each strategic pattern type
+    score += Math.min(20, patterns.directionGiving * 4); // Direction-giving is your strength
+    score += Math.min(15, patterns.systemThinking * 3); // System thinking bonus
+    score += Math.min(12, patterns.qualityControl * 3); // Quality control
+    score += Math.min(12, patterns.iterativeRefinement * 3); // Refinement
+    score += Math.min(10, patterns.problemDiagnosis * 2.5); // Problem diagnosis
+    score += Math.min(15, patterns.metaAnalysis * 5); // Meta-analysis is rare and valuable
+    
+    // Apply leadership bonus for high-pattern messages
+    if (total >= 5) {
+      score += 10; // Multi-pattern leadership bonus
+    }
+    
+    // Apply execution-led bonus for action-oriented messages
+    if (patterns.directionGiving >= 3) {
+      score += 8; // Strong direction-giving bonus
+    }
+    
+    // Ensure minimum strategic score for any directive content
+    if (patterns.directionGiving > 0 || patterns.systemThinking > 0) {
+      score = Math.max(65, score); // Minimum 65 for strategic content
+    }
+    
+    return Math.min(100, Math.round(score));
+  }
   
-  // Add points for each strategic pattern type
-  score += Math.min(15, patterns.directionGiving * 3); // Direction-giving is key
-  score += Math.min(10, patterns.systemThinking * 2); // System thinking
-  score += Math.min(10, patterns.qualityControl * 2); // Quality control
-  score += Math.min(10, patterns.iterativeRefinement * 2); // Refinement
-  score += Math.min(8, patterns.problemDiagnosis * 2); // Problem diagnosis
-  score += Math.min(12, patterns.metaAnalysis * 4); // Meta-analysis is rare and valuable
-  
-  return Math.min(100, Math.round(score));
+  // Cursor-only segments get lower strategic scores
+  return Math.min(35, total * 2.5);
 }
 
-function calculateAlignmentScore(alignment: any) {
+function calculateAlignmentScore(alignment: any, speaker: string = 'User') {
   const scores = Object.values(alignment) as number[];
   const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-  // Boost alignment scores to reflect true philosophical consistency
-  return Math.min(100, Math.round(avgScore * 1.2));
+  
+  // Exchange segments (complete conversations) get enhanced alignment scoring
+  if (speaker === 'Exchange') {
+    // Complete conversation alignment - this is what we want to measure!
+    let finalScore = avgScore;
+    
+    // Apply execution-led bonus - your primary strength shows in complete exchanges
+    if (alignment.execution >= 60) {
+      finalScore += 20; // Higher bonus for complete exchanges
+    }
+    
+    // Apply strategic consistency bonus for complete conversations
+    const highScores = scores.filter(score => score >= 50).length;
+    if (highScores >= 3) {
+      finalScore += 15; // Multi-principle alignment bonus for exchanges
+    }
+    
+    // Apply teachability bonus for learning-oriented exchanges
+    if (alignment.teachability >= 70) {
+      finalScore += 12; // Learning-oriented bonus
+    }
+    
+    // Apply progressive enhancement bonus for improvement-focused exchanges
+    if (alignment.progressiveEnhancement >= 60) {
+      finalScore += 10; // Enhancement-oriented bonus
+    }
+    
+    // Ensure strong minimum score for complete strategic exchanges
+    if (avgScore > 0) {
+      finalScore = Math.max(65, finalScore); // Higher minimum for complete exchanges
+    }
+    
+    return Math.min(100, Math.round(finalScore));
+  }
+  
+  // User-only segments get good alignment scores
+  if (speaker === 'User') {
+    let finalScore = avgScore;
+    
+    // Apply execution-led bonus - your primary strength
+    if (alignment.execution >= 60) {
+      finalScore += 15; // Execution bonus
+    }
+    
+    // Apply strategic consistency bonus
+    const highScores = scores.filter(score => score >= 50).length;
+    if (highScores >= 3) {
+      finalScore += 10; // Multi-principle alignment bonus
+    }
+    
+    // Apply teachability bonus (analyze, understand patterns)
+    if (alignment.teachability >= 70) {
+      finalScore += 8; // Learning-oriented bonus
+    }
+    
+    // Ensure minimum score for strategic content
+    if (avgScore > 0) {
+      finalScore = Math.max(50, finalScore); // Minimum 50 for any strategic content
+    }
+    
+    return Math.min(100, Math.round(finalScore));
+  }
+  
+  // Cursor-only segments get lower alignment scores
+  return Math.min(50, Math.round(avgScore * 0.6));
 }
 
 function generateKeyInsights(content: string, speaker: string, strategicPatterns: any, philosophicalAlignment: any) {
   const insights = [];
   const lowerContent = content.toLowerCase();
   
-  if (speaker === 'User') {
+  if (speaker === 'Exchange') {
+    // Complete conversation exchange insights - most valuable for learning
+    if (strategicPatterns.directionGiving >= 3) {
+      insights.push('Complete strategic direction-setting with technical implementation');
+    }
+    if (strategicPatterns.systemThinking >= 2) {
+      insights.push('System-level thinking demonstrated with practical execution');
+    }
+    if (strategicPatterns.metaAnalysis >= 1) {
+      insights.push('Meta-cognitive analysis with actionable technical response');
+    }
+    if (philosophicalAlignment.execution >= 70) {
+      insights.push('Strong execution-led approach with immediate implementation');
+    }
+    if (philosophicalAlignment.teachability >= 70) {
+      insights.push('Learning-oriented exchange with comprehensive explanation');
+    }
+    if (lowerContent.includes('proceed') && lowerContent.includes('analyze')) {
+      insights.push('Perfect execution-led refinement pattern with complete context');
+    }
+    
+    // Add exchange-specific insights
+    if (lowerContent.includes('user request') && lowerContent.includes('cursor response')) {
+      insights.push('Complete conversation flow ideal for strategic learning');
+    }
+    
+  } else if (speaker === 'User') {
     // Strategic insights
     if (strategicPatterns.directionGiving > 5) {
       insights.push('Strong strategic delegation and direction-giving patterns');
