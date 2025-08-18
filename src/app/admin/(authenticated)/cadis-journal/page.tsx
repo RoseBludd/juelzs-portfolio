@@ -30,7 +30,7 @@ function CADISEntryCard({ entry }: { entry: CADISJournalEntry }) {
         const parsed = JSON.parse(content);
         return parsed.content || content;
       } catch (e) {
-        const match = content.match(/["']content["']\s*:\s*["'](.*?)["']/s);
+        const match = content.match(/["']content["']\s*:\s*["']([\s\S]*?)["']/);
         if (match) {
           return match[1];
         }
@@ -773,7 +773,7 @@ export default function CADISJournalPage() {
                                             content = `${content.substring(0, 300)}...`;
                                           }
                                         } catch (e) {
-                                          const match = content.match(/["']content["']\s*:\s*["'](.*?)["']/s);
+                                          const match = content.match(/["']content["']\s*:\s*["']([\s\S]*?)["']/);
                                           if (match) {
                                             content = match[1];
                                             if (content.length > 300) {
@@ -1241,7 +1241,7 @@ export default function CADISJournalPage() {
                             const parsed = JSON.parse(content);
                             content = parsed.content || content;
                           } catch (e) {
-                            const match = content.match(/["']content["']\s*:\s*["'](.*?)["']/s);
+                            const match = content.match(/["']content["']\s*:\s*["']([\s\S]*?)["']/);
                             if (match) {
                               content = match[1];
                             }
