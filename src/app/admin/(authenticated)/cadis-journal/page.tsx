@@ -740,7 +740,7 @@ export default function CADISJournalPage() {
                               <div className="mb-3">
                                 <h5 className="text-white font-medium text-sm mb-2">🎯 Recommended Actions:</h5>
                                 <ul className="space-y-1">
-                                  {getActionableRecommendations(entry).slice(0, 3).map((rec, idx) => (
+                                  {getActionableRecommendations(entry).slice(0, 3).map((rec: string, idx: number) => (
                                     <li key={idx} className="text-gray-300 text-xs flex items-start gap-2">
                                       <span className="text-green-400 mt-0.5">•</span>
                                       <span>{rec}</span>
