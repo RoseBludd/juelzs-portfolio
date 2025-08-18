@@ -430,6 +430,7 @@ export default function StrategicArchitectMasterclass() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPhase, setSelectedPhase] = useState<string>('execution');
+  const [mainTab, setMainTab] = useState<string>('principles'); // 'principles' or 'exploration'
   const [showOnlyStrategic, setShowOnlyStrategic] = useState(false);
   const [selectedSegment, setSelectedSegment] = useState<string | null>(null);
 
@@ -683,21 +684,227 @@ export default function StrategicArchitectMasterclass() {
           </div>
         )}
 
-        {/* Key Strategic Moments */}
-        <Card className="mb-8 border-amber-500/30">
-          <div className="text-center mb-6">
-            <h3 className="text-2xl font-semibold text-amber-300 mb-2">
-              Key Strategic Moments
-            </h3>
-            <p className="text-gray-400">
-              Witness execution-led refinement in action - no search required
-            </p>
+        {/* Main Tab Navigation */}
+        <div className="mb-8">
+          <div className="flex justify-center gap-4 mb-6">
+            <button
+              onClick={() => setMainTab('principles')}
+              className={`px-8 py-4 rounded-lg text-lg font-semibold transition-all ${
+                mainTab === 'principles'
+                  ? 'bg-indigo-600 text-white border-2 border-indigo-500 shadow-lg'
+                  : 'bg-gray-800 text-gray-300 border-2 border-gray-600 hover:border-indigo-500 hover:text-indigo-300'
+              }`}
+            >
+              <span className="mr-3">🎭</span>
+              Philosophical Alignment by Principle
+            </button>
+            <button
+              onClick={() => setMainTab('exploration')}
+              className={`px-8 py-4 rounded-lg text-lg font-semibold transition-all ${
+                mainTab === 'exploration'
+                  ? 'bg-gray-600 text-white border-2 border-gray-500 shadow-lg'
+                  : 'bg-gray-800 text-gray-300 border-2 border-gray-600 hover:border-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <span className="mr-3">🔍</span>
+              Advanced Conversation Exploration
+            </button>
           </div>
+        </div>
 
-          {/* Curated Key Moments */}
-          <div className="space-y-4">
-            {/* Moment 1: Initial Strategic Direction */}
-            <div className="bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-lg p-6 border border-indigo-500/20">
+        {/* Tab Content */}
+        {mainTab === 'principles' && (
+          <Card className="mb-8 border-indigo-500/30">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-semibold text-indigo-300 mb-2">
+                Philosophical Alignment by Principle
+              </h3>
+              <p className="text-gray-400">
+                Explore conversation segments organized by your core principles - see alignment in real-time
+              </p>
+            </div>
+
+            {/* Principle Tab Navigation */}
+            <div className="flex flex-wrap justify-center gap-2 mb-6 border-b border-gray-700 pb-4">
+              <button
+                onClick={() => setSelectedPhase('execution')}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  selectedPhase === 'execution'
+                    ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                    : 'text-gray-400 hover:text-green-300 hover:bg-green-500/10'
+                }`}
+              >
+                <span className="mr-2">⚡</span>
+                If it needs to be done, do it
+                <span className="ml-2 text-xs bg-green-500/20 px-2 py-1 rounded">440</span>
+              </button>
+              <button
+                onClick={() => setSelectedPhase('modularity')}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  selectedPhase === 'modularity'
+                    ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                    : 'text-gray-400 hover:text-blue-300 hover:bg-blue-500/10'
+                }`}
+              >
+                <span className="mr-2">🧩</span>
+                Make it modular
+                <span className="ml-2 text-xs bg-blue-500/20 px-2 py-1 rounded">524</span>
+              </button>
+              <button
+                onClick={() => setSelectedPhase('reusability')}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  selectedPhase === 'reusability'
+                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                    : 'text-gray-400 hover:text-purple-300 hover:bg-purple-500/10'
+                }`}
+              >
+                <span className="mr-2">♻️</span>
+                Make it reusable
+                <span className="ml-2 text-xs bg-purple-500/20 px-2 py-1 rounded">493</span>
+              </button>
+              <button
+                onClick={() => setSelectedPhase('teachability')}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  selectedPhase === 'teachability'
+                    ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                    : 'text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/10'
+                }`}
+              >
+                <span className="mr-2">📚</span>
+                Make it teachable
+                <span className="ml-2 text-xs bg-yellow-500/20 px-2 py-1 rounded">250</span>
+              </button>
+              <button
+                onClick={() => setSelectedPhase('strategic-patterns')}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  selectedPhase === 'strategic-patterns'
+                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                    : 'text-gray-400 hover:text-indigo-300 hover:bg-indigo-500/10'
+                }`}
+              >
+                <span className="mr-2">🧠</span>
+                Strategic Patterns
+                <span className="ml-2 text-xs bg-indigo-500/20 px-2 py-1 rounded">4,077</span>
+              </button>
+            </div>
+
+            {/* Principle Tab Content */}
+            <div className="min-h-[600px]">
+              {selectedPhase === 'execution' && (
+                <ExecutionPrincipleView segments={conversationData} />
+              )}
+              {selectedPhase === 'modularity' && (
+                <ModularityPrincipleView segments={conversationData} />
+              )}
+              {selectedPhase === 'reusability' && (
+                <ReusabilityPrincipleView segments={conversationData} />
+              )}
+              {selectedPhase === 'teachability' && (
+                <TeachabilityPrincipleView segments={conversationData} />
+              )}
+              {selectedPhase === 'strategic-patterns' && (
+                <StrategicPatternsView segments={conversationData} />
+              )}
+            </div>
+          </Card>
+        )}
+
+        {mainTab === 'exploration' && (
+          <Card className="mb-8 border-gray-600">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-semibold text-gray-300 mb-2">
+                Advanced Conversation Exploration
+              </h3>
+              <p className="text-gray-400 text-sm">
+                Search, filter, and analyze specific patterns across all 78 conversation segments
+              </p>
+            </div>
+
+            {/* Advanced Controls */}
+            <div className="flex flex-col lg:flex-row gap-4 mb-6">
+              <div className="flex-1">
+                <div className="relative">
+                  <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search conversation content, patterns, or insights..."
+                    className="w-full pl-10 pr-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowOnlyStrategic(!showOnlyStrategic)}
+                  className={`px-4 py-3 rounded-lg border transition-colors ${
+                    showOnlyStrategic 
+                      ? 'bg-indigo-600 border-indigo-500 text-white' 
+                      : 'bg-gray-800 border-gray-600 text-gray-300 hover:border-indigo-500'
+                  }`}
+                >
+                  <IconFilter size={16} className="inline mr-2" />
+                  Strategic Only (70+)
+                </button>
+              </div>
+            </div>
+
+            {/* Results Info */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-gray-400">
+                Showing {filteredSegments.length} of {conversationData.length} conversation segments
+              </div>
+              {(searchTerm || showOnlyStrategic) && (
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setShowOnlyStrategic(false);
+                  }}
+                  className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 text-sm"
+                >
+                  <IconX size={14} />
+                  Clear Filters
+                </button>
+              )}
+            </div>
+
+            {/* All Segments View */}
+            <AllSegmentsView segments={filteredSegments} selectedSegment={selectedSegment} setSelectedSegment={setSelectedSegment} />
+          </Card>
+        )}
+
+        {/* Bottom Actions */}
+        <div className="mt-12 text-center">
+          <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-xl p-8 border border-indigo-500/20">
+            <h3 className="text-2xl font-bold text-white mb-4">
+              Experience Strategic Architect Thinking
+            </h3>
+            <p className="text-gray-300 mb-6 max-w-3xl mx-auto">
+              This conversation demonstrates execution-led refinement, systematic framework creation, 
+              and meta-cognitive analysis in real time. Perfect example for the upcoming book: 
+              "Execution-Led Refinement: The Strategic Architect's Guide to Flow Architecture"
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button>
+                <IconBook size={16} className="mr-2" />
+                Pre-order Book
+              </Button>
+              <Button variant="outline">
+                <IconTarget size={16} className="mr-2" />
+                Explore CADIS System
+              </Button>
+              <Button variant="outline">
+                <IconBrain size={16} className="mr-2" />
+                Strategic Consulting
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-indigo-500/20 border-2 border-indigo-500/30 flex items-center justify-center overflow-hidden">
