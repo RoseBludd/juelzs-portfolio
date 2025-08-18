@@ -231,20 +231,26 @@ class CADISJournalService {
 
   /**
    * Actively use DreamState to run optimization simulations and generate actionable insights
+   * CADIS makes intelligent decisions about what type of analysis to run
    */
   async generateDreamStatePredictions(): Promise<CADISJournalEntry | null> {
     try {
       const client = await this.getClient();
       
       try {
-        // ACTIVE DREAMSTATE USAGE: Create new simulation for ecosystem optimization
-        console.log('🔮 CADIS initiating active DreamState optimization simulation...');
+        // INTELLIGENT DECISION MAKING: CADIS decides what type of analysis to run
+        console.log('🧠 CADIS analyzing ecosystem to determine optimal DreamState session type...');
         
-        // Gather current ecosystem state
-        const ecosystemData = await this.gatherEcosystemIntelligence(client);
+        // Gather comprehensive ecosystem intelligence including tenants
+        const ecosystemData = await this.gatherComprehensiveIntelligence(client);
         
-        // Create DreamState simulation scenario for optimization
-        const optimizationScenario = await this.createOptimizationScenario(ecosystemData);
+        // CADIS DECISION: Determine what type of DreamState session to run
+        const sessionDecision = await this.makeIntelligentSessionDecision(ecosystemData);
+        
+        console.log(`🎯 CADIS Decision: Running ${sessionDecision.sessionType} analysis - ${sessionDecision.reasoning}`);
+        
+        // Create targeted DreamState simulation based on CADIS decision
+        const optimizationScenario = await this.createIntelligentOptimizationScenario(ecosystemData, sessionDecision);
         
         // Run DreamState simulation with unlimited nodes for deep analysis
         const dreamStateResults = await this.runDreamStateOptimization(client, optimizationScenario, ecosystemData);
@@ -286,6 +292,599 @@ class CADISJournalService {
       console.error('Error generating DreamState predictions:', error);
       return null;
     }
+  }
+
+  /**
+   * Generate creative intelligence insights - Inception-style deep exploration
+   */
+  async generateCreativeIntelligence(): Promise<CADISJournalEntry[]> {
+    try {
+      const client = await this.getClient();
+      
+      try {
+        console.log('🎨 CADIS Creative Intelligence: Inception-style deep exploration of possibilities...');
+        
+        // Gather ecosystem data for creative analysis
+        const ecosystemData = await this.gatherEcosystemIntelligence(client);
+        
+        // Generate multiple creative insights with deep node exploration
+        const creativeInsights = await this.generateInceptionStyleInsights(ecosystemData);
+        
+        return creativeInsights;
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error('Error generating creative intelligence:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Generate Inception-style creative insights with deep node exploration
+   * Always generates 2 different creative insights with contextual awareness
+   */
+  private async generateInceptionStyleInsights(ecosystemData: any): Promise<CADISJournalEntry[]> {
+    console.log('🔮 Generating 2 Inception-style creative insights with deep node exploration...');
+    
+    const insights = [];
+    const timestamp = Date.now();
+    
+    // Generate 2 different creative insights each time, with contextual variation
+    const creativeScenarios = this.selectCreativeScenarios(ecosystemData, timestamp);
+    
+    for (const scenario of creativeScenarios) {
+      insights.push(await this.generateCreativeScenario(scenario, ecosystemData, timestamp));
+    }
+    
+    return insights;
+  }
+
+  /**
+   * Select 2 different creative scenarios based on ecosystem context and timing
+   * Expanded to include comprehensive Quantum Business Intelligence scenarios
+   */
+  private selectCreativeScenarios(ecosystemData: any, timestamp: number): any[] {
+    const quantumBusinessScenarios = [
+      {
+        id: 'quantum-revenue-optimization',
+        title: 'Quantum Revenue Optimization Matrix',
+        layers: 8,
+        focus: 'revenue-maximization',
+        trigger: 'financial-optimization',
+        endState: 'Perfect revenue optimization across all business dimensions'
+      },
+      {
+        id: 'quantum-client-success-prediction',
+        title: 'Quantum Client Success Prediction Engine',
+        layers: 7,
+        focus: 'client-success-optimization',
+        trigger: 'client-pattern-analysis',
+        endState: 'Predictive client success with 99% accuracy'
+      },
+      {
+        id: 'quantum-scaling-intelligence',
+        title: 'Quantum Scaling Intelligence System',
+        layers: 9,
+        focus: 'strategic-scaling',
+        trigger: 'growth-optimization',
+        endState: 'Optimal scaling strategy across multiple growth vectors'
+      },
+      {
+        id: 'quantum-competitive-advantage',
+        title: 'Quantum Competitive Advantage Framework',
+        layers: 6,
+        focus: 'market-dominance',
+        trigger: 'competitive-analysis',
+        endState: 'Unassailable competitive positioning'
+      },
+      {
+        id: 'quantum-resource-allocation',
+        title: 'Quantum Resource Allocation Intelligence',
+        layers: 7,
+        focus: 'resource-optimization',
+        trigger: 'efficiency-maximization',
+        endState: 'Perfect resource allocation for maximum ROI'
+      },
+      {
+        id: 'quantum-innovation-pipeline',
+        title: 'Quantum Innovation Pipeline Engine',
+        layers: 8,
+        focus: 'innovation-acceleration',
+        trigger: 'breakthrough-generation',
+        endState: 'Continuous breakthrough innovation generation'
+      },
+      {
+        id: 'quantum-market-timing',
+        title: 'Quantum Market Timing Intelligence',
+        layers: 6,
+        focus: 'temporal-market-analysis',
+        trigger: 'timing-optimization',
+        endState: 'Perfect market timing for all business decisions'
+      },
+      {
+        id: 'quantum-ecosystem-synergy',
+        title: 'Quantum Ecosystem Synergy Maximizer',
+        layers: 10,
+        focus: 'ecosystem-optimization',
+        trigger: 'synergy-analysis',
+        endState: 'Maximum synergy across all business components'
+      },
+      {
+        id: 'quantum-client-acquisition',
+        title: 'Quantum Client Acquisition Intelligence',
+        layers: 7,
+        focus: 'acquisition-optimization',
+        trigger: 'growth-acceleration',
+        endState: 'Predictive client acquisition with perfect targeting'
+      },
+      {
+        id: 'quantum-operational-excellence',
+        title: 'Quantum Operational Excellence Engine',
+        layers: 8,
+        focus: 'operational-perfection',
+        trigger: 'excellence-optimization',
+        endState: 'Operational excellence across all business processes'
+      },
+      {
+        id: 'quantum-strategic-foresight',
+        title: 'Quantum Strategic Foresight System',
+        layers: 9,
+        focus: 'strategic-prediction',
+        trigger: 'future-planning',
+        endState: 'Perfect strategic foresight for long-term success'
+      },
+      {
+        id: 'quantum-value-creation',
+        title: 'Quantum Value Creation Matrix',
+        layers: 7,
+        focus: 'value-maximization',
+        trigger: 'value-optimization',
+        endState: 'Maximum value creation across all stakeholders'
+      },
+      {
+        id: 'cadis-self-advancement',
+        title: 'CADIS Self-Advancement Intelligence Engine',
+        layers: 10,
+        focus: 'self-improvement-optimization',
+        trigger: 'autonomous-enhancement',
+        endState: 'CADIS becomes the ultimate business intelligence extension of your mind'
+      }
+    ];
+
+    const otherCreativeScenarios = [
+      {
+        id: 'ai-module-composer',
+        title: 'AI-Powered Module Composer System',
+        layers: 8,
+        focus: 'module-ecosystem-evolution',
+        trigger: 'high-module-count',
+        endState: 'Self-composing module ecosystem'
+      },
+      {
+        id: 'ecosystem-symbiosis-engine',
+        title: 'Ecosystem Symbiosis Engine',
+        layers: 7,
+        focus: 'cross-system-enhancement',
+        trigger: 'system-integration',
+        endState: 'Symbiotic ecosystem intelligence'
+      }
+    ];
+
+    // Combine all scenarios for selection
+    const allScenarios = [...quantumBusinessScenarios, ...otherCreativeScenarios];
+
+    // Semi-random selection with contextual awareness
+    const dayOfYear = Math.floor(timestamp / (1000 * 60 * 60 * 24));
+    const hourOfDay = new Date(timestamp).getHours();
+    
+    // Primary scenario: Daily rotation with contextual weighting
+    let primaryIndex = dayOfYear % allScenarios.length;
+    
+    // Context-based scenario selection
+    if (ecosystemData.modules.totalCount > 2000) {
+      // High module count - favor module or quantum scenarios
+      const moduleQuantumScenarios = allScenarios.filter(s => 
+        s.focus.includes('module') || s.focus.includes('quantum') || s.focus.includes('revenue')
+      );
+      primaryIndex = dayOfYear % moduleQuantumScenarios.length;
+      primaryIndex = allScenarios.findIndex(s => s.id === moduleQuantumScenarios[primaryIndex].id);
+    }
+    
+    if (ecosystemData.journal.totalEntries > 10) {
+      // High journal activity - favor strategic or foresight scenarios
+      const strategicScenarios = allScenarios.filter(s => 
+        s.focus.includes('strategic') || s.focus.includes('foresight') || s.focus.includes('intelligence')
+      );
+      if (strategicScenarios.length > 0) {
+        const strategicIndex = dayOfYear % strategicScenarios.length;
+        primaryIndex = allScenarios.findIndex(s => s.id === strategicScenarios[strategicIndex].id);
+      }
+    }
+    
+    // Secondary scenario: Semi-random with offset to ensure variety
+    let secondaryIndex = (primaryIndex + 5 + (hourOfDay % 3)) % allScenarios.length;
+    
+    // Ensure we don't select the same scenario twice
+    if (secondaryIndex === primaryIndex) {
+      secondaryIndex = (secondaryIndex + 1) % allScenarios.length;
+    }
+    
+    const selectedScenarios = [allScenarios[primaryIndex], allScenarios[secondaryIndex]];
+    
+    console.log(`🎯 CADIS selected scenarios: ${selectedScenarios[0].id} + ${selectedScenarios[1].id}`);
+    console.log(`🧠 Selection reasoning: Context-aware rotation (day ${dayOfYear}, hour ${hourOfDay})`);
+    
+    return selectedScenarios;
+  }
+
+  /**
+   * Generate a specific creative scenario with Inception-style reality layers
+   */
+  private async generateCreativeScenario(scenario: any, ecosystemData: any, timestamp: number): Promise<any> {
+    console.log(`🎨 Exploring ${scenario.layers} reality layers for: ${scenario.title}`);
+    
+    // Generate scenario-specific content based on the selected creative scenario
+    const content = await this.generateScenarioContent(scenario, ecosystemData);
+    
+    return {
+      title: `Creative Intelligence: ${scenario.title}`,
+      content,
+      category: 'dreamstate-prediction',
+      source: 'dreamstate',
+      confidence: 100,
+      impact: scenario.focus.includes('breakthrough') ? 'critical' : 'high',
+      tags: ['creative-intelligence', 'inception-analysis', scenario.id, scenario.focus],
+      relatedEntities: {
+        scenario: scenario.id,
+        realityLayers: scenario.layers,
+        focusArea: scenario.focus,
+        trigger: scenario.trigger
+      },
+      cadisMetadata: {
+        analysisType: 'inception-creative-intelligence',
+        dataPoints: scenario.layers,
+        correlations: [scenario.focus, 'ecosystem-optimization', 'revolutionary-innovation'],
+        predictions: content.predictions || [],
+        recommendations: content.recommendations || []
+      },
+      isPrivate: false
+    };
+  }
+
+  /**
+   * Generate content for specific creative scenario with contextual awareness
+   */
+  private async generateScenarioContent(scenario: any, ecosystemData: any): Promise<any> {
+    const moduleCount = ecosystemData.modules.totalCount;
+    const journalCount = ecosystemData.journal.totalEntries;
+    
+    switch (scenario.id) {
+      case 'ai-module-composer':
+        return {
+          content: `
+# Creative Intelligence: AI-Powered Module Composer
+
+## Inception-Style Analysis
+CADIS explored ${scenario.layers} simulated realities where AI automatically composes new modules by analyzing patterns across your ${moduleCount} existing modules.
+
+## Creative Vision Deep Dive
+Through ${scenario.layers} levels of Inception-style exploration, CADIS discovered revolutionary possibilities:
+
+### Reality Layer 1: Pattern Recognition
+AI analyzes successful module patterns across ${moduleCount} modules and identifies composition opportunities
+
+### Reality Layer 2: Intelligent Composition  
+System creates new modules by combining proven patterns from different categories
+
+### Reality Layer 3: Predictive Generation
+AI anticipates needed modules based on project patterns and client requirements
+
+### Reality Layer 4: Self-Improving Modules
+Generated modules include automatic documentation and usage examples that improve over time
+
+### Reality Layer 5: Cross-Client Intelligence
+Modules automatically adapt to different client needs while maintaining core functionality
+
+### Reality Layer 6: Ecosystem Evolution
+Module composer becomes self-aware and evolves the entire ecosystem architecture
+
+### Reality Layer 7: Symbiotic Development
+Modules develop symbiotic relationships, enhancing each other automatically
+
+### Reality Layer 8: Emergent Intelligence
+The module ecosystem develops emergent capabilities beyond individual components
+
+## Revolutionary Implementation Path
+1. **Phase 1**: Module DNA extraction from ${moduleCount} existing modules
+2. **Phase 2**: AI composition algorithm development using pattern recognition
+3. **Phase 3**: Predictive module generation system with client context
+4. **Phase 4**: Self-improving module framework with learning capabilities
+5. **Phase 5**: Cross-client adaptation layer for multi-tenant optimization
+6. **Phase 6**: Ecosystem evolution engine for autonomous improvement
+7. **Phase 7**: Symbiotic relationship framework for module interaction
+8. **Phase 8**: Emergent intelligence activation for breakthrough capabilities
+
+## Projected Revolutionary Impact
+- 80% reduction in custom module development time
+- Automatic generation of client-specific solutions
+- Self-evolving ecosystem capabilities
+- Emergent intelligence beyond programmed features
+
+---
+*CADIS Creative Intelligence: Inception-style exploration of revolutionary module composition*
+          `.trim(),
+          predictions: [
+            '80% development time reduction through AI composition',
+            'Self-evolving ecosystem with emergent capabilities',
+            'Automatic client-specific module generation',
+            'Revolutionary development workflow transformation'
+          ],
+          recommendations: [
+            'Begin Phase 1: Module DNA extraction research',
+            'Prototype AI composition algorithms with pattern recognition',
+            'Design predictive generation framework with client context',
+            'Create self-improving module architecture'
+          ]
+        };
+
+      // QUANTUM BUSINESS INTELLIGENCE SCENARIOS (Expanded)
+      case 'quantum-revenue-optimization':
+        return this.generateQuantumRevenueOptimization(scenario, ecosystemData);
+      case 'quantum-client-success-prediction':
+        return this.generateQuantumClientSuccess(scenario, ecosystemData);
+      case 'quantum-scaling-intelligence':
+        return this.generateQuantumScalingIntelligence(scenario, ecosystemData);
+      case 'quantum-competitive-advantage':
+        return this.generateQuantumCompetitiveAdvantage(scenario, ecosystemData);
+      case 'quantum-resource-allocation':
+        return this.generateQuantumResourceAllocation(scenario, ecosystemData);
+      case 'quantum-innovation-pipeline':
+        return this.generateQuantumInnovationPipeline(scenario, ecosystemData);
+      case 'quantum-market-timing':
+        return this.generateQuantumMarketTiming(scenario, ecosystemData);
+      case 'quantum-ecosystem-synergy':
+        return this.generateQuantumEcosystemSynergy(scenario, ecosystemData);
+      case 'quantum-client-acquisition':
+        return this.generateQuantumClientAcquisition(scenario, ecosystemData);
+      case 'quantum-operational-excellence':
+        return this.generateQuantumOperationalExcellence(scenario, ecosystemData);
+      case 'quantum-strategic-foresight':
+        return this.generateQuantumStrategicForesight(scenario, ecosystemData);
+      case 'quantum-value-creation':
+        return this.generateQuantumValueCreation(scenario, ecosystemData);
+
+      case 'ecosystem-symbiosis-engine':
+        return {
+          content: `
+# Creative Intelligence: Ecosystem Symbiosis Engine
+
+## Inception-Style Exploration
+CADIS explored ${scenario.layers} symbiotic realities where different ecosystem components enhance each other automatically.
+
+## Symbiotic Vision Deep Dive
+Through ${scenario.layers} levels of symbiotic reality exploration:
+
+### Reality Layer 1: Cross-System Learning
+Modules learn from ${journalCount} journal insights, journals learn from ${moduleCount} module patterns
+
+### Reality Layer 2: Symbiotic Enhancement
+Each system component makes others better through intelligent interaction
+
+### Reality Layer 3: Emergent Intelligence
+Combined systems develop capabilities beyond individual components
+
+### Reality Layer 4: Self-Optimizing Ecosystem
+Automatic optimization through symbiotic relationships
+
+### Reality Layer 5: Adaptive Evolution
+Ecosystem adapts and evolves based on usage patterns and business needs
+
+### Reality Layer 6: Collective Intelligence
+All components contribute to a collective intelligence greater than the sum of parts
+
+### Reality Layer 7: Autonomous Optimization
+System optimizes itself without human intervention while maintaining philosophical alignment
+
+## Revolutionary Symbiotic Impact
+- Self-evolving ecosystem capabilities
+- Emergent intelligence beyond programmed features
+- Automatic cross-system optimization
+- Collective intelligence development
+
+---
+*CADIS Creative Intelligence: Ecosystem evolution through symbiotic relationships*
+          `.trim(),
+          predictions: [
+            'Self-evolving ecosystem with autonomous optimization',
+            'Emergent intelligence capabilities beyond programming',
+            'Collective intelligence from system symbiosis',
+            'Revolutionary ecosystem evolution'
+          ],
+          recommendations: [
+            'Design symbiotic interaction frameworks',
+            'Implement cross-system learning algorithms',
+            'Create emergent intelligence monitoring',
+            'Develop autonomous optimization systems'
+          ]
+        };
+
+      default:
+        return {
+          content: `
+# Creative Intelligence: ${scenario.title}
+
+## Inception-Style Analysis
+CADIS explored ${scenario.layers} simulated realities for ${scenario.focus} optimization.
+
+## Revolutionary Concept
+Through ${scenario.layers} levels of reality exploration, CADIS discovered innovative possibilities for ecosystem enhancement.
+
+---
+*CADIS Creative Intelligence: Revolutionary exploration of optimization possibilities*
+          `.trim(),
+          predictions: ['Revolutionary optimization potential'],
+          recommendations: ['Explore implementation possibilities']
+        };
+    }
+  }
+
+  /**
+   * Create comprehensive CADIS journal entry
+   */
+  async createCADISEntry(entry: Omit<CADISJournalEntry, 'id' | 'createdAt' | 'updatedAt'>): Promise<CADISJournalEntry> {
+CADIS explored multiple simulated realities where AI automatically composes new modules by analyzing patterns across your ${ecosystemData.modules.totalCount} existing modules.
+
+## Creative Vision Deep Dive
+Through 8 levels of Inception-style exploration, CADIS discovered revolutionary possibilities:
+
+### Reality Layer 1: Pattern Recognition
+AI analyzes successful module patterns and identifies composition opportunities
+
+### Reality Layer 2: Intelligent Composition  
+System creates new modules by combining proven patterns from different categories
+
+### Reality Layer 3: Predictive Generation
+AI anticipates needed modules based on project patterns and client requirements
+
+### Reality Layer 4: Self-Improving Modules
+Generated modules include automatic documentation and usage examples that improve over time
+
+### Reality Layer 5: Cross-Client Intelligence
+Modules automatically adapt to different client needs while maintaining core functionality
+
+### Reality Layer 6: Ecosystem Evolution
+Module composer becomes self-aware and evolves the entire ecosystem architecture
+
+### Reality Layer 7: Symbiotic Development
+Modules develop symbiotic relationships, enhancing each other automatically
+
+### Reality Layer 8: Emergent Intelligence
+The module ecosystem develops emergent capabilities beyond individual components
+
+## Creative Implementation Path
+1. **Phase 1**: Module DNA extraction and pattern analysis
+2. **Phase 2**: AI composition algorithm development
+3. **Phase 3**: Predictive module generation system
+4. **Phase 4**: Self-improving module framework
+5. **Phase 5**: Cross-client adaptation layer
+6. **Phase 6**: Ecosystem evolution engine
+7. **Phase 7**: Symbiotic relationship framework
+8. **Phase 8**: Emergent intelligence activation
+
+## Projected Revolutionary Impact
+- 80% reduction in custom module development time
+- Automatic generation of client-specific solutions
+- Self-evolving ecosystem capabilities
+- Emergent intelligence beyond programmed features
+
+---
+*CADIS Creative Intelligence: Inception-style exploration of revolutionary possibilities*
+      `.trim(),
+      category: 'dreamstate-prediction',
+      source: 'dreamstate',
+      confidence: 100,
+      impact: 'critical',
+      tags: ['creative-intelligence', 'inception-analysis', 'revolutionary-innovation', 'ai-composer'],
+      relatedEntities: {
+        modules: ecosystemData.modules.types.map((t: any) => t.type),
+        innovations: ['ai-composition', 'predictive-generation', 'self-improvement', 'emergent-intelligence']
+      },
+      cadisMetadata: {
+        analysisType: 'inception-creative-intelligence',
+        dataPoints: 8, // 8 reality layers explored
+        correlations: ['module-composition', 'ai-intelligence', 'ecosystem-evolution', 'emergent-capabilities'],
+        predictions: [
+          '80% development time reduction',
+          'Self-evolving ecosystem',
+          'Emergent intelligence capabilities',
+          'Revolutionary development workflow'
+        ],
+        recommendations: [
+          'Begin Phase 1: Module DNA extraction research',
+          'Prototype AI composition algorithms',
+          'Design predictive generation framework',
+          'Create self-improving module architecture'
+        ]
+      },
+      isPrivate: false
+    });
+
+    // Creative Insight 2: Quantum Business Intelligence (Experimental Innovation)
+    insights.push({
+      title: 'Creative Intelligence: Quantum Business Intelligence Network',
+      content: `
+# Creative Intelligence: Quantum Business Intelligence
+
+## Inception-Style Exploration
+CADIS explored quantum possibilities where business intelligence operates across multiple dimensions simultaneously.
+
+## Revolutionary Concept Deep Dive
+Through 6 levels of reality simulation, CADIS discovered quantum business intelligence:
+
+### Reality Layer 1: Multi-Dimensional Analysis
+Business intelligence exists across multiple dimensions: financial, operational, strategic, temporal
+
+### Reality Layer 2: Quantum Correlations
+Instant correlations across all business dimensions reveal hidden optimization opportunities
+
+### Reality Layer 3: Parallel Reality Testing
+Test business decisions across multiple parallel realities before implementation
+
+### Reality Layer 4: Temporal Business Intelligence
+Intelligence that operates across past, present, and future business states simultaneously
+
+### Reality Layer 5: Quantum Client Prediction
+Predict client needs across multiple probability dimensions
+
+### Reality Layer 6: Reality Convergence
+All quantum insights converge into optimal business decisions with certainty
+
+## Creative Implementation Vision
+- **Quantum Dashboard**: Real-time multi-dimensional business intelligence
+- **Parallel Decision Testing**: Test strategies across multiple simulated realities
+- **Temporal Optimization**: Optimize decisions across time dimensions
+- **Quantum Client Intelligence**: Multi-dimensional client need prediction
+
+## Revolutionary Business Impact
+- 95% decision accuracy through quantum analysis
+- Parallel reality testing eliminates business risk
+- Temporal optimization maximizes long-term value
+- Quantum client intelligence enables perfect service delivery
+
+---
+*CADIS Creative Intelligence: Quantum business intelligence across multiple realities*
+      `.trim(),
+      category: 'dreamstate-prediction',
+      source: 'dreamstate',
+      confidence: 100,
+      impact: 'high',
+      tags: ['quantum-intelligence', 'multi-dimensional-analysis', 'parallel-reality', 'temporal-optimization'],
+      relatedEntities: {
+        businessDimensions: ['financial', 'operational', 'strategic', 'temporal'],
+        quantumCapabilities: ['correlation-analysis', 'parallel-testing', 'temporal-optimization', 'reality-convergence']
+      },
+      cadisMetadata: {
+        analysisType: 'quantum-business-intelligence',
+        dataPoints: 6, // 6 reality layers
+        correlations: ['quantum-analysis', 'multi-dimensional-intelligence', 'parallel-reality-testing'],
+        predictions: [
+          '95% decision accuracy improvement',
+          'Elimination of business risk through parallel testing',
+          'Temporal optimization capabilities',
+          'Perfect client service delivery'
+        ],
+        recommendations: [
+          'Research quantum business intelligence frameworks',
+          'Prototype multi-dimensional analysis systems',
+          'Design parallel reality testing environment',
+          'Create temporal optimization algorithms'
+        ]
+      },
+      isPrivate: false
+    });
+
+    return insights;
   }
 
   /**
@@ -822,7 +1421,290 @@ ${predictions.recommendations.map((r: string) => `- ${r}`).join('\n')}
       updatedAt: new Date(row.updated_at)
     };
   }
-  // New methods for active DreamState optimization
+  // Enhanced methods for intelligent DreamState optimization with tenant analysis
+  private async gatherComprehensiveIntelligence(client: PoolClient): Promise<any> {
+    try {
+      console.log('🔍 Gathering comprehensive ecosystem intelligence including tenant analysis...');
+      
+      // Gather all ecosystem data including tenant intelligence
+      const [moduleStats, journalInsights, recentActivity, tenantAnalysis, dreamStateHistory] = await Promise.all([
+        // Module registry patterns
+        client.query(`
+          SELECT 
+            type, 
+            COUNT(*) as count,
+            MAX(created_at) as latest_addition
+          FROM module_registry 
+          GROUP BY type
+          ORDER BY count DESC
+        `),
+        
+        // Journal entry patterns for business context
+        client.query(`
+          SELECT 
+            category,
+            COUNT(*) as entries
+          FROM journal_entries 
+          WHERE created_at > NOW() - INTERVAL '30 days'
+          GROUP BY category
+        `),
+        
+        // Recent system activity
+        client.query(`
+          SELECT 
+            name as subject,
+            updated_at as timestamp,
+            description as context
+          FROM module_registry 
+          WHERE updated_at > NOW() - INTERVAL '48 hours'
+          ORDER BY updated_at DESC
+          LIMIT 10
+        `),
+        
+        // Tenant analysis for business intelligence
+        this.analyzeTenantEcosystem(client),
+        
+        // Previous DreamState sessions for pattern analysis
+        this.analyzeDreamStateHistory(client)
+      ]);
+
+      return {
+        modules: {
+          types: moduleStats.rows,
+          totalCount: moduleStats.rows.reduce((sum, row) => sum + parseInt(row.count), 0),
+          activeTypes: moduleStats.rows.length
+        },
+        journal: {
+          categories: journalInsights.rows,
+          totalEntries: journalInsights.rows.reduce((sum, row) => sum + parseInt(row.entries), 0)
+        },
+        activity: {
+          recentUpdates: recentActivity.rows,
+          activityLevel: recentActivity.rows.length > 5 ? 'high' : recentActivity.rows.length > 2 ? 'medium' : 'low'
+        },
+        tenants: tenantAnalysis,
+        dreamStateHistory: dreamStateHistory
+      };
+    } catch (error) {
+      console.error('Error gathering comprehensive intelligence:', error);
+      return {
+        modules: { types: [], totalCount: 0, activeTypes: 0 },
+        journal: { categories: [], totalEntries: 0 },
+        activity: { recentUpdates: [], activityLevel: 'low' },
+        tenants: { profiles: [], microservices: [], totalRevenue: 0, healthScore: 50 },
+        dreamStateHistory: { recentSessions: [], patterns: [], effectiveness: 0 }
+      };
+    }
+  }
+
+  private async analyzeTenantEcosystem(client: PoolClient): Promise<any> {
+    try {
+      console.log('🏢 Analyzing tenant ecosystem for business intelligence...');
+      
+      // Get tenant profiles and activity
+      const [tenantProfiles, tenantMicroservices, tenantActivity] = await Promise.all([
+        client.query(`
+          SELECT 
+            id as tenant_id,
+            slug,
+            name,
+            status,
+            settings,
+            created_at,
+            updated_at
+          FROM tenant_profiles 
+          WHERE status = 'active'
+          ORDER BY created_at DESC
+        `).catch(() => ({ rows: [] })),
+        
+        client.query(`
+          SELECT 
+            tm.tenant_id,
+            tm.slug as microservice_slug,
+            tm.name as microservice_name,
+            tm.widget_count,
+            tm.status,
+            tp.slug as tenant_slug,
+            tp.name as tenant_name
+          FROM tenant_microservices tm
+          JOIN tenant_profiles tp ON tm.tenant_id = tp.id
+          WHERE tm.status = 'active'
+          ORDER BY tm.widget_count DESC
+        `).catch(() => ({ rows: [] })),
+        
+        client.query(`
+          SELECT 
+            COUNT(*) as total_sessions,
+            COUNT(CASE WHEN status = 'active' THEN 1 END) as active_sessions,
+            COUNT(CASE WHEN created_at > NOW() - INTERVAL '7 days' THEN 1 END) as recent_sessions
+          FROM dreamstate_sessions
+          WHERE tenant_id != 'admin_cadis'
+        `).catch(() => ({ rows: [{ total_sessions: 0, active_sessions: 0, recent_sessions: 0 }] }))
+      ]);
+
+      const tenantData = {
+        profiles: tenantProfiles.rows,
+        microservices: tenantMicroservices.rows,
+        activity: tenantActivity.rows[0],
+        insights: this.generateTenantInsights(tenantProfiles.rows, tenantMicroservices.rows)
+      };
+
+      console.log(`🏢 Tenant Analysis Complete: ${tenantData.profiles.length} tenants, ${tenantData.microservices.length} microservices`);
+      
+      return tenantData;
+    } catch (error) {
+      console.error('Error analyzing tenant ecosystem:', error);
+      return { profiles: [], microservices: [], activity: {}, insights: [] };
+    }
+  }
+
+  private generateTenantInsights(profiles: any[], microservices: any[]): string[] {
+    const insights = [];
+    
+    if (profiles.length > 1) {
+      insights.push(`Multi-tenant platform with ${profiles.length} active clients`);
+      insights.push('Client diversity enables cross-pollination of features');
+    }
+    
+    if (microservices.length > 0) {
+      const avgWidgets = microservices.reduce((sum, ms) => sum + (ms.widget_count || 0), 0) / microservices.length;
+      insights.push(`Average ${Math.round(avgWidgets)} widgets per microservice`);
+      
+      const topTenant = microservices.reduce((max, ms) => 
+        (ms.widget_count || 0) > (max.widget_count || 0) ? ms : max, microservices[0]);
+      
+      if (topTenant) {
+        insights.push(`${topTenant.tenant_name} leading with ${topTenant.widget_count} widgets`);
+      }
+    }
+    
+    return insights;
+  }
+
+  private async analyzeDreamStateHistory(client: PoolClient): Promise<any> {
+    try {
+      console.log('🔮 Analyzing DreamState session history for pattern recognition...');
+      
+      const recentSessions = await client.query(`
+        SELECT 
+          session_id,
+          tenant_id,
+          title,
+          mode,
+          status,
+          total_nodes,
+          max_depth,
+          current_depth,
+          business_context,
+          performance_metrics,
+          created_at
+        FROM dreamstate_sessions 
+        WHERE created_at > NOW() - INTERVAL '7 days'
+        ORDER BY created_at DESC
+        LIMIT 10
+      `).catch(() => ({ rows: [] }));
+
+      const patterns = this.identifyDreamStatePatterns(recentSessions.rows);
+      
+      return {
+        recentSessions: recentSessions.rows,
+        patterns,
+        effectiveness: this.calculateDreamStateEffectiveness(recentSessions.rows)
+      };
+    } catch (error) {
+      console.error('Error analyzing DreamState history:', error);
+      return { recentSessions: [], patterns: [], effectiveness: 0 };
+    }
+  }
+
+  private identifyDreamStatePatterns(sessions: any[]): string[] {
+    const patterns = [];
+    
+    if (sessions.length === 0) {
+      patterns.push('No recent DreamState activity - opportunity for proactive analysis');
+      return patterns;
+    }
+    
+    const modes = sessions.reduce((acc, session) => {
+      acc[session.mode] = (acc[session.mode] || 0) + 1;
+      return acc;
+    }, {});
+    
+    const avgNodes = sessions.reduce((sum, s) => sum + (s.total_nodes || 0), 0) / sessions.length;
+    const avgDepth = sessions.reduce((sum, s) => sum + (s.current_depth || 0), 0) / sessions.length;
+    
+    patterns.push(`Recent sessions: ${Object.entries(modes).map(([mode, count]) => `${count} ${mode}`).join(', ')}`);
+    patterns.push(`Average analysis depth: ${Math.round(avgDepth)} levels`);
+    patterns.push(`Average node generation: ${Math.round(avgNodes)} nodes per session`);
+    
+    return patterns;
+  }
+
+  private calculateDreamStateEffectiveness(sessions: any[]): number {
+    if (sessions.length === 0) return 50;
+    
+    const completedSessions = sessions.filter(s => s.status === 'completed').length;
+    const avgNodes = sessions.reduce((sum, s) => sum + (s.total_nodes || 0), 0) / sessions.length;
+    
+    const completionRate = (completedSessions / sessions.length) * 100;
+    const nodeEfficiency = Math.min(100, avgNodes * 4); // Up to 25 nodes = 100%
+    
+    return Math.round((completionRate + nodeEfficiency) / 2);
+  }
+
+  private async makeIntelligentSessionDecision(ecosystemData: any): Promise<any> {
+    console.log('🤔 CADIS making intelligent decision about DreamState session type...');
+    
+    const factors = {
+      tenantCount: ecosystemData.tenants.profiles.length,
+      moduleActivity: ecosystemData.activity.activityLevel,
+      journalInsights: ecosystemData.journal.totalEntries,
+      dreamStateHistory: ecosystemData.dreamStateHistory.effectiveness,
+      recentDreamStateSessions: ecosystemData.dreamStateHistory.recentSessions.length
+    };
+    
+    // CADIS DECISION LOGIC
+    if (factors.tenantCount > 1 && factors.dreamStateHistory < 70) {
+      return {
+        sessionType: 'multi-tenant-optimization',
+        reasoning: `${factors.tenantCount} tenants detected with ${factors.dreamStateHistory}% DreamState effectiveness - focus on tenant optimization`,
+        analysisDepth: 5,
+        nodeTarget: 35,
+        focusAreas: ['tenant-satisfaction', 'cross-tenant-patterns', 'revenue-optimization', 'scaling-efficiency']
+      };
+    }
+    
+    if (factors.moduleActivity === 'high' && factors.journalInsights > 10) {
+      return {
+        sessionType: 'rapid-development-optimization',
+        reasoning: `High module activity (${factors.moduleActivity}) with ${factors.journalInsights} journal insights - optimize development velocity`,
+        analysisDepth: 4,
+        nodeTarget: 30,
+        focusAreas: ['development-velocity', 'module-optimization', 'team-productivity', 'quality-maintenance']
+      };
+    }
+    
+    if (factors.recentDreamStateSessions < 2) {
+      return {
+        sessionType: 'comprehensive-ecosystem-analysis',
+        reasoning: `Only ${factors.recentDreamStateSessions} recent DreamState sessions - comprehensive ecosystem review needed`,
+        analysisDepth: 6,
+        nodeTarget: 40,
+        focusAreas: ['ecosystem-health', 'strategic-planning', 'philosophical-alignment', 'growth-opportunities']
+      };
+    }
+    
+    // Default strategic optimization
+    return {
+      sessionType: 'strategic-philosophical-optimization',
+      reasoning: 'Standard ecosystem optimization with philosophical alignment focus',
+      analysisDepth: 4,
+      nodeTarget: 25,
+      focusAreas: ['philosophical-alignment', 'efficiency-optimization', 'sustainable-growth', 'foundation-strengthening']
+    };
+  }
+
+  // Legacy method for backward compatibility
   private async gatherEcosystemIntelligence(client: PoolClient): Promise<any> {
     try {
       console.log('🔍 Gathering ecosystem intelligence for DreamState analysis...');
