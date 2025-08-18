@@ -2,18 +2,17 @@ import Link from 'next/link';
 import PortfolioService from '@/services/portfolio.service';
 
 export default async function AdminDashboard() {
-  // Get overview data with optimized loading
+  // Lightweight dashboard - no heavy processing on load
   const portfolioService = PortfolioService.getInstance();
   
-  // Use faster methods that don't require heavy S3 calls
-  const [projects, videos] = await Promise.all([
-    portfolioService.getSystemArchitectures(), // Use cached architecture systems instead
-    portfolioService.getLatestLeadershipVideos(), // Use cached videos without analysis
-  ]);
+  // Get basic counts only - no heavy analysis or S3 calls
+  const projects = await portfolioService.getSystemArchitectures(); // Cached data only
+  const videos = await portfolioService.getLatestLeadershipVideos(); // Cached data only
 
-  // Use basic count without checking each project individually (too slow)
-  let analyzedProjectsCount = Math.floor(projects.length * 0.7); // Estimate based on typical analysis coverage
-  let meetingGroupsCount = videos.length; // Use video count as proxy for meetings
+  // Static estimates - no real-time analysis on dashboard load
+  const estimatedAnalyzedProjects = Math.floor(projects.length * 0.7);
+  const estimatedMeetings = videos.length;
+  const estimatedPortfolioRelevant = Math.floor(estimatedMeetings * 0.6);
 
   const stats = [
     {
@@ -30,19 +29,19 @@ export default async function AdminDashboard() {
     },
     {
       title: 'Meeting Recordings',
-      value: meetingGroupsCount,
+      value: estimatedMeetings,
       icon: '📹',
       href: '/admin/meetings',
     },
     {
       title: 'Portfolio Relevant',
-      value: Math.floor(meetingGroupsCount * 0.6), // Estimate
+      value: estimatedPortfolioRelevant,
       icon: '⭐',
       href: '/admin/meetings',
     },
     {
       title: 'Architecture Analysis',
-      value: analyzedProjectsCount,
+      value: estimatedAnalyzedProjects,
       icon: '🏗️',
       href: '/admin/architecture',
     },
@@ -170,13 +169,13 @@ export default async function AdminDashboard() {
             <div className="flex items-center text-sm">
               <span className="mr-3">📹</span>
               <span className="text-gray-300">
-                {meetingGroups.filter(m => m.isPortfolioRelevant).length} portfolio-relevant meetings available
+                {estimatedPortfolioRelevant} portfolio-relevant meetings available
               </span>
             </div>
             <div className="flex items-center text-sm">
               <span className="mr-3">🏗️</span>
               <span className="text-gray-300">
-                {analyzedProjectsCount} projects have architecture analysis
+                {estimatedAnalyzedProjects} projects have architecture analysis
               </span>
             </div>
           </div>
