@@ -319,7 +319,8 @@ export default function JournalPage() {
       }
     } catch (error) {
       console.error('Error toggling privacy:', error);
-      setError(`Failed to update privacy setting: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(`Failed to update privacy setting: ${errorMessage}`);
       
       // Revert the local state change
       setEntries(prev => prev.map(entry => 
