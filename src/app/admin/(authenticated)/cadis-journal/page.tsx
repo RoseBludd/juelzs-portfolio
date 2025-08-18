@@ -184,6 +184,7 @@ export default function CADISJournalPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [expandedInsights, setExpandedInsights] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadCADISData();
@@ -263,6 +264,100 @@ export default function CADISJournalPage() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const createCalendarReminder = async (entry: any, actionType: string) => {
+    try {
+      // Calculate realistic deadline based on insight type and impact
+      const getDueDate = (entry: any, actionType: string) => {
+        const now = new Date();
+        
+        if (entry.impact === 'critical') {
+          if (entry.title.toLowerCase().includes('revenue')) {
+            // Revenue critical: 2 weeks
+            return new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+          }
+          if (entry.title.toLowerCase().includes('client success')) {
+            // Client success critical: 1 week
+            return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+          }
+          // Other critical: 10 days
+          return new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000);
+        }
+        
+        // High impact: 3-4 weeks
+        return new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000);
+      };
+
+      const dueDate = getDueDate(entry, actionType);
+      
+      const response = await fetch('/api/admin/calendar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action: 'create_insight_reminder',
+          title: `CADIS Critical Insight: ${entry.title}`,
+          dueDate: dueDate.toISOString(),
+          priority: entry.impact === 'critical' ? 'urgent' : 'high',
+          description: `Action required for ${entry.impact} impact insight: ${actionType}`,
+          metadata: {
+            insightId: entry.id,
+            actionType,
+            confidence: entry.confidence,
+            impact: entry.impact
+          }
+        })
+      });
+
+      if (response.ok) {
+        console.log(`✅ Calendar reminder created for: ${entry.title}`);
+      }
+    } catch (error) {
+      console.error('Error creating calendar reminder:', error);
+    }
+  };
+
+  const generateNotification = async (entry: any) => {
+    try {
+      const response = await fetch('/api/admin/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action: 'create_critical_insight_notification',
+          title: `🚨 Critical CADIS Insight Requires Action`,
+          message: `${entry.title} - ${entry.impact} impact with ${entry.confidence}% confidence`,
+          type: entry.impact === 'critical' ? 'error' : 'warning',
+          priority: entry.impact === 'critical' ? 'urgent' : 'high',
+          actionUrl: '/admin/cadis-journal',
+          actionLabel: 'Review Insight',
+          metadata: {
+            insightId: entry.id,
+            impact: entry.impact,
+            confidence: entry.confidence
+          }
+        })
+      });
+
+      if (response.ok) {
+        console.log(`🔔 Notification created for: ${entry.title}`);
+      }
+    } catch (error) {
+      console.error('Error creating notification:', error);
+    }
+  };
+
+  const toggleInsightExpansion = (entryId: string) => {
+    const newExpanded = new Set(expandedInsights);
+    if (newExpanded.has(entryId)) {
+      newExpanded.delete(entryId);
+    } else {
+      newExpanded.add(entryId);
+    }
+    setExpandedInsights(newExpanded);
   };
 
   const tabs = [
@@ -549,23 +644,148 @@ export default function CADISJournalPage() {
                     🔥 Critical Insights
                   </h4>
                   <div className="space-y-3">
-                    {entries.filter(e => e.impact === 'critical' || e.impact === 'high').slice(0, 5).map(entry => (
-                      <div key={entry.id} className="border-l-4 border-red-500 pl-3 py-2">
-                        <div className="text-white text-sm font-medium truncate">
-                          {entry.title}
+                    {entries.filter(e => e.impact === 'critical' || e.impact === 'high').slice(0, 5).map(entry => {
+                      const isExpanded = expandedInsights.has(entry.id);
+                      
+                      const getActionableRecommendations = (entry: any) => {
+                        const recommendations = entry.cadisMetadata?.recommendations || [];
+                        if (recommendations.length > 0) return recommendations;
+                        
+                        // Generate smart recommendations based on content
+                        if (entry.title.toLowerCase().includes('quantum revenue')) {
+                          return [
+                            'Implement revenue optimization framework',
+                            'Analyze current revenue streams for enhancement opportunities',
+                            'Deploy predictive revenue modeling system'
+                          ];
+                        }
+                        if (entry.title.toLowerCase().includes('self-advancement')) {
+                          return [
+                            'Enable CADIS autonomous learning protocols',
+                            'Implement meta-cognitive monitoring system',
+                            'Deploy self-optimization feedback loops'
+                          ];
+                        }
+                        if (entry.title.toLowerCase().includes('client success')) {
+                          return [
+                            'Deploy client success prediction models',
+                            'Implement proactive client intervention system',
+                            'Create automated success optimization workflows'
+                          ];
+                        }
+                        return ['Review insight details', 'Assess implementation feasibility', 'Create action plan'];
+                      };
+
+                      const getCriticalReasoning = (entry: any) => {
+                        if (entry.impact === 'critical') {
+                          return 'This insight represents a breakthrough opportunity that could significantly transform your business operations. Immediate action is recommended to capitalize on this strategic advantage.';
+                        }
+                        return 'This high-impact insight offers substantial improvement opportunities that align with your strategic objectives. Consider prioritizing implementation.';
+                      };
+
+                      const getRealisticTimeline = (entry: any) => {
+                        if (entry.impact === 'critical') {
+                          if (entry.title.toLowerCase().includes('revenue')) {
+                            return '2 weeks (Revenue Critical)';
+                          }
+                          if (entry.title.toLowerCase().includes('client success')) {
+                            return '1 week (Client Critical)';
+                          }
+                          return '10 days (System Critical)';
+                        }
+                        return '3 weeks (High Priority)';
+                      };
+
+                      return (
+                        <div key={entry.id} className="border-l-4 border-red-500 pl-3 py-2">
+                          <div 
+                            className="text-white text-sm font-medium cursor-pointer hover:text-blue-300 transition-colors"
+                            onClick={() => toggleInsightExpansion(entry.id)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="truncate">{entry.title}</span>
+                              <span className="text-gray-400 ml-2">
+                                {isExpanded ? '▼' : '▶'}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={`text-xs px-2 py-1 rounded ${
+                              entry.impact === 'critical' ? 'bg-red-600/20 text-red-300' :
+                              entry.impact === 'high' ? 'bg-orange-600/20 text-orange-300' :
+                              'bg-yellow-600/20 text-yellow-300'
+                            }`}>
+                              {entry.impact}
+                            </span>
+                            <span className="text-gray-400 text-xs">{entry.confidence}% confidence</span>
+                            <button
+                              onClick={() => generateNotification(entry)}
+                              className="text-xs text-blue-400 hover:text-blue-300 ml-2"
+                              title="Create notification for this insight"
+                            >
+                              🔔 Notify
+                            </button>
+                          </div>
+
+                          {isExpanded && (
+                            <div className="mt-3 pt-3 border-t border-gray-600">
+                              <div className="mb-3">
+                                <h5 className="text-white font-medium text-sm mb-2">🧠 Why This Is Critical:</h5>
+                                <p className="text-gray-300 text-xs leading-relaxed">
+                                  {getCriticalReasoning(entry)}
+                                </p>
+                              </div>
+                              
+                              <div className="mb-3">
+                                <h5 className="text-white font-medium text-sm mb-2">🎯 Recommended Actions:</h5>
+                                <ul className="space-y-1">
+                                  {getActionableRecommendations(entry).slice(0, 3).map((rec, idx) => (
+                                    <li key={idx} className="text-gray-300 text-xs flex items-start gap-2">
+                                      <span className="text-green-400 mt-0.5">•</span>
+                                      <span>{rec}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+
+                              <div className="mb-3">
+                                <h5 className="text-white font-medium text-sm mb-2">📊 Impact Assessment:</h5>
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                  <div>
+                                    <span className="text-gray-400">Confidence:</span>
+                                    <span className="text-white ml-1">{entry.confidence}%</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-400">Timeline:</span>
+                                    <span className="text-yellow-300 ml-1">{getRealisticTimeline(entry)}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex gap-2 flex-wrap">
+                                <button 
+                                  onClick={() => createCalendarReminder(entry, 'Implementation Planning')}
+                                  className="bg-purple-600 hover:bg-purple-700 text-white text-xs px-3 py-1 rounded transition-colors"
+                                  title="Add to calendar with realistic deadline"
+                                >
+                                  📅 Schedule Action
+                                </button>
+                                <button 
+                                  onClick={() => createCalendarReminder(entry, 'Review & Assessment')}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded transition-colors"
+                                >
+                                  📋 Create Action Plan
+                                </button>
+                                <button className="bg-gray-600 hover:bg-gray-700 text-white text-xs px-3 py-1 rounded transition-colors">
+                                  📄 View Full Details
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className={`text-xs px-2 py-1 rounded ${
-                            entry.impact === 'critical' ? 'bg-red-600/20 text-red-300' :
-                            entry.impact === 'high' ? 'bg-orange-600/20 text-orange-300' :
-                            'bg-yellow-600/20 text-yellow-300'
-                          }`}>
-                            {entry.impact}
-                          </span>
-                          <span className="text-gray-400 text-xs">{entry.confidence}% confidence</span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                     {entries.filter(e => e.impact === 'critical' || e.impact === 'high').length === 0 && (
                       <div className="text-gray-400 text-sm py-4 text-center">
                         No critical insights found - system running optimally
