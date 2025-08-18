@@ -144,6 +144,7 @@ export async function PUT(request: NextRequest) {
       tags: body.tags,
       architectureDiagrams: body.architectureDiagrams,
       relatedFiles: body.relatedFiles,
+      isPrivate: body.isPrivate,
       metadata: body.metadata
     });
 

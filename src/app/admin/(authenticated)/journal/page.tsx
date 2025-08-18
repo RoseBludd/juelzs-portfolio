@@ -279,6 +279,8 @@ export default function JournalPage() {
 
   const handleTogglePrivacy = async (entryId: string, isPrivate: boolean) => {
     try {
+      console.log(`🔄 Toggling privacy for entry ${entryId} to ${isPrivate ? 'Private' : 'Public'}`);
+      
       const response = await fetch('/api/admin/journal', {
         method: 'PUT',
         headers: {
@@ -291,22 +293,38 @@ export default function JournalPage() {
       });
       
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Privacy update failed:', response.status, errorText);
         throw new Error(`Failed to update privacy: ${response.status}`);
       }
 
       const data = await response.json();
       
       if (data.success) {
+        console.log(`✅ Privacy updated successfully to ${isPrivate ? 'Private' : 'Public'}`);
+        
         // Update the entry in the local state
         setEntries(prev => prev.map(entry => 
           entry.id === entryId ? { ...entry, isPrivate } : entry
         ));
+        
+        // Also reload stats to reflect the change
+        await loadStats();
+        
+        // Clear any previous errors
+        setError(null);
       } else {
+        console.error('Privacy update failed:', data.error);
         throw new Error(data.error || 'Failed to update privacy');
       }
     } catch (error) {
       console.error('Error toggling privacy:', error);
-      setError('Failed to update privacy setting');
+      setError(`Failed to update privacy setting: ${error.message}`);
+      
+      // Revert the local state change
+      setEntries(prev => prev.map(entry => 
+        entry.id === entryId ? { ...entry, isPrivate: !isPrivate } : entry
+      ));
     }
   };
 
