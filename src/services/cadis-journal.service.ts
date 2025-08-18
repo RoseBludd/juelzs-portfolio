@@ -845,6 +845,54 @@ Through ${scenario.layers} levels of reality exploration, CADIS discovered innov
     }
   }
 
+  /**
+   * Get CADIS entry by ID
+   */
+  async getCADISEntry(id: string): Promise<CADISJournalEntry | null> {
+    try {
+      const client = await this.getClient();
+      
+      try {
+        const result = await client.query(
+          'SELECT * FROM cadis_journal_entries WHERE id = $1',
+          [id]
+        );
+        
+        return result.rows[0] ? this.mapRowToCADISEntry(result.rows[0]) : null;
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error('Error fetching CADIS entry:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get CADIS entries by date range
+   */
+  async getCADISEntriesByDateRange(startDate: Date, endDate: Date): Promise<CADISJournalEntry[]> {
+    try {
+      const client = await this.getClient();
+      
+      try {
+        const query = `
+          SELECT * FROM cadis_journal_entries
+          WHERE created_at >= $1 AND created_at <= $2
+          ORDER BY created_at DESC
+        `;
+        
+        const result = await client.query(query, [startDate, endDate]);
+        return result.rows.map(row => this.mapRowToCADISEntry(row));
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error('Error fetching CADIS entries by date range:', error);
+      return [];
+    }
+  }
+
   // Private helper methods
   private async getClient(): Promise<PoolClient> {
     return this.dbService.getPoolClient();

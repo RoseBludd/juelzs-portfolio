@@ -49,6 +49,11 @@ const navigation = [
     href: '/admin/cadis-journal',
     icon: '🧠',
   },
+  {
+    name: 'Calendar',
+    href: '/admin/calendar',
+    icon: '📅',
+  },
 ];
 
 export default function AdminNavigation() {

@@ -718,6 +718,54 @@ class JournalService {
   }
 
   /**
+   * Get journal entries (alias for getEntries for calendar compatibility)
+   */
+  async getJournalEntries(filters?: JournalSearchFilters, limit: number = 50, offset: number = 0): Promise<JournalEntry[]> {
+    return this.getEntries(filters, limit, offset);
+  }
+
+  /**
+   * Get journal entry by ID (alias for getEntryById for calendar compatibility)
+   */
+  async getJournalEntry(id: string): Promise<JournalEntry | null> {
+    return this.getEntryById(id);
+  }
+
+  /**
+   * Get journal entries by date range
+   */
+  async getJournalEntriesByDateRange(startDate: Date, endDate: Date): Promise<JournalEntry[]> {
+    const filters: JournalSearchFilters = {
+      dateFrom: startDate,
+      dateTo: endDate
+    };
+    return this.getEntries(filters);
+  }
+
+  /**
+   * Get reminder by ID
+   */
+  async getReminder(id: string): Promise<Reminder | null> {
+    try {
+      const client = await this.getClient();
+      
+      try {
+        const result = await client.query(
+          'SELECT * FROM reminders WHERE id = $1',
+          [id]
+        );
+        
+        return result.rows[0] ? this.mapRowToReminder(result.rows[0]) : null;
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error('Error fetching reminder:', error);
+      return null;
+    }
+  }
+
+  /**
    * Get all existing tags for autocomplete
    */
   async getAllTags(query: string = '', limit: number = 20): Promise<string[]> {

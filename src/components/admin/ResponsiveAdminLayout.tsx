@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import AdminNotifications from './AdminNotifications';
 
 const navigation = [
   {
@@ -44,6 +45,16 @@ const navigation = [
     name: 'Journal',
     href: '/admin/journal',
     icon: '📝',
+  },
+  {
+    name: 'CADIS Journal',
+    href: '/admin/cadis-journal',
+    icon: '🧠',
+  },
+  {
+    name: 'Calendar',
+    href: '/admin/calendar',
+    icon: '📅',
   },
 ];
 
@@ -87,14 +98,6 @@ export default function ResponsiveAdminLayout({ children }: ResponsiveAdminLayou
                 </h1>
               </div>
             </div>
-            <div className="flex items-center">
-              <Link
-                href="/"
-                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                View Site
-              </Link>
-            </div>
           </div>
         </div>
       </header>
@@ -107,14 +110,6 @@ export default function ResponsiveAdminLayout({ children }: ResponsiveAdminLayou
               <h1 className="text-xl font-semibold text-white">
                 Portfolio Admin
               </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/"
-                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                View Site
-              </Link>
             </div>
           </div>
         </div>
@@ -163,6 +158,12 @@ export default function ResponsiveAdminLayout({ children }: ResponsiveAdminLayou
                 })}
               </ul>
 
+              {/* Notifications Section */}
+              <div className="mt-8 pt-6 border-t border-gray-700">
+                <h3 className="text-sm font-medium text-gray-400 mb-3">Notifications</h3>
+                <AdminNotifications />
+              </div>
+
               <div className="mt-8 pt-6 border-t border-gray-700">
                 <form action="/api/admin/logout" method="POST">
                   <button
@@ -208,6 +209,12 @@ export default function ResponsiveAdminLayout({ children }: ResponsiveAdminLayou
                 );
               })}
             </ul>
+
+            {/* Notifications Section */}
+            <div className="mt-8 pt-6 border-t border-gray-700">
+              <h3 className="text-sm font-medium text-gray-400 mb-3">Notifications</h3>
+              <AdminNotifications />
+            </div>
 
             <div className="mt-8 pt-6 border-t border-gray-700">
               <form action="/api/admin/logout" method="POST">

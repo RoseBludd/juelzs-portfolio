@@ -27,6 +27,7 @@ This isn't just another developer portfolio. It's a **comprehensive AI-driven le
 - ✅ **AI-powered intelligent project overviews** replacing empty GitHub stats with meaningful system descriptions
 - ✅ **Scientific engineering journal system** with AI-powered analysis, AI individual entry feedback, templates, learning category, and public insights showcase
 - ✅ **CADIS Intelligence Journal** - AI-powered ecosystem optimization with philosophical alignment and DreamState integration
+- ✅ **Portfolio Calendar System** - Comprehensive calendar with CADIS integration, automated scheduling, intelligent notifications, and sidebar notification management
 - ✅ **Complete testing infrastructure** with 15+ test suites for quality assurance
 - ✅ **Production-ready architecture** with graceful fallbacks and error handling
 
@@ -191,6 +192,43 @@ AI Recommendation:
 ### 📝 **Scientific Engineering Journal System**
 
 **AI-Powered Engineering Documentation** - Complete journal system for documenting technical decisions, reflections, and insights with comprehensive AI feedback:
+
+### 📅 **Portfolio Calendar System**
+
+**Comprehensive Development Journey Visualization** - Unified calendar view with CADIS intelligence integration and automated scheduling:
+
+#### **Calendar Core Features**
+- **📊 Unified Dashboard**: All development activities in one intelligent calendar view
+- **🧠 CADIS Integration**: Every event enhanced with AI-powered contextual insights and recommendations
+- **🔄 Automated Scheduling**: Biweekly self-reviews starting 8/19/25 with comprehensive CADIS analysis
+- **⚡ Performance Optimized**: Lightweight loading without heavy portfolio analysis
+- **🔔 Smart Notifications**: Admin alerts for CADIS runs, self-reviews, and important events
+
+#### **Event Types & Intelligence**
+- **📝 Journal Entries**: Your development thoughts and reflections with AI enhancement
+- **🧠 CADIS Insights**: AI-generated ecosystem analysis and optimization recommendations  
+- **⏰ Smart Reminders**: Task reminders with contextual priority and impact scoring
+- **🔍 Self-Reviews**: Automated biweekly comprehensive reviews with multi-source analysis
+- **🎥 Meeting Analysis**: Leadership meetings with portfolio relevance scoring
+- **🔧 CADIS Maintenance**: Automated system runs (Tuesdays & Fridays) with health monitoring
+
+#### **Advanced Filtering & Views**
+- **🎯 Smart Filters**: By type, priority, date range, tags, completion status, and privacy
+- **📅 Multiple Views**: Month grid calendar and chronological list view
+- **📈 Statistics Dashboard**: Real-time metrics showing upcoming events, monthly activity, and progress tracking
+- **🔍 Detailed Context**: Click any event for comprehensive CADIS-enhanced context and recommendations
+
+#### **Self-Review System**
+- **⏰ Automated Scheduling**: Every 2 weeks starting 8/19/25
+- **🔄 Comprehensive Analysis**: CADIS analyzes journal entries, repositories, meetings, and projects
+- **📊 Progress Tracking**: Performance metrics, key insights, and actionable recommendations
+- **💾 S3 Storage**: All analysis contexts and reviews stored for historical reference
+
+#### **CADIS Maintenance Schedule**
+- **🔧 Tuesday Full Analysis**: Complete system analysis including ecosystem health, dream state predictions, and creative intelligence
+- **🏥 Friday Health Checks**: Ecosystem health monitoring and optimization recommendations
+- **🔔 Sidebar Notifications**: Admin notification panel integrated into left navigation with real-time updates
+- **📊 Optimized Performance**: Fast stats loading using working services, no heavy database queries
 
 ### 🧠 **CADIS Intelligence Journal System**
 

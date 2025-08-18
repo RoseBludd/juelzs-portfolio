@@ -1,5 +1,7 @@
 import SyncService from './sync.service';
 import PortfolioService from './portfolio.service';
+import CalendarService from './calendar.service';
+import ScheduledTasksService from './scheduled-tasks.service';
 
 export interface InitConfig {
   environment: 'development' | 'production' | 'test';
@@ -13,6 +15,8 @@ class InitService {
   private config: InitConfig;
   private syncService: SyncService;
   private portfolioService: PortfolioService;
+  private calendarService: CalendarService;
+  private scheduledTasksService: ScheduledTasksService;
   private initialized = false;
 
   private constructor() {
@@ -25,6 +29,8 @@ class InitService {
     
     this.syncService = SyncService.getInstance();
     this.portfolioService = PortfolioService.getInstance();
+    this.calendarService = CalendarService.getInstance();
+    this.scheduledTasksService = ScheduledTasksService.getInstance();
   }
 
   public static getInstance(): InitService {
@@ -55,6 +61,12 @@ class InitService {
 
       // Initialize sync service
       await this.syncService.initialize();
+
+      // Initialize calendar service
+      await this.calendarService.initialize();
+
+      // Initialize scheduled tasks service
+      await this.scheduledTasksService.initialize();
 
       // Set up environment-specific configurations
       await this.setupEnvironmentConfig();
