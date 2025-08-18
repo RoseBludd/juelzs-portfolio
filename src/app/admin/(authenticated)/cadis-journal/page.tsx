@@ -185,6 +185,7 @@ export default function CADISJournalPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedInsights, setExpandedInsights] = useState<Set<string>>(new Set());
+  const [selectedInsightModal, setSelectedInsightModal] = useState<CADISJournalEntry | null>(null);
 
   useEffect(() => {
     loadCADISData();
@@ -730,6 +731,70 @@ export default function CADISJournalPage() {
 
                           {isExpanded && (
                             <div className="mt-3 pt-3 border-t border-gray-600">
+                              {/* CADIS Dream/Insight Content */}
+                              <div className="mb-4">
+                                <h5 className="text-white font-medium text-sm mb-2 flex items-center gap-2">
+                                  🔮 CADIS Revelation:
+                                </h5>
+                                <div className="bg-gray-700/50 rounded-lg p-3 text-xs">
+                                  <p className="text-gray-200 leading-relaxed">
+                                    {entry.content.length > 300 
+                                      ? `${entry.content.substring(0, 300)}...` 
+                                      : entry.content}
+                                  </p>
+                                  {entry.content.length > 300 && (
+                                    <button 
+                                      onClick={() => setSelectedInsightModal(entry)}
+                                      className="text-blue-400 hover:text-blue-300 mt-2 text-xs"
+                                    >
+                                      Read full revelation →
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* CADIS Metadata Insights */}
+                              {entry.cadisMetadata && (
+                                <div className="mb-3">
+                                  <h5 className="text-white font-medium text-sm mb-2">🧠 CADIS Analysis:</h5>
+                                  <div className="bg-purple-900/20 rounded-lg p-3 text-xs space-y-2">
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-300">Analysis Type:</span>
+                                      <span className="text-purple-300">{entry.cadisMetadata.analysisType}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-gray-300">Data Points:</span>
+                                      <span className="text-blue-300">{entry.cadisMetadata.dataPoints}</span>
+                                    </div>
+                                    {entry.cadisMetadata.correlations && entry.cadisMetadata.correlations.length > 0 && (
+                                      <div>
+                                        <span className="text-gray-300">Correlations:</span>
+                                        <div className="flex flex-wrap gap-1 mt-1">
+                                          {entry.cadisMetadata.correlations.slice(0, 3).map((corr, idx) => (
+                                            <span key={idx} className="bg-blue-600/20 text-blue-300 px-2 py-1 rounded text-xs">
+                                              {corr}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                    {entry.cadisMetadata.predictions && entry.cadisMetadata.predictions.length > 0 && (
+                                      <div>
+                                        <span className="text-gray-300">Predictions:</span>
+                                        <ul className="mt-1 space-y-1">
+                                          {entry.cadisMetadata.predictions.slice(0, 2).map((pred, idx) => (
+                                            <li key={idx} className="text-yellow-300 text-xs flex items-start gap-1">
+                                              <span className="text-yellow-400 mt-0.5">→</span>
+                                              <span>{pred}</span>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
                               <div className="mb-3">
                                 <h5 className="text-white font-medium text-sm mb-2">🧠 Why This Is Critical:</h5>
                                 <p className="text-gray-300 text-xs leading-relaxed">
@@ -777,7 +842,10 @@ export default function CADISJournalPage() {
                                 >
                                   📋 Create Action Plan
                                 </button>
-                                <button className="bg-gray-600 hover:bg-gray-700 text-white text-xs px-3 py-1 rounded transition-colors">
+                                <button 
+                                  onClick={() => setSelectedInsightModal(entry)}
+                                  className="bg-gray-600 hover:bg-gray-700 text-white text-xs px-3 py-1 rounded transition-colors"
+                                >
                                   📄 View Full Details
                                 </button>
                               </div>
@@ -1070,6 +1138,193 @@ export default function CADISJournalPage() {
           )}
         </div>
       </div>
+
+      {/* Full Details Modal */}
+      {selectedInsightModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-800 rounded-lg border border-gray-700 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🔮</span>
+                <div>
+                  <h2 className="text-xl font-bold text-white">{selectedInsightModal.title}</h2>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      selectedInsightModal.impact === 'critical' ? 'bg-red-600/20 text-red-300' :
+                      selectedInsightModal.impact === 'high' ? 'bg-orange-600/20 text-orange-300' :
+                      'bg-yellow-600/20 text-yellow-300'
+                    }`}>
+                      {selectedInsightModal.impact} impact
+                    </span>
+                    <span className="text-gray-400 text-xs">{selectedInsightModal.confidence}% confidence</span>
+                    <span className="text-gray-400 text-xs">
+                      {new Date(selectedInsightModal.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedInsightModal(null)}
+                className="text-gray-400 hover:text-white bg-transparent hover:bg-gray-700 p-2 rounded"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Full CADIS Content */}
+              <div>
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  🧠 Complete CADIS Analysis
+                </h3>
+                <div className="bg-gray-700/30 rounded-lg p-4">
+                  <div className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">
+                    {selectedInsightModal.content}
+                  </div>
+                </div>
+              </div>
+
+              {/* CADIS Metadata Details */}
+              {selectedInsightModal.cadisMetadata && (
+                <div>
+                  <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                    📊 Intelligence Metadata
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-purple-900/20 rounded-lg p-4">
+                      <h4 className="text-purple-300 font-medium mb-2">Analysis Details</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Type:</span>
+                          <span className="text-white">{selectedInsightModal.cadisMetadata.analysisType}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Data Points:</span>
+                          <span className="text-blue-300">{selectedInsightModal.cadisMetadata.dataPoints}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-300">Source:</span>
+                          <span className="text-green-300">{selectedInsightModal.source}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {selectedInsightModal.cadisMetadata.correlations && selectedInsightModal.cadisMetadata.correlations.length > 0 && (
+                      <div className="bg-blue-900/20 rounded-lg p-4">
+                        <h4 className="text-blue-300 font-medium mb-2">Pattern Correlations</h4>
+                        <div className="space-y-1">
+                          {selectedInsightModal.cadisMetadata.correlations.map((corr, idx) => (
+                            <div key={idx} className="text-sm text-gray-300 flex items-center gap-2">
+                              <span className="text-blue-400">•</span>
+                              <span>{corr}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedInsightModal.cadisMetadata.predictions && selectedInsightModal.cadisMetadata.predictions.length > 0 && (
+                    <div className="bg-yellow-900/20 rounded-lg p-4 mt-4">
+                      <h4 className="text-yellow-300 font-medium mb-2">CADIS Predictions</h4>
+                      <div className="space-y-2">
+                        {selectedInsightModal.cadisMetadata.predictions.map((pred, idx) => (
+                          <div key={idx} className="text-sm text-gray-300 flex items-start gap-2">
+                            <span className="text-yellow-400 mt-0.5">→</span>
+                            <span>{pred}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedInsightModal.cadisMetadata.recommendations && selectedInsightModal.cadisMetadata.recommendations.length > 0 && (
+                    <div className="bg-green-900/20 rounded-lg p-4 mt-4">
+                      <h4 className="text-green-300 font-medium mb-2">CADIS Recommendations</h4>
+                      <div className="space-y-2">
+                        {selectedInsightModal.cadisMetadata.recommendations.map((rec, idx) => (
+                          <div key={idx} className="text-sm text-gray-300 flex items-start gap-2">
+                            <span className="text-green-400 mt-0.5">✓</span>
+                            <span>{rec}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Tags and Related Entities */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {selectedInsightModal.tags && selectedInsightModal.tags.length > 0 && (
+                  <div>
+                    <h4 className="text-white font-medium mb-2">🏷️ Tags</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedInsightModal.tags.map((tag, idx) => (
+                        <span key={idx} className="bg-gray-600/50 text-gray-300 px-2 py-1 rounded text-xs">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedInsightModal.relatedEntities && Object.keys(selectedInsightModal.relatedEntities).length > 0 && (
+                  <div>
+                    <h4 className="text-white font-medium mb-2">🔗 Related Entities</h4>
+                    <div className="space-y-2 text-sm">
+                      {Object.entries(selectedInsightModal.relatedEntities).map(([key, values]) => (
+                        values && Array.isArray(values) && values.length > 0 && (
+                          <div key={key}>
+                            <span className="text-gray-400 capitalize">{key}:</span>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {values.slice(0, 3).map((value, idx) => (
+                                <span key={idx} className="bg-blue-600/20 text-blue-300 px-2 py-1 rounded text-xs">
+                                  {value}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 border-t border-gray-700">
+                <button 
+                  onClick={() => {
+                    createCalendarReminder(selectedInsightModal, 'Implementation Planning');
+                    setSelectedInsightModal(null);
+                  }}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition-colors"
+                >
+                  📅 Schedule Implementation
+                </button>
+                <button 
+                  onClick={() => {
+                    generateNotification(selectedInsightModal);
+                    setSelectedInsightModal(null);
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+                >
+                  🔔 Create Notification
+                </button>
+                <button 
+                  onClick={() => setSelectedInsightModal(null)}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
