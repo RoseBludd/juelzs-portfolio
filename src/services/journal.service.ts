@@ -301,7 +301,7 @@ class JournalService {
         query += `
           GROUP BY je.id, je.title, je.content, je.original_content, je.category, je.project_id, 
                    je.project_name, je.tags, je.architecture_diagrams, 
-                   je.related_files, je.metadata, je.created_at, je.updated_at
+                   je.related_files, je.metadata, je.is_private, je.created_at, je.updated_at
           ORDER BY je.updated_at DESC
           LIMIT $${++paramCount} OFFSET $${++paramCount}
         `;
@@ -346,7 +346,7 @@ class JournalService {
           WHERE je.id = $1
           GROUP BY je.id, je.title, je.content, je.category, je.project_id, 
                    je.project_name, je.tags, je.architecture_diagrams, 
-                   je.related_files, je.metadata, je.created_at, je.updated_at
+                   je.related_files, je.metadata, je.is_private, je.created_at, je.updated_at
         `;
         
         const result = await client.query(query, [id]);
@@ -633,7 +633,7 @@ class JournalService {
         searchQuery += `
           GROUP BY je.id, je.title, je.content, je.original_content, je.category, je.project_id, 
                    je.project_name, je.tags, je.architecture_diagrams, 
-                   je.related_files, je.metadata, je.created_at, je.updated_at
+                   je.related_files, je.metadata, je.is_private, je.created_at, je.updated_at
           ORDER BY je.updated_at DESC
           LIMIT 50
         `;
