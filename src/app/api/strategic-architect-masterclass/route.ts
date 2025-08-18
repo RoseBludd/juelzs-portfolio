@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       
       return NextResponse.json({
         success: true,
-        segments: segments.slice(0, 50), // Limit for performance
+        segments: segments, // Return all segments
         analysis,
         metadata: {
           conversationId: conversation.id,

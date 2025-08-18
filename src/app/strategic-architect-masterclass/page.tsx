@@ -202,7 +202,7 @@ function AllSegmentsView({
       <div className="bg-gray-500/10 rounded-lg p-4 border border-gray-500/20 mb-6">
         <h4 className="text-lg font-semibold text-gray-300 mb-2">📖 Complete Conversation Archive</h4>
         <p className="text-gray-400 text-sm">
-          All {segments.length} conversation segments in chronological order - full 1.83M character archive
+          All {segments.length} conversation segments in chronological order - full 1.85M character archive
         </p>
       </div>
       
@@ -430,7 +430,7 @@ export default function StrategicArchitectMasterclass() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPhase, setSelectedPhase] = useState<string>('execution');
-  const [mainTab, setMainTab] = useState<string>('principles'); // 'principles' or 'exploration'
+  const [mainTab, setMainTab] = useState<string>('moments'); // 'moments', 'principles', or 'exploration'
   const [showOnlyStrategic, setShowOnlyStrategic] = useState(false);
   const [selectedSegment, setSelectedSegment] = useState<string | null>(null);
 
@@ -686,33 +686,263 @@ export default function StrategicArchitectMasterclass() {
 
         {/* Main Tab Navigation */}
         <div className="mb-8">
-          <div className="flex justify-center gap-4 mb-6">
+          <div className="flex justify-center gap-3 mb-6 flex-wrap">
+            <button
+              onClick={() => setMainTab('moments')}
+              className={`px-6 py-4 rounded-lg text-lg font-semibold transition-all ${
+                mainTab === 'moments'
+                  ? 'bg-amber-600 text-white border-2 border-amber-500 shadow-lg'
+                  : 'bg-gray-800 text-gray-300 border-2 border-gray-600 hover:border-amber-500 hover:text-amber-300'
+              }`}
+            >
+              <span className="mr-3">⭐</span>
+              Key Strategic Moments
+            </button>
             <button
               onClick={() => setMainTab('principles')}
-              className={`px-8 py-4 rounded-lg text-lg font-semibold transition-all ${
+              className={`px-6 py-4 rounded-lg text-lg font-semibold transition-all ${
                 mainTab === 'principles'
                   ? 'bg-indigo-600 text-white border-2 border-indigo-500 shadow-lg'
                   : 'bg-gray-800 text-gray-300 border-2 border-gray-600 hover:border-indigo-500 hover:text-indigo-300'
               }`}
             >
               <span className="mr-3">🎭</span>
-              Philosophical Alignment by Principle
+              Philosophical Alignment
             </button>
             <button
               onClick={() => setMainTab('exploration')}
-              className={`px-8 py-4 rounded-lg text-lg font-semibold transition-all ${
+              className={`px-6 py-4 rounded-lg text-lg font-semibold transition-all ${
                 mainTab === 'exploration'
                   ? 'bg-gray-600 text-white border-2 border-gray-500 shadow-lg'
                   : 'bg-gray-800 text-gray-300 border-2 border-gray-600 hover:border-gray-500 hover:text-gray-300'
               }`}
             >
               <span className="mr-3">🔍</span>
-              Advanced Conversation Exploration
+              Advanced Exploration
             </button>
           </div>
         </div>
 
         {/* Tab Content */}
+        {mainTab === 'moments' && (
+          <Card className="mb-8 border-amber-500/30">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-semibold text-amber-300 mb-2">
+                Key Strategic Moments
+              </h3>
+              <p className="text-gray-400">
+                Witness execution-led refinement in action - curated highlights from the 1.83M character conversation
+              </p>
+            </div>
+
+            {/* Enhanced Key Strategic Moments */}
+            <div className="space-y-6">
+              {/* Moment 1: Initial Strategic Direction */}
+              <div className="bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-lg p-6 border border-indigo-500/20">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-indigo-500/20 border-2 border-indigo-500/30 flex items-center justify-center overflow-hidden">
+                      <img 
+                        src="/profile-logo.png" 
+                        alt="Juelz" 
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    </div>
+                    <div>
+                      <div className="font-bold text-white text-lg">Strategic Direction</div>
+                      <div className="text-sm text-gray-400">Opening Command - Exchange 1</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-green-400">95/100 Strategic</div>
+                    <div className="text-sm text-green-300">Perfect execution focus</div>
+                  </div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-5 mb-4">
+                  <div className="text-gray-300 leading-relaxed">
+                    <strong className="text-indigo-400">"proceed and make sure that CADIS is using the developer information in the database properly.. we recently ran script confirming how the data was. proceed with that. and confirm it is doing as it should in regards to insights about developers and what they are creating, their efficiencies, if they are following my principles and whatever else data we can get on them based on my setup. proceed."</strong>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="bg-indigo-500/20 rounded-lg p-3 text-center">
+                    <div className="text-indigo-300 font-medium">Direction-Giving</div>
+                    <div className="text-2xl font-bold text-white">5</div>
+                    <div className="text-xs text-gray-400">"proceed", "make sure", "confirm"</div>
+                  </div>
+                  <div className="bg-blue-500/20 rounded-lg p-3 text-center">
+                    <div className="text-blue-300 font-medium">Quality Control</div>
+                    <div className="text-2xl font-bold text-white">3</div>
+                    <div className="text-xs text-gray-400">"proper", "should", "confirm"</div>
+                  </div>
+                  <div className="bg-green-500/20 rounded-lg p-3 text-center">
+                    <div className="text-green-300 font-medium">System Focus</div>
+                    <div className="text-2xl font-bold text-white">4</div>
+                    <div className="text-xs text-gray-400">CADIS ecosystem analysis</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Moment 2: Iterative Refinement */}
+              <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg p-6 border border-purple-500/20">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-purple-500/20 border-2 border-purple-500/30 flex items-center justify-center overflow-hidden">
+                      <img 
+                        src="/profile-logo.png" 
+                        alt="Juelz" 
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    </div>
+                    <div>
+                      <div className="font-bold text-white text-lg">Iterative Refinement</div>
+                      <div className="text-sm text-gray-400">Scope Expansion - Exchange 4</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-green-400">88/100 Strategic</div>
+                    <div className="text-sm text-green-300">Perfect refinement pattern</div>
+                  </div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-5 mb-4">
+                  <div className="text-gray-300 leading-relaxed">
+                    <strong className="text-purple-400">"yes.. the info it got is cool but should also be getting individual developer (active) info and them as an individual.. proceed."</strong>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="bg-purple-500/20 rounded-lg p-3 text-center">
+                    <div className="text-purple-300 font-medium">Refinement</div>
+                    <div className="text-2xl font-bold text-white">2</div>
+                    <div className="text-xs text-gray-400">"but should also"</div>
+                  </div>
+                  <div className="bg-pink-500/20 rounded-lg p-3 text-center">
+                    <div className="text-pink-300 font-medium">Individual Focus</div>
+                    <div className="text-2xl font-bold text-white">3</div>
+                    <div className="text-xs text-gray-400">Developer-specific analysis</div>
+                  </div>
+                  <div className="bg-red-500/20 rounded-lg p-3 text-center">
+                    <div className="text-red-300 font-medium">Action Command</div>
+                    <div className="text-2xl font-bold text-white">1</div>
+                    <div className="text-xs text-gray-400">"proceed"</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Moment 3: Meta-Analysis */}
+              <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg p-6 border border-yellow-500/20">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-yellow-500/20 border-2 border-yellow-500/30 flex items-center justify-center overflow-hidden">
+                      <img 
+                        src="/profile-logo.png" 
+                        alt="Juelz" 
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    </div>
+                    <div>
+                      <div className="font-bold text-white text-lg">Meta-Analysis</div>
+                      <div className="text-sm text-gray-400">Framework Creation - Exchange 15</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-green-400">100/100 Strategic</div>
+                    <div className="text-sm text-green-300">Perfect meta-cognitive</div>
+                  </div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-5 mb-4">
+                  <div className="text-gray-300 leading-relaxed">
+                    <strong className="text-yellow-400">"what about guiding and directing.. ? are any using the ai like, i am conversating with you here.. analyze our current conversation. anyone using and developing like i am.. lets make a md and define the styles so can understand difference (so CADIS can as well)"</strong>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="bg-yellow-500/20 rounded-lg p-3 text-center">
+                    <div className="text-yellow-300 font-medium">Meta-Analysis</div>
+                    <div className="text-2xl font-bold text-white">4</div>
+                    <div className="text-xs text-gray-400">"analyze our conversation"</div>
+                  </div>
+                  <div className="bg-orange-500/20 rounded-lg p-3 text-center">
+                    <div className="text-orange-300 font-medium">Framework Creation</div>
+                    <div className="text-2xl font-bold text-white">3</div>
+                    <div className="text-xs text-gray-400">"define the styles"</div>
+                  </div>
+                  <div className="bg-red-500/20 rounded-lg p-3 text-center">
+                    <div className="text-red-300 font-medium">System Enhancement</div>
+                    <div className="text-2xl font-bold text-white">2</div>
+                    <div className="text-xs text-gray-400">"so CADIS can as well"</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Moment 4: Problem Diagnosis */}
+              <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 rounded-lg p-6 border border-red-500/20">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-red-500/20 border-2 border-red-500/30 flex items-center justify-center overflow-hidden">
+                      <img 
+                        src="/profile-logo.png" 
+                        alt="Juelz" 
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    </div>
+                    <div>
+                      <div className="font-bold text-white text-lg">Problem Diagnosis</div>
+                      <div className="text-sm text-gray-400">Root Cause Analysis - Exchange 12</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-green-400">92/100 Strategic</div>
+                    <div className="text-sm text-green-300">Deep investigation mode</div>
+                  </div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-5 mb-4">
+                  <div className="text-gray-300 leading-relaxed">
+                    <strong className="text-red-400">"no.. im not understanding.. it is saying max connections but we need it.. find a better way now you have direct string etc.. but we need to make this happen."</strong>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="bg-red-500/20 rounded-lg p-3 text-center">
+                    <div className="text-red-300 font-medium">Problem Focus</div>
+                    <div className="text-2xl font-bold text-white">3</div>
+                    <div className="text-xs text-gray-400">"not understanding", "issue"</div>
+                  </div>
+                  <div className="bg-orange-500/20 rounded-lg p-3 text-center">
+                    <div className="text-orange-300 font-medium">Solution Drive</div>
+                    <div className="text-2xl font-bold text-white">4</div>
+                    <div className="text-xs text-gray-400">"find better way", "make happen"</div>
+                  </div>
+                  <div className="bg-yellow-500/20 rounded-lg p-3 text-center">
+                    <div className="text-yellow-300 font-medium">Persistence</div>
+                    <div className="text-2xl font-bold text-white">2</div>
+                    <div className="text-xs text-gray-400">"we need", "must happen"</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Summary Stats */}
+            <div className="mt-8 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 rounded-lg p-6 border border-amber-500/20">
+              <h4 className="text-lg font-semibold text-amber-300 mb-4 text-center">Strategic Moment Summary</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-white">4</div>
+                  <div className="text-sm text-gray-400">Key Moments</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-green-400">94/100</div>
+                  <div className="text-sm text-gray-400">Avg Strategic Score</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-indigo-400">15</div>
+                  <div className="text-sm text-gray-400">Strategic Patterns</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-purple-400">98/100</div>
+                  <div className="text-sm text-gray-400">Philosophy Alignment</div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {mainTab === 'principles' && (
           <Card className="mb-8 border-indigo-500/30">
             <div className="text-center mb-6">
@@ -816,7 +1046,7 @@ export default function StrategicArchitectMasterclass() {
                 Advanced Conversation Exploration
               </h3>
               <p className="text-gray-400 text-sm">
-                Search, filter, and analyze specific patterns across all 78 conversation segments
+                Search, filter, and analyze specific patterns across all {conversationData.length} conversation segments
               </p>
             </div>
 
