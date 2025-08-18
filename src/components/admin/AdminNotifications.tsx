@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Button from '@/components/ui/Button';
 import { AdminNotification } from '@/services/scheduled-tasks.service';
 
@@ -8,6 +8,12 @@ export default function AdminNotifications() {
   const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [modalPosition, setModalPosition] = useState({ 
+    left: false, 
+    right: true, 
+    hasVerticalSpace: true 
+  });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadNotifications();
@@ -74,26 +80,121 @@ export default function AdminNotifications() {
     return colors[priority as keyof typeof colors] || 'border-gray-500';
   };
 
+  const calculateOptimalPosition = () => {
+    if (!containerRef.current) return;
+
+    const container = containerRef.current;
+    const rect = container.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const modalWidth = 384; // w-96 = 24rem = 384px
+    const modalHeight = 384; // max-h-96 = 24rem = 384px
+    
+    // Check if we're on mobile
+    const isMobile = viewportWidth < 640; // sm breakpoint
+    
+    if (isMobile) {
+      // On mobile, position centrally
+      setModalPosition({
+        left: false,
+        right: false
+      });
+      return;
+    }
+    
+    // Check available space on both sides
+    const spaceOnRight = viewportWidth - rect.right;
+    const spaceOnLeft = rect.left;
+    const spaceBelow = viewportHeight - rect.bottom;
+    
+    // Prefer right positioning, but switch to left if not enough space
+    // Also ensure there's enough vertical space
+    const shouldPositionLeft = spaceOnRight < modalWidth && spaceOnLeft > modalWidth;
+    const hasEnoughVerticalSpace = spaceBelow > Math.min(modalHeight, 200);
+    
+    setModalPosition({
+      left: shouldPositionLeft,
+      right: !shouldPositionLeft,
+      hasVerticalSpace: hasEnoughVerticalSpace
+    });
+  };
+
+  const handleToggle = () => {
+    if (!isOpen) {
+      calculateOptimalPosition();
+    }
+    setIsOpen(!isOpen);
+  };
+
+  // Recalculate position on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (isOpen) {
+        calculateOptimalPosition();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isOpen]);
+
+  // Handle click outside to close modal
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
   const unreadCount = notifications.length;
 
   return (
-    <div className="relative">
-      {/* Notification Bell */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-300 hover:text-white transition-colors"
-      >
-        <span className="text-xl">🔔</span>
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
-      </button>
-
-      {/* Notifications Dropdown */}
+    <>
+      {/* Mobile backdrop */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-96 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-25 z-40 sm:hidden" />
+      )}
+      
+      <div className="relative" ref={containerRef}>
+        {/* Notification Bell */}
+        <button
+          onClick={handleToggle}
+          className="relative p-2 text-gray-300 hover:text-white transition-colors"
+        >
+          <span className="text-xl">🔔</span>
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </button>
+
+        {/* Notifications Dropdown */}
+        {isOpen && (
+        <div className={`absolute bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50 overflow-y-auto transition-all duration-200 ${
+          // Positioning logic
+          modalPosition.left ? 'right-full mr-2 top-0' : 
+          modalPosition.right ? 'left-0 top-full mt-2' :
+          'left-1/2 transform -translate-x-1/2 top-full mt-2'
+        } ${
+          // Responsive sizing
+          'w-80 sm:w-96 max-w-[calc(100vw-2rem)]'
+        } ${
+          // Height constraints
+          modalPosition.hasVerticalSpace ? 'max-h-96' : 'max-h-64'
+        } ${
+          // Mobile adjustments - position as overlay on very small screens
+          'sm:relative sm:transform-none'
+        }`}>
           <div className="p-4 border-b border-gray-700">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-white">Notifications</h3>
@@ -193,7 +294,8 @@ export default function AdminNotifications() {
             </div>
           )}
         </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
