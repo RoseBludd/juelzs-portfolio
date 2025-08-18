@@ -7,6 +7,135 @@ import { CADISJournalEntry } from '@/services/cadis-journal.service';
 
 type CADISTabType = 'insights' | 'ecosystem' | 'predictions' | 'analytics';
 
+// Component for individual CADIS entry with expandable content
+function CADISEntryCard({ entry }: { entry: CADISJournalEntry }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const contentPreview = entry.content.substring(0, 300) + '...';
+  
+  const getCategoryIcon = (category: string) => {
+    const icons = {
+      'system-evolution': '🌱',
+      'developer-insights': '👨‍💻',
+      'module-analysis': '📦',
+      'repository-updates': '🔄',
+      'decision-making': '🤔',
+      'ecosystem-health': '🏥',
+      'dreamstate-prediction': '🔮'
+    };
+    return icons[category as keyof typeof icons] || '🧠';
+  };
+
+  const getSourceIcon = (source: string) => {
+    const icons = {
+      'module-registry': '📦',
+      'developer-activity': '👨‍💻',
+      'repository-analysis': '📊',
+      'cadis-memory': '🧠',
+      'dreamstate': '🔮',
+      'system-reflection': '💭'
+    };
+    return icons[source as keyof typeof icons] || '🤖';
+  };
+
+  const getImpactColor = (impact: string) => {
+    const colors = {
+      'low': 'bg-gray-500/20 text-gray-300',
+      'medium': 'bg-blue-500/20 text-blue-300',
+      'high': 'bg-orange-500/20 text-orange-300',
+      'critical': 'bg-red-500/20 text-red-300'
+    };
+    return colors[impact as keyof typeof colors] || 'bg-gray-500/20 text-gray-300';
+  };
+
+  return (
+    <Card className="p-4 sm:p-6">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">{getCategoryIcon(entry.category)}</span>
+          <div>
+            <h4 className="text-lg font-semibold text-white">{entry.title}</h4>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs text-gray-400">
+                {getSourceIcon(entry.source)} {entry.source.replace('-', ' ')}
+              </span>
+              <span className={`px-2 py-1 rounded-full text-xs ${getImpactColor(entry.impact)}`}>
+                {entry.impact} impact
+              </span>
+              <span className="text-xs text-gray-400">
+                {entry.confidence}% confidence
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="text-xs text-gray-500">
+          {new Date(entry.createdAt).toLocaleDateString()}
+        </div>
+      </div>
+
+      <div className="prose prose-invert prose-sm max-w-none">
+        <div 
+          className="text-gray-300"
+          dangerouslySetInnerHTML={{ 
+            __html: (isExpanded ? entry.content : contentPreview)
+              .replace(/# (.*)/g, '<h3 class="text-lg font-semibold text-white mb-3">$1</h3>')
+              .replace(/## (.*)/g, '<h4 class="text-base font-medium text-white mb-2">$1</h4>')
+              .replace(/### (.*)/g, '<h5 class="text-sm font-medium text-white mb-2">$1</h5>')
+              .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+              .replace(/^- (.*)/gm, '<li class="text-gray-300 ml-4">$1</li>')
+              .replace(/\n\n/g, '</p><p class="mb-3">')
+              .replace(/^(?!<[h|l])/gm, '<p class="mb-3 text-gray-300">')
+          }}
+        />
+        
+        {entry.content.length > 300 && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="mt-3 text-purple-400 hover:text-purple-300 text-sm font-medium"
+          >
+            {isExpanded ? '🔼 Show Less' : '🔽 Show More & DreamState Nodes'}
+          </button>
+        )}
+      </div>
+
+      {/* Tags */}
+      {entry.tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-4">
+          {entry.tags.map((tag, index) => (
+            <span
+              key={index}
+              className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* CADIS Metadata */}
+      <div className="mt-4 pt-4 border-t border-gray-700">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+          <div>
+            <span className="text-gray-400">Analysis Type</span>
+            <p className="text-white font-medium">{entry.cadisMetadata.analysisType}</p>
+          </div>
+          <div>
+            <span className="text-gray-400">Data Points</span>
+            <p className="text-white font-medium">{entry.cadisMetadata.dataPoints}</p>
+          </div>
+          <div>
+            <span className="text-gray-400">Correlations</span>
+            <p className="text-white font-medium">{entry.cadisMetadata.correlations.length}</p>
+          </div>
+          <div>
+            <span className="text-gray-400">Recommendations</span>
+            <p className="text-white font-medium">{entry.cadisMetadata.recommendations.length}</p>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export default function CADISJournalPage() {
   const [activeTab, setActiveTab] = useState<CADISTabType>('insights');
   const [entries, setEntries] = useState<CADISJournalEntry[]>([]);
@@ -73,41 +202,6 @@ export default function CADISJournalPage() {
     } finally {
       setIsGenerating(false);
     }
-  };
-
-  const getCategoryIcon = (category: string) => {
-    const icons = {
-      'system-evolution': '🌱',
-      'developer-insights': '👨‍💻',
-      'module-analysis': '📦',
-      'repository-updates': '🔄',
-      'decision-making': '🤔',
-      'ecosystem-health': '🏥',
-      'dreamstate-prediction': '🔮'
-    };
-    return icons[category as keyof typeof icons] || '🧠';
-  };
-
-  const getSourceIcon = (source: string) => {
-    const icons = {
-      'module-registry': '📦',
-      'developer-activity': '👨‍💻',
-      'repository-analysis': '📊',
-      'cadis-memory': '🧠',
-      'dreamstate': '🔮',
-      'system-reflection': '💭'
-    };
-    return icons[source as keyof typeof icons] || '🤖';
-  };
-
-  const getImpactColor = (impact: string) => {
-    const colors = {
-      'low': 'bg-gray-500/20 text-gray-300',
-      'medium': 'bg-blue-500/20 text-blue-300',
-      'high': 'bg-orange-500/20 text-orange-300',
-      'critical': 'bg-red-500/20 text-red-300'
-    };
-    return colors[impact as keyof typeof colors] || 'bg-gray-500/20 text-gray-300';
   };
 
   const tabs = [
@@ -205,98 +299,9 @@ export default function CADISJournalPage() {
                     </Button>
                   </div>
                 ) : (
-                  entries.map((entry) => {
-                    const [isExpanded, setIsExpanded] = useState(false);
-                    const contentPreview = entry.content.substring(0, 300) + '...';
-                    
-                    return (
-                      <Card key={entry.id} className="p-4 sm:p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl">{getCategoryIcon(entry.category)}</span>
-                            <div>
-                              <h4 className="text-lg font-semibold text-white">{entry.title}</h4>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-xs text-gray-400">
-                                  {getSourceIcon(entry.source)} {entry.source.replace('-', ' ')}
-                                </span>
-                                <span className={`px-2 py-1 rounded-full text-xs ${getImpactColor(entry.impact)}`}>
-                                  {entry.impact} impact
-                                </span>
-                                <span className="text-xs text-gray-400">
-                                  {entry.confidence}% confidence
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {new Date(entry.createdAt).toLocaleDateString()}
-                          </div>
-                        </div>
-
-                        <div className="prose prose-invert prose-sm max-w-none">
-                          <div 
-                            className="text-gray-300"
-                            dangerouslySetInnerHTML={{ 
-                              __html: (isExpanded ? entry.content : contentPreview)
-                                .replace(/# (.*)/g, '<h3 class="text-lg font-semibold text-white mb-3">$1</h3>')
-                                .replace(/## (.*)/g, '<h4 class="text-base font-medium text-white mb-2">$1</h4>')
-                                .replace(/### (.*)/g, '<h5 class="text-sm font-medium text-white mb-2">$1</h5>')
-                                .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
-                                .replace(/^- (.*)/gm, '<li class="text-gray-300 ml-4">$1</li>')
-                                .replace(/\n\n/g, '</p><p class="mb-3">')
-                                .replace(/^(?!<[h|l])/gm, '<p class="mb-3 text-gray-300">')
-                            }}
-                          />
-                          
-                          {entry.content.length > 300 && (
-                            <button
-                              onClick={() => setIsExpanded(!isExpanded)}
-                              className="mt-3 text-purple-400 hover:text-purple-300 text-sm font-medium"
-                            >
-                              {isExpanded ? '🔼 Show Less' : '🔽 Show More & DreamState Nodes'}
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Tags */}
-                        {entry.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mt-4">
-                            {entry.tags.map((tag, index) => (
-                              <span
-                                key={index}
-                                className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* CADIS Metadata */}
-                        <div className="mt-4 pt-4 border-t border-gray-700">
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                            <div>
-                              <span className="text-gray-400">Analysis Type</span>
-                              <p className="text-white font-medium">{entry.cadisMetadata.analysisType}</p>
-                            </div>
-                            <div>
-                              <span className="text-gray-400">Data Points</span>
-                              <p className="text-white font-medium">{entry.cadisMetadata.dataPoints}</p>
-                            </div>
-                            <div>
-                              <span className="text-gray-400">Correlations</span>
-                              <p className="text-white font-medium">{entry.cadisMetadata.correlations.length}</p>
-                            </div>
-                            <div>
-                              <span className="text-gray-400">Recommendations</span>
-                              <p className="text-white font-medium">{entry.cadisMetadata.recommendations.length}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                    );
-                  })
+                  entries.map((entry) => (
+                    <CADISEntryCard key={entry.id} entry={entry} />
+                  ))
                 )}
               </div>
             </div>

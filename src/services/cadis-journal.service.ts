@@ -247,7 +247,7 @@ class CADISJournalService {
         const optimizationScenario = await this.createOptimizationScenario(ecosystemData);
         
         // Run DreamState simulation with unlimited nodes for deep analysis
-        const dreamStateResults = await this.runDreamStateOptimization(client, optimizationScenario);
+        const dreamStateResults = await this.runDreamStateOptimization(client, optimizationScenario, ecosystemData);
         
         if (!dreamStateResults) {
           return null;
@@ -920,12 +920,12 @@ ${predictions.recommendations.map((r: string) => `- ${r}`).join('\n')}
           'Balancing innovation with proven patterns'
         ],
         goals: [
-          'Optimize for EFFICIENCY first, growth second',
-          'Align all decisions with core philosophies',
-          'Build reusable patterns across all projects',
-          'Create teachable moments and documentation',
-          'Scale gradually with proof-of-concept validation',
-          'Maintain RestoreMasters excellence while expanding'
+          'Build strong horizontal foundation, then scale vertically (progressive enhancement)',
+          'Align all decisions with core philosophies for sustainable growth',
+          'Create reusable patterns that enable rapid but stable expansion',
+          'Document and teach for scalable knowledge transfer',
+          'Proof of concept → test → scale gradually with confidence',
+          'Maintain RestoreMasters excellence while strategically growing'
         ],
         metrics: {
           moduleCount: ecosystemData.modules.totalCount,
@@ -938,7 +938,7 @@ ${predictions.recommendations.map((r: string) => `- ${r}`).join('\n')}
     };
   }
 
-  private async runDreamStateOptimization(client: PoolClient, scenario: any): Promise<any> {
+  private async runDreamStateOptimization(client: PoolClient, scenario: any, ecosystemData: any): Promise<any> {
     try {
       console.log('🔮 Running active DreamState optimization simulation...');
       
@@ -1024,7 +1024,7 @@ ${predictions.recommendations.map((r: string) => `- ${r}`).join('\n')}
     insights.push({
       category: 'philosophical-efficiency',
       insight: 'Automated client onboarding workflow implementation',
-      confidence: 0.92,
+      confidence: 1.00,
       priority: 'critical',
       philosophy: 'If it needs to be done, do it',
       reasoning: 'Manual client onboarding is inefficient and doesn\'t scale. Automation aligns with doing what needs to be done.',
@@ -1047,7 +1047,7 @@ ${predictions.recommendations.map((r: string) => `- ${r}`).join('\n')}
     insights.push({
       category: 'modular-architecture',
       insight: 'Cross-client widget standardization system',
-      confidence: 0.88,
+      confidence: 1.00,
       priority: 'high',
       philosophy: 'Make it modular',
       reasoning: `${ecosystemData.modules.totalCount} modules need better organization for multi-client reuse. Modularity enables efficiency.`,
@@ -1070,7 +1070,7 @@ ${predictions.recommendations.map((r: string) => `- ${r}`).join('\n')}
     insights.push({
       category: 'reusability-optimization',
       insight: 'Developer knowledge base and pattern library',
-      confidence: 0.85,
+      confidence: 1.00,
       priority: 'high',
       philosophy: 'Make it reusable',
       reasoning: 'Team scaling requires reusable knowledge and patterns. Current tribal knowledge doesn\'t scale.',
@@ -1093,7 +1093,7 @@ ${predictions.recommendations.map((r: string) => `- ${r}`).join('\n')}
     insights.push({
       category: 'knowledge-transfer',
       insight: 'Automated documentation and learning system',
-      confidence: 0.90,
+      confidence: 1.00,
       priority: 'high',
       philosophy: 'Make it teachable',
       reasoning: 'Scaling requires teachable systems. Manual knowledge transfer is bottleneck for growth.',
@@ -1116,7 +1116,7 @@ ${predictions.recommendations.map((r: string) => `- ${r}`).join('\n')}
     insights.push({
       category: 'efficiency-optimization',
       insight: 'RestoreMasters excellence maintenance automation',
-      confidence: 0.87,
+      confidence: 1.00,
       priority: 'critical',
       philosophy: 'Progressive enhancement + efficiency',
       reasoning: 'Must maintain 95%+ satisfaction while scaling. Automation prevents quality degradation.',
@@ -1139,7 +1139,7 @@ ${predictions.recommendations.map((r: string) => `- ${r}`).join('\n')}
     insights.push({
       category: 'strategic-growth',
       insight: 'juelzs.com consulting platform integration',
-      confidence: 0.83,
+      confidence: 1.00,
       priority: 'medium',
       philosophy: 'Proof of concept → test → scale',
       reasoning: 'Personal brand needs systematic approach. Start small, validate, then scale consulting offerings.',
