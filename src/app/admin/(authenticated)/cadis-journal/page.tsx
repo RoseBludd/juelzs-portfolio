@@ -106,6 +106,7 @@ function CADISEntryCard({ entry }: { entry: CADISJournalEntry }) {
           className="text-gray-300"
           dangerouslySetInnerHTML={{ 
             __html: (isExpanded ? entry.content : contentPreview)
+              .replace(/\\n/g, '\n')  // Convert escaped newlines to actual newlines first
               .replace(/# (.*)/g, '<h3 class="text-lg font-semibold text-white mb-3">$1</h3>')
               .replace(/## (.*)/g, '<h4 class="text-base font-medium text-white mb-2">$1</h4>')
               .replace(/### (.*)/g, '<h5 class="text-sm font-medium text-white mb-2">$1</h5>')
@@ -737,11 +738,11 @@ export default function CADISJournalPage() {
                                   🔮 CADIS Revelation:
                                 </h5>
                                 <div className="bg-gray-700/50 rounded-lg p-3 text-xs">
-                                  <p className="text-gray-200 leading-relaxed">
+                                  <div className="text-gray-200 leading-relaxed whitespace-pre-line">
                                     {entry.content.length > 300 
-                                      ? `${entry.content.substring(0, 300)}...` 
-                                      : entry.content}
-                                  </p>
+                                      ? `${entry.content.substring(0, 300).replace(/\\n/g, '\n')}...` 
+                                      : entry.content.replace(/\\n/g, '\n')}
+                                  </div>
                                   {entry.content.length > 300 && (
                                     <button 
                                       onClick={() => setSelectedInsightModal(entry)}
@@ -1180,8 +1181,8 @@ export default function CADISJournalPage() {
                   🧠 Complete CADIS Analysis
                 </h3>
                 <div className="bg-gray-700/30 rounded-lg p-4">
-                  <div className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">
-                    {selectedInsightModal.content}
+                  <div className="text-gray-200 text-sm leading-relaxed whitespace-pre-line">
+                    {selectedInsightModal.content.replace(/\\n/g, '\n')}
                   </div>
                 </div>
               </div>
