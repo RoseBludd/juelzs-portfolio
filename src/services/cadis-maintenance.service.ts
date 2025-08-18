@@ -325,10 +325,10 @@ class CADISMaintenanceService {
   private async detectPatterns(client: PoolClient): Promise<any> {
     try {
       const patterns = {
-        insightGeneration: [],
-        philosophicalDrift: [],
-        efficiencyTrends: [],
-        recommendationSuccess: []
+        insightGeneration: [] as string[],
+        philosophicalDrift: [] as string[],
+        efficiencyTrends: [] as string[],
+        recommendationSuccess: [] as string[]
       };
 
       // Analyze insight generation patterns
@@ -383,9 +383,9 @@ class CADISMaintenanceService {
     patterns: any
   ): Promise<any> {
     const recommendations = {
-      immediate: [],
-      strategic: [],
-      philosophical: []
+      immediate: [] as string[],
+      strategic: [] as string[],
+      philosophical: [] as string[]
     };
 
     // Immediate maintenance needs
@@ -664,9 +664,8 @@ CADIS maintenance ensures strict adherence to core principles:
         impact: 'high' as const,
         tags: ['maintenance', 'tuning', 'philosophical-alignment', 'optimization', 'health-analysis'],
         relatedEntities: {
-          tuningActions: actions.map(a => a.type),
-          healthMetrics: Object.keys(analysis.metrics),
-          improvementAreas: actions.map(a => a.type)
+          modules: actions.map(a => a.type),
+          developers: Object.keys(analysis.metrics)
         },
         cadisMetadata: {
           analysisType: 'cadis-maintenance-tuning',
@@ -700,8 +699,8 @@ CADIS maintenance ensures strict adherence to core principles:
                 analysis.severity === 'minor-adjustment' ? 'medium' as const : 'high' as const,
         tags: ['maintenance', 'health-analysis', 'philosophical-alignment', 'optimization'],
         relatedEntities: {
-          maintenanceAreas: Object.keys(analysis.patterns),
-          recommendations: analysis.recommendations.immediate.concat(analysis.recommendations.strategic)
+          modules: Object.keys(analysis.patterns),
+          developers: analysis.recommendations.immediate.concat(analysis.recommendations.strategic)
         },
         cadisMetadata: {
           analysisType: 'cadis-maintenance-analysis',

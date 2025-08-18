@@ -359,12 +359,17 @@ CADIS applies the same sophisticated quantum analysis methodology to its own int
 - **Weekly Deep Analysis**: Sunday comprehensive trend analysis and strategic recommendations
 - **Manual Generation**: On-demand insights with 30-second DreamState simulation
 
-#### **Business Intelligence Features**
+#### **Enhanced UI Features**
+- **Self-Advancement Dream Highlighting**: Purple-bordered cards with special badges for CADIS dreams
+- **Dream Variation Detection**: Automatically identifies which of 6 dream types (Cognitive Transcendence, Autonomous Evolution, etc.)
+- **Reality Layer Tracking**: Shows X/10 layers explored in each self-reflection
+- **Enhanced Analytics Dashboard**: Dedicated self-advancement metrics and dream frequency tracking
 - **Expandable Insights**: Click to view full DreamState thinking process and reasoning
 - **Actionable Recommendations**: Specific implementation steps with priority levels
 - **Cross-Platform Correlation**: Identifies optimization opportunities across entire ecosystem
 - **Performance Tracking**: Monitors recommendation implementation and measures impact
 - **Strategic Planning**: Uses DreamState predictions for quarterly business planning
+- **CADIS Status Banner**: Real-time display of system confidence and dream capture count
 
 #### **Foundation-First Growth Strategy**
 CADIS ensures sustainable expansion by:

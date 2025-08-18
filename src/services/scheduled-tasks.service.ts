@@ -319,7 +319,7 @@ class ScheduledTasksService {
         task.name,
         new Date(reviewPeriod.start),
         new Date(reviewPeriod.end),
-        'biweekly',
+        'weekly',
         scope
       );
 
@@ -581,7 +581,7 @@ class ScheduledTasksService {
   }
 
   private async getClient(): Promise<PoolClient> {
-    return this.dbService.getClient();
+    return this.dbService.getPoolClient();
   }
 
   private generateId(): string {

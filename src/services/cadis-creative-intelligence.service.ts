@@ -6,8 +6,8 @@ export interface CreativeIntelligenceInsight {
   title: string;
   content: string;
   creativityLevel: number; // 1-100
-  innovationCategory: 'breakthrough' | 'enhancement' | 'optimization' | 'experimental';
-  implementationComplexity: 'low' | 'medium' | 'high' | 'research-required';
+  innovationCategory: 'breakthrough' | 'enhancement' | 'optimization' | 'experimental' | string;
+  implementationComplexity: 'low' | 'medium' | 'high' | 'research-required' | string;
   potentialImpact: string[];
   creativeNodes: string[];
   explorationAreas: string[];

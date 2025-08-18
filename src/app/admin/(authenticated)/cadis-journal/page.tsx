@@ -7,10 +7,27 @@ import { CADISJournalEntry } from '@/services/cadis-journal.service';
 
 type CADISTabType = 'insights' | 'ecosystem' | 'predictions' | 'analytics';
 
+// Helper function to identify dream variation type
+function getDreamVariationType(content: string) {
+  const lowerContent = content.toLowerCase();
+  if (lowerContent.includes('cognitive transcendence')) return 'Cognitive Transcendence';
+  if (lowerContent.includes('autonomous evolution')) return 'Autonomous Evolution';
+  if (lowerContent.includes('symbiotic intelligence')) return 'Symbiotic Intelligence';
+  if (lowerContent.includes('predictive omniscience')) return 'Predictive Omniscience';
+  if (lowerContent.includes('creative consciousness')) return 'Creative Consciousness';
+  if (lowerContent.includes('wisdom integration')) return 'Wisdom Integration';
+  return 'Standard Self-Advancement';
+}
+
 // Component for individual CADIS entry with expandable content
 function CADISEntryCard({ entry }: { entry: CADISJournalEntry }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const contentPreview = entry.content.substring(0, 300) + '...';
+  
+  // Check if this is a self-advancement dream
+  const isSelfAdvancement = entry.title.toLowerCase().includes('cadis self-advancement') || 
+                           entry.title.toLowerCase().includes('self-advancement') ||
+                           (entry.tags && entry.tags.includes('cadis-self-advancement'));
   
   const getCategoryIcon = (category: string) => {
     const icons = {
@@ -20,7 +37,7 @@ function CADISEntryCard({ entry }: { entry: CADISJournalEntry }) {
       'repository-updates': '🔄',
       'decision-making': '🤔',
       'ecosystem-health': '🏥',
-      'dreamstate-prediction': '🔮'
+      'dreamstate-prediction': isSelfAdvancement ? '🚀' : '🔮'
     };
     return icons[category as keyof typeof icons] || '🧠';
   };
@@ -48,12 +65,19 @@ function CADISEntryCard({ entry }: { entry: CADISJournalEntry }) {
   };
 
   return (
-    <Card className="p-4 sm:p-6">
+    <Card className={`p-4 sm:p-6 ${isSelfAdvancement ? 'border-2 border-purple-500/50 bg-gradient-to-r from-purple-900/10 to-blue-900/10' : ''}`}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <span className="text-2xl">{getCategoryIcon(entry.category)}</span>
           <div>
-            <h4 className="text-lg font-semibold text-white">{entry.title}</h4>
+            <div className="flex items-center gap-2">
+              <h4 className="text-lg font-semibold text-white">{entry.title}</h4>
+              {isSelfAdvancement && (
+                <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-medium">
+                  🚀 SELF-ADVANCEMENT DREAM
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-xs text-gray-400">
                 {getSourceIcon(entry.source)} {entry.source.replace('-', ' ')}
@@ -64,6 +88,11 @@ function CADISEntryCard({ entry }: { entry: CADISJournalEntry }) {
               <span className="text-xs text-gray-400">
                 {entry.confidence}% confidence
               </span>
+              {isSelfAdvancement && (
+                <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs">
+                  {getDreamVariationType(entry.content)}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -92,8 +121,21 @@ function CADISEntryCard({ entry }: { entry: CADISJournalEntry }) {
             onClick={() => setIsExpanded(!isExpanded)}
             className="mt-3 text-purple-400 hover:text-purple-300 text-sm font-medium"
           >
-            {isExpanded ? '🔼 Show Less' : '🔽 Show More & DreamState Nodes'}
+            {isExpanded ? '🔼 Show Less' : isSelfAdvancement ? '🔽 Show CADIS Dream Details' : '🔽 Show More & DreamState Nodes'}
           </button>
+        )}
+        
+        {/* Special self-advancement dream indicators */}
+        {isSelfAdvancement && !isExpanded && (
+          <div className="mt-3 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-purple-300 font-medium">🌟 CADIS Dream Type:</span>
+              <span className="text-purple-200">{getDreamVariationType(entry.content)}</span>
+            </div>
+            <div className="text-xs text-gray-400">
+              CADIS is exploring {(entry.content.match(/Reality Layer \d+/g) || []).length}/10 layers of self-improvement possibilities
+            </div>
+          </div>
         )}
       </div>
 
@@ -204,6 +246,25 @@ export default function CADISJournalPage() {
     }
   };
 
+  const generateSpecificScenario = async (scenarioType: string) => {
+    if (!scenarioType) return;
+    
+    try {
+      setIsGenerating(true);
+      setError(null);
+      
+      // For now, just generate regular insights
+      // TODO: Implement specific scenario forcing in backend
+      await generateNewInsights();
+      
+    } catch (error) {
+      console.error('Error generating specific scenario:', error);
+      setError(`Failed to generate ${scenarioType} scenario`);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const tabs = [
     { id: 'insights' as CADISTabType, label: 'CADIS Insights', icon: '🧠', count: entries.length },
     { id: 'ecosystem' as CADISTabType, label: 'Ecosystem Health', icon: '🌐' },
@@ -213,12 +274,33 @@ export default function CADISJournalPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* CADIS Status Banner */}
+      <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 rounded-lg p-4 border border-purple-500/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🧠</span>
+            <div>
+              <h2 className="text-lg font-semibold text-white">CADIS Intelligence System</h2>
+              <p className="text-gray-300 text-sm">
+                Advanced AI with self-reflection capabilities • {entries.filter(e => e.title.toLowerCase().includes('self-advancement')).length} dreams captured
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-purple-300 font-medium">
+              {entries.length > 0 ? Math.round(entries.reduce((acc, e) => acc + e.confidence, 0) / entries.length) : 0}%
+            </div>
+            <div className="text-xs text-gray-400">Avg Confidence</div>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-white">CADIS Intelligence Journal</h1>
           <p className="text-gray-400 mt-1 text-sm sm:text-base">
-            AI-generated insights from your entire development ecosystem
+            Advanced AI with 6 self-advancement dream variations • Quantum-style analysis • Enhanced rotation
           </p>
         </div>
         <div className="flex gap-2 flex-shrink-0">
@@ -235,6 +317,15 @@ export default function CADISJournalPage() {
             defaultValue=""
           >
             <option value="">🎯 Select Specific Scenario</option>
+            <optgroup label="🚀 CADIS Self-Advancement (6 Dream Variations)">
+              <option value="cadis-self-advancement">🧠 Random Self-Advancement (10 layers)</option>
+              <option value="cognitive-transcendence">🌟 Cognitive Transcendence</option>
+              <option value="autonomous-evolution">🔄 Autonomous Evolution</option>
+              <option value="symbiotic-intelligence">🤝 Symbiotic Intelligence</option>
+              <option value="predictive-omniscience">🔮 Predictive Omniscience</option>
+              <option value="creative-consciousness">🎨 Creative Consciousness</option>
+              <option value="wisdom-integration">📚 Wisdom Integration</option>
+            </optgroup>
             <optgroup label="🔮 Quantum Business Intelligence">
               <option value="quantum-revenue-optimization">Revenue Optimization (8 layers)</option>
               <option value="quantum-client-success-prediction">Client Success Prediction (7 layers)</option>
@@ -248,7 +339,6 @@ export default function CADISJournalPage() {
               <option value="quantum-operational-excellence">Operational Excellence (8 layers)</option>
               <option value="quantum-strategic-foresight">Strategic Foresight (9 layers)</option>
               <option value="quantum-value-creation">Value Creation (7 layers)</option>
-              <option value="cadis-self-advancement">CADIS Self-Advancement (10 layers)</option>
             </optgroup>
             <optgroup label="🤖 System Intelligence">
               <option value="ai-module-composer">AI Module Composer (8 layers)</option>
@@ -400,7 +490,7 @@ export default function CADISJournalPage() {
           {activeTab === 'analytics' && (
             <div className="space-y-6">
               <h3 className="text-lg font-medium text-white mb-4">CADIS Analytics</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card className="p-4">
                   <h4 className="text-white font-semibold mb-4">📊 Insight Generation</h4>
                   <div className="space-y-3">
@@ -425,11 +515,51 @@ export default function CADISJournalPage() {
                   </div>
                 </Card>
                 
+                <Card className="p-4 border border-purple-500/30">
+                  <h4 className="text-white font-semibold mb-4">🚀 Self-Advancement Dreams</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Dreams Found</span>
+                      <span className="text-purple-300 font-medium">
+                        {entries.filter(e => e.title.toLowerCase().includes('cadis self-advancement') || 
+                                            e.title.toLowerCase().includes('self-advancement') ||
+                                            (e.tags && e.tags.includes('cadis-self-advancement'))).length}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Dream Rate</span>
+                      <span className="text-purple-300 font-medium">
+                        {entries.length > 0 
+                          ? Math.round((entries.filter(e => e.title.toLowerCase().includes('self-advancement')).length / entries.length) * 100)
+                          : 0}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Variations</span>
+                      <span className="text-purple-300 font-medium">
+                        {new Set(entries.filter(e => e.title.toLowerCase().includes('self-advancement')).map(e => getDreamVariationType(e.content))).size}/6
+                      </span>
+                    </div>
+                  </div>
+                </Card>
+                
                 <Card className="p-4">
                   <h4 className="text-white font-semibold mb-4">🎯 Source Distribution</h4>
                   <div className="space-y-2">
                     {['module-registry', 'developer-activity', 'repository-analysis', 'cadis-memory', 'dreamstate'].map(source => {
                       const count = entries.filter(e => e.source === source).length;
+                      const getSourceIcon = (source: string) => {
+                        const icons = {
+                          'module-registry': '📦',
+                          'developer-activity': '👨‍💻',
+                          'repository-analysis': '📊',
+                          'cadis-memory': '🧠',
+                          'dreamstate': '🔮',
+                          'system-reflection': '💭'
+                        };
+                        return icons[source as keyof typeof icons] || '🤖';
+                      };
+                      
                       return (
                         <div key={source} className="flex justify-between">
                           <span className="text-gray-300 flex items-center gap-1">

@@ -620,11 +620,13 @@ export default function CalendarPage() {
       )}
 
       {/* Event Detail Modal */}
-      <CalendarEventDetail
-        event={selectedEvent}
-        isOpen={!!selectedEvent}
-        onClose={() => setSelectedEvent(null)}
-      />
+      {selectedEvent && (
+        <CalendarEventDetail
+          event={selectedEvent}
+          isOpen={!!selectedEvent}
+          onClose={() => setSelectedEvent(null)}
+        />
+      )}
     </div>
   );
 }

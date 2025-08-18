@@ -789,7 +789,7 @@ class CalendarService {
   }
 
   private async getClient(): Promise<PoolClient> {
-    return this.dbService.getClient();
+    return this.dbService.getPoolClient();
   }
 
   private generateId(): string {

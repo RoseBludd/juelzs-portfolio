@@ -65,9 +65,10 @@ export default function CalendarEventDetail({ event, isOpen, onClose }: Calendar
       'reminder': '⏰',
       'self_review': '🔍',
       'meeting': '🎥',
-      'milestone': '🎯'
+      'milestone': '🎯',
+      'cadis_maintenance': '🔧'
     };
-    return icons[type] || '📄';
+    return icons[type as keyof typeof icons] || '📄';
   };
 
   const getPriorityColor = (priority?: string) => {

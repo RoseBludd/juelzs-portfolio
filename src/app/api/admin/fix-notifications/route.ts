@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     console.log('🔧 Fixing admin_notifications table schema...');
     
     const dbService = DatabaseService.getInstance();
-    const client = await dbService.getClient();
+    const client = await dbService.getPoolClient();
     
     try {
       // Check current table schema

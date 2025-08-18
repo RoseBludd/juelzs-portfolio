@@ -1310,7 +1310,13 @@ ${predictions.recommendations.map((r: string) => `- ${r}`).join('\n')}
     // Safely parse JSON fields with fallbacks
     let tags = [];
     let relatedEntities = {};
-    let cadisMetadata = {};
+    let cadisMetadata = {
+      analysisType: 'unknown',
+      dataPoints: 0,
+      correlations: [],
+      predictions: [],
+      recommendations: []
+    };
 
     try {
       tags = typeof row.tags === 'string' ? JSON.parse(row.tags) : (row.tags || []);
@@ -1327,13 +1333,21 @@ ${predictions.recommendations.map((r: string) => `- ${r}`).join('\n')}
     }
 
     try {
-      cadisMetadata = typeof row.cadis_metadata === 'string' ? JSON.parse(row.cadis_metadata) : (row.cadis_metadata || {});
+      const parsedMetadata = typeof row.cadis_metadata === 'string' ? JSON.parse(row.cadis_metadata) : (row.cadis_metadata || {});
+      cadisMetadata = {
+        analysisType: parsedMetadata.analysisType || 'unknown',
+        dataPoints: parsedMetadata.dataPoints || 0,
+        correlations: parsedMetadata.correlations || [],
+        predictions: parsedMetadata.predictions || [],
+        recommendations: parsedMetadata.recommendations || []
+      };
     } catch (error) {
       console.warn('Failed to parse cadis_metadata:', row.cadis_metadata, error);
       cadisMetadata = {
         analysisType: 'unknown',
         dataPoints: 0,
         correlations: [],
+        predictions: [],
         recommendations: []
       };
     }
@@ -1355,6 +1369,7 @@ ${predictions.recommendations.map((r: string) => `- ${r}`).join('\n')}
       updatedAt: new Date(row.updated_at)
     };
   }
+
   // Enhanced methods for intelligent DreamState optimization with tenant analysis
   private async gatherComprehensiveIntelligence(client: PoolClient): Promise<any> {
     try {
