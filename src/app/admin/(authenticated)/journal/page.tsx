@@ -277,6 +277,39 @@ export default function JournalPage() {
     }
   };
 
+  const handleTogglePrivacy = async (entryId: string, isPrivate: boolean) => {
+    try {
+      const response = await fetch('/api/admin/journal', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: entryId,
+          isPrivate
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to update privacy: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update the entry in the local state
+        setEntries(prev => prev.map(entry => 
+          entry.id === entryId ? { ...entry, isPrivate } : entry
+        ));
+      } else {
+        throw new Error(data.error || 'Failed to update privacy');
+      }
+    } catch (error) {
+      console.error('Error toggling privacy:', error);
+      setError('Failed to update privacy setting');
+    }
+  };
+
   const tabs = [
     { id: 'entries' as TabType, label: 'Entries', icon: '📝', count: entries.length },
     { id: 'analytics' as TabType, label: 'Analytics', icon: '📊' },
@@ -428,6 +461,7 @@ export default function JournalPage() {
                       onEdit={handleEditEntry}
                       onDelete={handleDeleteEntry}
                       onMarkSuggestionImplemented={handleMarkSuggestionImplemented}
+                      onTogglePrivacy={handleTogglePrivacy}
                     />
                   ))
                 )}

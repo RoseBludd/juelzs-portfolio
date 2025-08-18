@@ -9,6 +9,7 @@ interface JournalEntryCardProps {
   onEdit: (entry: JournalEntry) => void;
   onDelete: (entryId: string) => void;
   onMarkSuggestionImplemented: (suggestionId: string) => void;
+  onTogglePrivacy?: (entryId: string, isPrivate: boolean) => void;
 }
 
 const categoryColors = {
@@ -39,7 +40,7 @@ const suggestionTypeIcons = {
   'next-steps': '🎯'
 };
 
-export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSuggestionImplemented }: JournalEntryCardProps) {
+export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSuggestionImplemented, onTogglePrivacy }: JournalEntryCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAISuggestions, setShowAISuggestions] = useState(false);
   const [activeTab, setActiveTab] = useState<'content' | 'analysis'>('content');
@@ -211,6 +212,22 @@ export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSugges
             >
               ✏️ Edit
             </Button>
+            
+            {/* Privacy Toggle */}
+            {onTogglePrivacy && (
+              <Button
+                onClick={() => onTogglePrivacy(entry.id, !entry.isPrivate)}
+                className={`text-xs sm:text-sm px-2 py-1 ${
+                  entry.isPrivate 
+                    ? 'bg-red-600 hover:bg-red-700 text-white border border-red-500' 
+                    : 'bg-green-600 hover:bg-green-700 text-white border border-green-500'
+                }`}
+                title={entry.isPrivate ? 'Currently Private - Click to make Public' : 'Currently Public - Click to make Private'}
+              >
+                {entry.isPrivate ? '🔒 Private' : '🔓 Public'}
+              </Button>
+            )}
+            
             <Button
               onClick={() => onDelete(entry.id)}
               className="text-xs sm:text-sm bg-red-600 hover:bg-red-700 px-2 py-1"

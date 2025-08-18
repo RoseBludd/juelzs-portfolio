@@ -391,7 +391,10 @@ class JournalService {
         });
         
         if (setClause.length === 0) {
-          return await this.getEntryById(id);
+          // For simple updates like privacy toggle, just return the current entry
+          const simpleQuery = 'SELECT * FROM journal_entries WHERE id = $1';
+          const result = await client.query(simpleQuery, [id]);
+          return result.rows.length > 0 ? this.mapRowToEntry(result.rows[0]) : null;
         }
         
         setClause.push(`updated_at = $${++paramCount}`);
