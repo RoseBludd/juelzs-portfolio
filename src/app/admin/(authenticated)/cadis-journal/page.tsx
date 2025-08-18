@@ -480,32 +480,63 @@ export default function CADISJournalPage() {
                     📊 Insight Categories
                   </h4>
                   <div className="space-y-3">
-                    {['system-evolution', 'developer-insights', 'module-analysis', 'ecosystem-health', 'dreamstate-prediction'].map(category => {
-                      const count = entries.filter(e => e.category === category).length;
-                      const percentage = entries.length > 0 ? Math.round((count / entries.length) * 100) : 0;
-                      const getCategoryIcon = (cat: string) => {
-                        const icons = {
-                          'system-evolution': '🌱',
-                          'developer-insights': '👨‍💻',
-                          'module-analysis': '📦',
-                          'ecosystem-health': '🏥',
-                          'dreamstate-prediction': '🔮'
-                        };
-                        return icons[cat as keyof typeof icons] || '🧠';
+                    {(() => {
+                      // Smart categorization based on content, tags, and metadata
+                      const categorizeEntry = (entry: any) => {
+                        const title = entry.title.toLowerCase();
+                        const content = entry.content.toLowerCase();
+                        const tags = entry.tags || [];
+                        const analysisType = entry.cadisMetadata?.analysisType || '';
+                        
+                        if (title.includes('self-advancement') || tags.includes('cadis-self-advancement') || 
+                            content.includes('cadis self-advancement intelligence engine')) {
+                          return 'dreamstate-prediction';
+                        }
+                        if (title.includes('ecosystem') || analysisType.includes('ecosystem') || 
+                            content.includes('ecosystem health') || tags.includes('ecosystem')) {
+                          return 'ecosystem-health';
+                        }
+                        if (title.includes('module') || analysisType.includes('module') || 
+                            content.includes('module registry') || tags.includes('modules')) {
+                          return 'module-analysis';
+                        }
+                        if (title.includes('creative intelligence') || title.includes('quantum') || 
+                            content.includes('creative intelligence') || content.includes('quantum')) {
+                          return 'creative-intelligence';
+                        }
+                        if (title.includes('maintenance') || analysisType.includes('maintenance') || 
+                            tags.includes('maintenance')) {
+                          return 'system-maintenance';
+                        }
+                        return entry.category || 'system-evolution';
                       };
-                      
-                      return (
-                        <div key={category} className="flex items-center justify-between">
-                          <span className="text-gray-300 flex items-center gap-2">
-                            {getCategoryIcon(category)} {category.replace('-', ' ')}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-white font-medium">{count}</span>
-                            <span className="text-gray-400 text-sm">({percentage}%)</span>
+
+                      const categories = [
+                        { key: 'system-evolution', label: 'system evolution', icon: '🌱' },
+                        { key: 'dreamstate-prediction', label: 'dreamstate prediction', icon: '🔮' },
+                        { key: 'ecosystem-health', label: 'ecosystem health', icon: '🏥' },
+                        { key: 'module-analysis', label: 'module analysis', icon: '📦' },
+                        { key: 'creative-intelligence', label: 'creative intelligence', icon: '🎨' },
+                        { key: 'system-maintenance', label: 'system maintenance', icon: '🔧' }
+                      ];
+
+                      return categories.map(({ key, label, icon }) => {
+                        const count = entries.filter(e => categorizeEntry(e) === key).length;
+                        const percentage = entries.length > 0 ? Math.round((count / entries.length) * 100) : 0;
+                        
+                        return (
+                          <div key={key} className="flex items-center justify-between">
+                            <span className="text-gray-300 flex items-center gap-2">
+                              {icon} {label}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-white font-medium">{count}</span>
+                              <span className="text-gray-400 text-sm">({percentage}%)</span>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      });
+                    })()}
                   </div>
                 </Card>
 
@@ -713,33 +744,53 @@ export default function CADISJournalPage() {
                     🎯 Intelligence Sources
                   </h4>
                   <div className="space-y-3">
-                    {['module-registry', 'developer-activity', 'repository-analysis', 'cadis-memory', 'dreamstate', 'system-reflection'].map(source => {
-                      const count = entries.filter(e => e.source === source).length;
-                      const percentage = entries.length > 0 ? Math.round((count / entries.length) * 100) : 0;
-                      const getSourceIcon = (source: string) => {
-                        const icons = {
-                          'module-registry': '📦',
-                          'developer-activity': '👨‍💻',
-                          'repository-analysis': '📊',
-                          'cadis-memory': '🧠',
-                          'dreamstate': '🔮',
-                          'system-reflection': '💭'
-                        };
-                        return icons[source as keyof typeof icons] || '🤖';
+                    {(() => {
+                      // Get actual sources from entries and categorize intelligently
+                      const getSmartSource = (entry: any) => {
+                        const title = entry.title.toLowerCase();
+                        const tags = entry.tags || [];
+                        
+                        if (title.includes('self-advancement') || tags.includes('cadis-self-advancement')) {
+                          return 'dreamstate';
+                        }
+                        if (title.includes('creative intelligence') || title.includes('quantum')) {
+                          return 'creative-engine';
+                        }
+                        if (title.includes('maintenance') || tags.includes('maintenance')) {
+                          return 'system-maintenance';
+                        }
+                        return entry.source || 'cadis-memory';
                       };
-                      
-                      return (
-                        <div key={source} className="flex items-center justify-between">
-                          <span className="text-gray-300 flex items-center gap-2">
-                            {getSourceIcon(source)} {source.replace('-', ' ')}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-white font-medium">{count}</span>
-                            <span className="text-gray-400 text-sm">({percentage}%)</span>
+
+                      const sources = [
+                        { key: 'cadis-memory', label: 'cadis memory', icon: '🧠' },
+                        { key: 'dreamstate', label: 'dreamstate', icon: '🔮' },
+                        { key: 'creative-engine', label: 'creative engine', icon: '🎨' },
+                        { key: 'system-maintenance', label: 'system maintenance', icon: '🔧' },
+                        { key: 'module-registry', label: 'module registry', icon: '📦' },
+                        { key: 'system-reflection', label: 'system reflection', icon: '💭' }
+                      ];
+
+                      return sources.map(({ key, label, icon }) => {
+                        const count = entries.filter(e => getSmartSource(e) === key).length;
+                        const percentage = entries.length > 0 ? Math.round((count / entries.length) * 100) : 0;
+                        
+                        // Only show sources that have entries
+                        if (count === 0) return null;
+                        
+                        return (
+                          <div key={key} className="flex items-center justify-between">
+                            <span className="text-gray-300 flex items-center gap-2">
+                              {icon} {label}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-white font-medium">{count}</span>
+                              <span className="text-gray-400 text-sm">({percentage}%)</span>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      }).filter(Boolean);
+                    })()}
                   </div>
                 </Card>
 
