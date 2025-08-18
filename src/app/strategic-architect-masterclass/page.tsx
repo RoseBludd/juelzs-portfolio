@@ -58,12 +58,362 @@ interface ConversationAnalysis {
   }>;
 }
 
+// Principle View Components
+function ExecutionPrincipleView({ segments }: { segments: ConversationSegment[] }) {
+  const executionSegments = segments.filter(segment => 
+    segment.speaker === 'User' && 
+    segment.content.toLowerCase().match(/\b(proceed|implement|build|create|fix|solve|execute|action|do it|make sure)\b/g)
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/20 mb-6">
+        <h4 className="text-lg font-semibold text-green-300 mb-2">⚡ "If it needs to be done, do it" - In Action</h4>
+        <p className="text-gray-400 text-sm">
+          {executionSegments.length} conversation moments showing immediate execution focus and decisive action-taking
+        </p>
+      </div>
+      
+      {executionSegments.slice(0, 15).map((segment, index) => (
+        <PrincipleSegmentCard 
+          key={segment.id} 
+          segment={segment} 
+          principleColor="green"
+          principleKeywords={['proceed', 'implement', 'build', 'create', 'execute', 'make sure']}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ModularityPrincipleView({ segments }: { segments: ConversationSegment[] }) {
+  const modularitySegments = segments.filter(segment => 
+    segment.speaker === 'User' && 
+    segment.content.toLowerCase().match(/\b(modular|component|service|singleton|module|reusable|separate|individual)\b/g)
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/20 mb-6">
+        <h4 className="text-lg font-semibold text-blue-300 mb-2">🧩 "Make it modular" - In Action</h4>
+        <p className="text-gray-400 text-sm">
+          {modularitySegments.length} conversation moments emphasizing modular design, components, and separation of concerns
+        </p>
+      </div>
+      
+      {modularitySegments.slice(0, 15).map((segment, index) => (
+        <PrincipleSegmentCard 
+          key={segment.id} 
+          segment={segment} 
+          principleColor="blue"
+          principleKeywords={['modular', 'component', 'service', 'singleton', 'module', 'separate']}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ReusabilityPrincipleView({ segments }: { segments: ConversationSegment[] }) {
+  const reusabilitySegments = segments.filter(segment => 
+    segment.speaker === 'User' && 
+    segment.content.toLowerCase().match(/\b(reusable|framework|pattern|template|systematic|scale|optimize|comprehensive)\b/g)
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-purple-500/10 rounded-lg p-4 border border-purple-500/20 mb-6">
+        <h4 className="text-lg font-semibold text-purple-300 mb-2">♻️ "Make it reusable" - In Action</h4>
+        <p className="text-gray-400 text-sm">
+          {reusabilitySegments.length} conversation moments focusing on reusability, frameworks, and systematic approaches
+        </p>
+      </div>
+      
+      {reusabilitySegments.slice(0, 15).map((segment, index) => (
+        <PrincipleSegmentCard 
+          key={segment.id} 
+          segment={segment} 
+          principleColor="purple"
+          principleKeywords={['reusable', 'framework', 'pattern', 'systematic', 'scale', 'comprehensive']}
+        />
+      ))}
+    </div>
+  );
+}
+
+function TeachabilityPrincipleView({ segments }: { segments: ConversationSegment[] }) {
+  const teachabilitySegments = segments.filter(segment => 
+    segment.speaker === 'User' && 
+    segment.content.toLowerCase().match(/\b(document|explain|understand|framework|define|teach|learn|analyze|styles|difference)\b/g)
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-yellow-500/10 rounded-lg p-4 border border-yellow-500/20 mb-6">
+        <h4 className="text-lg font-semibold text-yellow-300 mb-2">📚 "Make it teachable" - In Action</h4>
+        <p className="text-gray-400 text-sm">
+          {teachabilitySegments.length} conversation moments emphasizing documentation, understanding, and knowledge transfer
+        </p>
+      </div>
+      
+      {teachabilitySegments.slice(0, 15).map((segment, index) => (
+        <PrincipleSegmentCard 
+          key={segment.id} 
+          segment={segment} 
+          principleColor="yellow"
+          principleKeywords={['document', 'explain', 'understand', 'define', 'analyze', 'styles']}
+        />
+      ))}
+    </div>
+  );
+}
+
+function StrategicPatternsView({ segments }: { segments: ConversationSegment[] }) {
+  const strategicSegments = segments.filter(segment => 
+    segment.speaker === 'User' && segment.strategicScore >= 70
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-indigo-500/10 rounded-lg p-4 border border-indigo-500/20 mb-6">
+        <h4 className="text-lg font-semibold text-indigo-300 mb-2">🧠 Strategic Patterns - High-Impact Moments</h4>
+        <p className="text-gray-400 text-sm">
+          {strategicSegments.length} conversation segments with 70+ strategic scores showing direction-giving, system thinking, and meta-analysis
+        </p>
+      </div>
+      
+      {strategicSegments.slice(0, 20).map((segment, index) => (
+        <StrategicSegmentCard key={segment.id} segment={segment} />
+      ))}
+    </div>
+  );
+}
+
+function AllSegmentsView({ 
+  segments, 
+  selectedSegment, 
+  setSelectedSegment 
+}: { 
+  segments: ConversationSegment[];
+  selectedSegment: string | null;
+  setSelectedSegment: (id: string | null) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="bg-gray-500/10 rounded-lg p-4 border border-gray-500/20 mb-6">
+        <h4 className="text-lg font-semibold text-gray-300 mb-2">📖 Complete Conversation Archive</h4>
+        <p className="text-gray-400 text-sm">
+          All {segments.length} conversation segments in chronological order - full 1.83M character archive
+        </p>
+      </div>
+      
+      {segments.map((segment, index) => (
+        <Card 
+          key={segment.id} 
+          className={`border-gray-700 hover:border-gray-600 transition-all ${
+            selectedSegment === segment.id ? 'ring-2 ring-indigo-500/50' : ''
+          }`}
+        >
+          <div className="space-y-4">
+            {/* Segment Header */}
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  segment.speaker === 'User' 
+                    ? 'bg-indigo-500/20 text-indigo-400' 
+                    : 'bg-gray-700 text-gray-300'
+                }`}>
+                  {segment.speaker === 'User' ? '👤' : '🤖'}
+                </div>
+                <div>
+                  <div className="font-medium text-white">{segment.speaker}</div>
+                  <div className="text-xs text-gray-400">{segment.timestamp}</div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <div className={`text-sm font-medium ${segment.strategicScore >= 80 ? 'text-green-400' : segment.strategicScore >= 60 ? 'text-yellow-400' : 'text-gray-400'}`}>
+                    {segment.strategicScore}/100 Strategic
+                  </div>
+                  <div className={`text-xs ${segment.alignmentScore >= 80 ? 'text-green-300' : 'text-gray-400'}`}>
+                    {segment.alignmentScore}/100 Alignment
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedSegment(
+                    selectedSegment === segment.id ? null : segment.id
+                  )}
+                  className="text-gray-400 hover:text-indigo-400 transition-colors"
+                >
+                  <IconEye size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Content Preview */}
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <div className="text-gray-300 text-sm leading-relaxed">
+                {segment.content.length > 200 
+                  ? `${segment.content.substring(0, 200)}...` 
+                  : segment.content
+                }
+              </div>
+              
+              {segment.content.length > 200 && (
+                <button
+                  onClick={() => setSelectedSegment(segment.id)}
+                  className="text-indigo-400 hover:text-indigo-300 text-sm mt-2 flex items-center gap-1"
+                >
+                  Read Full Segment <IconArrowRight size={14} />
+                </button>
+              )}
+            </div>
+
+            {/* Expanded View */}
+            {selectedSegment === segment.id && (
+              <div className="border-t border-gray-700 pt-4 space-y-4">
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-300 mb-3">Full Content</h4>
+                  <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                    {segment.content}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+// Helper Components
+function PrincipleSegmentCard({ 
+  segment, 
+  principleColor, 
+  principleKeywords 
+}: { 
+  segment: ConversationSegment;
+  principleColor: string;
+  principleKeywords: string[];
+}) {
+  const colorClasses = {
+    green: 'border-green-500/30 bg-green-500/5',
+    blue: 'border-blue-500/30 bg-blue-500/5',
+    purple: 'border-purple-500/30 bg-purple-500/5',
+    yellow: 'border-yellow-500/30 bg-yellow-500/5'
+  };
+
+  const highlightKeywords = (text: string) => {
+    let highlightedText = text;
+    principleKeywords.forEach(keyword => {
+      const regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+      highlightedText = highlightedText.replace(regex, `<mark class="bg-${principleColor}-500/30 text-${principleColor}-300 px-1 rounded">$1</mark>`);
+    });
+    return highlightedText;
+  };
+
+  return (
+    <Card className={colorClasses[principleColor as keyof typeof colorClasses]}>
+      <div className="space-y-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm">
+              👤
+            </div>
+            <div>
+              <div className="text-sm font-medium text-white">{segment.timestamp}</div>
+              <div className="text-xs text-gray-400">Strategic Score: {segment.strategicScore}/100</div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-gray-800/30 rounded-lg p-3">
+          <div 
+            className="text-gray-300 text-sm leading-relaxed"
+            dangerouslySetInnerHTML={{ 
+              __html: highlightKeywords(segment.content.substring(0, 300) + (segment.content.length > 300 ? '...' : ''))
+            }}
+          />
+        </div>
+
+        {segment.keyInsights.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {segment.keyInsights.slice(0, 2).map((insight, idx) => (
+              <div key={idx} className={`text-xs bg-${principleColor}-500/20 text-${principleColor}-300 px-2 py-1 rounded`}>
+                {insight}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+}
+
+function StrategicSegmentCard({ segment }: { segment: ConversationSegment }) {
+  return (
+    <Card className="border-indigo-500/30 bg-indigo-500/5">
+      <div className="space-y-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm">
+              👤
+            </div>
+            <div>
+              <div className="text-sm font-medium text-white">{segment.timestamp}</div>
+              <div className="text-xs text-indigo-400">Strategic Score: {segment.strategicScore}/100</div>
+            </div>
+          </div>
+          
+          <div className="text-right">
+            <div className="text-sm font-medium text-green-400">{segment.alignmentScore}/100</div>
+            <div className="text-xs text-green-300">Alignment</div>
+          </div>
+        </div>
+        
+        <div className="bg-gray-800/30 rounded-lg p-3">
+          <div className="text-gray-300 text-sm leading-relaxed">
+            {segment.content.substring(0, 300)}{segment.content.length > 300 ? '...' : ''}
+          </div>
+        </div>
+
+        {/* Strategic Patterns */}
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          <div className="bg-indigo-500/20 rounded p-2 text-center">
+            <div className="text-indigo-300 font-medium">Direction</div>
+            <div className="text-gray-400">{segment.strategicPatterns.directionGiving}</div>
+          </div>
+          <div className="bg-blue-500/20 rounded p-2 text-center">
+            <div className="text-blue-300 font-medium">System</div>
+            <div className="text-gray-400">{segment.strategicPatterns.systemThinking}</div>
+          </div>
+          <div className="bg-green-500/20 rounded p-2 text-center">
+            <div className="text-green-300 font-medium">Quality</div>
+            <div className="text-gray-400">{segment.strategicPatterns.qualityControl}</div>
+          </div>
+        </div>
+
+        {segment.keyInsights.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {segment.keyInsights.slice(0, 2).map((insight, idx) => (
+              <div key={idx} className="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded">
+                {insight}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+}
+
 export default function StrategicArchitectMasterclass() {
   const [conversationData, setConversationData] = useState<ConversationSegment[]>([]);
   const [analysis, setAnalysis] = useState<ConversationAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPhase, setSelectedPhase] = useState<string>('all');
+  const [selectedPhase, setSelectedPhase] = useState<string>('execution');
   const [showOnlyStrategic, setShowOnlyStrategic] = useState(false);
   const [selectedSegment, setSelectedSegment] = useState<string | null>(null);
 
@@ -540,8 +890,118 @@ export default function StrategicArchitectMasterclass() {
           </Card>
         </div>
 
-        {/* Filtered Conversation Segments */}
-        <div className="space-y-6">
+        {/* Principle-Based Conversation Tabs */}
+        <Card className="mb-8 border-indigo-500/30">
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-semibold text-indigo-300 mb-2">
+              Philosophical Alignment by Principle
+            </h3>
+            <p className="text-gray-400">
+              Explore conversation segments organized by your core principles - see alignment in real-time
+            </p>
+          </div>
+
+          {/* Tab Navigation */}
+          <div className="flex flex-wrap justify-center gap-2 mb-6 border-b border-gray-700 pb-4">
+            <button
+              onClick={() => setSelectedPhase('execution')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                selectedPhase === 'execution'
+                  ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                  : 'text-gray-400 hover:text-green-300 hover:bg-green-500/10'
+              }`}
+            >
+              <span className="mr-2">⚡</span>
+              If it needs to be done, do it
+              <span className="ml-2 text-xs bg-green-500/20 px-2 py-1 rounded">440</span>
+            </button>
+            <button
+              onClick={() => setSelectedPhase('modularity')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                selectedPhase === 'modularity'
+                  ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                  : 'text-gray-400 hover:text-blue-300 hover:bg-blue-500/10'
+              }`}
+            >
+              <span className="mr-2">🧩</span>
+              Make it modular
+              <span className="ml-2 text-xs bg-blue-500/20 px-2 py-1 rounded">524</span>
+            </button>
+            <button
+              onClick={() => setSelectedPhase('reusability')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                selectedPhase === 'reusability'
+                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                  : 'text-gray-400 hover:text-purple-300 hover:bg-purple-500/10'
+              }`}
+            >
+              <span className="mr-2">♻️</span>
+              Make it reusable
+              <span className="ml-2 text-xs bg-purple-500/20 px-2 py-1 rounded">493</span>
+            </button>
+            <button
+              onClick={() => setSelectedPhase('teachability')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                selectedPhase === 'teachability'
+                  ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                  : 'text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/10'
+              }`}
+            >
+              <span className="mr-2">📚</span>
+              Make it teachable
+              <span className="ml-2 text-xs bg-yellow-500/20 px-2 py-1 rounded">250</span>
+            </button>
+            <button
+              onClick={() => setSelectedPhase('strategic-patterns')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                selectedPhase === 'strategic-patterns'
+                  ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                  : 'text-gray-400 hover:text-indigo-300 hover:bg-indigo-500/10'
+              }`}
+            >
+              <span className="mr-2">🧠</span>
+              Strategic Patterns
+              <span className="ml-2 text-xs bg-indigo-500/20 px-2 py-1 rounded">4,077</span>
+            </button>
+            <button
+              onClick={() => setSelectedPhase('all-segments')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                selectedPhase === 'all-segments'
+                  ? 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
+                  : 'text-gray-400 hover:text-gray-300 hover:bg-gray-500/10'
+              }`}
+            >
+              <span className="mr-2">📖</span>
+              All Segments
+              <span className="ml-2 text-xs bg-gray-500/20 px-2 py-1 rounded">{conversationData.length}</span>
+            </button>
+          </div>
+
+          {/* Tab Content */}
+          <div className="min-h-[600px]">
+            {selectedPhase === 'execution' && (
+              <ExecutionPrincipleView segments={conversationData} />
+            )}
+            {selectedPhase === 'modularity' && (
+              <ModularityPrincipleView segments={conversationData} />
+            )}
+            {selectedPhase === 'reusability' && (
+              <ReusabilityPrincipleView segments={conversationData} />
+            )}
+            {selectedPhase === 'teachability' && (
+              <TeachabilityPrincipleView segments={conversationData} />
+            )}
+            {selectedPhase === 'strategic-patterns' && (
+              <StrategicPatternsView segments={conversationData} />
+            )}
+            {selectedPhase === 'all-segments' && (
+              <AllSegmentsView segments={conversationData} selectedSegment={selectedSegment} setSelectedSegment={setSelectedSegment} />
+            )}
+          </div>
+        </Card>
+
+        {/* Legacy Filtered Segments (hidden) */}
+        <div className="space-y-6 hidden">
           {filteredSegments.slice(0, 10).map((segment, index) => (
             <Card 
               key={segment.id} 
