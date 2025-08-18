@@ -24,6 +24,18 @@ export interface CursorChatAnalysis {
     learningRate: number;
     coachingRecommendations: string[];
     conversationInsights: string[];
+    interactionStyle: {
+      primaryStyle: 'strategic_architect' | 'technical_implementer' | 'learning_explorer' | 'rapid_prototyper' | 'creative_collaborator';
+      styleConfidence: number;
+      styleBreakdown: {
+        strategicArchitect: number;
+        technicalImplementer: number;
+        learningExplorer: number;
+        rapidPrototyper: number;
+        creativeCollaborator: number;
+      };
+      styleInsights: string[];
+    };
   };
 }
 
@@ -378,6 +390,9 @@ class CursorChatAnalysisService {
       // Generate coaching recommendations
       const coachingRecommendations = this.generateCoachingRecommendations(questionRate, learningRate, engagementScore);
       
+      // Analyze interaction style
+      const interactionStyle = this.analyzeInteractionStyle(conversations.rows);
+      
       return {
         avgExchanges,
         avgConversationQuality,
@@ -387,7 +402,8 @@ class CursorChatAnalysisService {
         codeSharingRate,
         learningRate,
         coachingRecommendations,
-        conversationInsights: insights
+        conversationInsights: insights,
+        interactionStyle
       };
       
     } catch (error) {
@@ -401,9 +417,185 @@ class CursorChatAnalysisService {
         codeSharingRate: 0,
         learningRate: 0,
         coachingRecommendations: ['Conversation analysis unavailable'],
-        conversationInsights: ['Error analyzing conversation patterns']
+        conversationInsights: ['Error analyzing conversation patterns'],
+        interactionStyle: {
+          primaryStyle: 'technical_implementer',
+          styleConfidence: 0,
+          styleBreakdown: {
+            strategicArchitect: 0,
+            technicalImplementer: 0,
+            learningExplorer: 0,
+            rapidPrototyper: 0,
+            creativeCollaborator: 0
+          },
+          styleInsights: ['Style analysis unavailable']
+        }
       };
     }
+  }
+
+  /**
+   * Analyze interaction style based on conversation patterns
+   */
+  private analyzeInteractionStyle(conversations: any[]): {
+    primaryStyle: 'strategic_architect' | 'technical_implementer' | 'learning_explorer' | 'rapid_prototyper' | 'creative_collaborator';
+    styleConfidence: number;
+    styleBreakdown: {
+      strategicArchitect: number;
+      technicalImplementer: number;
+      learningExplorer: number;
+      rapidPrototyper: number;
+      creativeCollaborator: number;
+    };
+    styleInsights: string[];
+  } {
+    let strategicScore = 0;
+    let technicalScore = 0;
+    let learningScore = 0;
+    let prototyperScore = 0;
+    let collaboratorScore = 0;
+    
+    const insights: string[] = [];
+    
+    for (const chat of conversations) {
+      const content = chat.content.toLowerCase();
+      
+      // Strategic Architect patterns
+      const strategicPatterns = {
+        directionGiving: /\b(proceed|implement|ensure|make sure|analyze|optimize|verify|confirm)\b/g,
+        systemThinking: /\b(ecosystem|integration|overall|comprehensive|end-to-end|system|architecture)\b/g,
+        qualityControl: /\b(verify|confirm|test|validate|check|quality|proper)\b/g,
+        iterativeRefinement: /\b(but|however|also|additionally|what about|should also|make sure)\b/g,
+        problemDiagnosis: /\b(what do|why|understand|explain|real issue|root cause)\b/g
+      };
+      
+      // Technical Implementer patterns
+      const implementerPatterns = {
+        problemSolving: /\b(error|bug|issue|fix|debug|not working|broken|fail)\b/g,
+        codeSharing: /```[\s\S]*?```|`[^`]+`|\bfunction\b|\bclass\b|\bcomponent\b/g,
+        howToQuestions: /\b(how do i|how can i|how to|show me how)\b/g,
+        specificRequests: /\b(add|implement|create|build|make|write|code)\b/g
+      };
+      
+      // Learning Explorer patterns
+      const learnerPatterns = {
+        conceptualQuestions: /\b(why|how does|what is|explain|understand|concept)\b/g,
+        bestPractices: /\b(best practice|recommended|should|better way|right way)\b/g,
+        comparisons: /\b(difference|compare|versus|vs|better than|which is)\b/g,
+        theoretical: /\b(theory|principle|pattern|approach|methodology)\b/g
+      };
+      
+      // Rapid Prototyper patterns
+      const prototyperPatterns = {
+        speedFocus: /\b(quick|fast|rapid|quickly|asap|urgent|deadline)\b/g,
+        mvpMentality: /\b(mvp|basic|simple|minimal|prototype|proof of concept)\b/g,
+        pragmaticApproach: /\b(good enough|for now|later|temporary|quick fix)\b/g,
+        timeConstraints: /\b(time|schedule|deadline|rush|hurry)\b/g
+      };
+      
+      // Creative Collaborator patterns
+      const collaboratorPatterns = {
+        brainstorming: /\b(ideas|creative|innovative|alternative|brainstorm)\b/g,
+        userExperience: /\b(user|ux|ui|experience|intuitive|usable)\b/g,
+        designThinking: /\b(design|aesthetic|visual|layout|style|theme)\b/g,
+        exploration: /\b(explore|experiment|try|different|unique)\b/g
+      };
+      
+      // Count pattern matches
+      strategicScore += this.countPatternMatches(content, strategicPatterns);
+      technicalScore += this.countPatternMatches(content, implementerPatterns);
+      learningScore += this.countPatternMatches(content, learnerPatterns);
+      prototyperScore += this.countPatternMatches(content, prototyperPatterns);
+      collaboratorScore += this.countPatternMatches(content, collaboratorPatterns);
+    }
+    
+    // Normalize scores
+    const totalScore = strategicScore + technicalScore + learningScore + prototyperScore + collaboratorScore;
+    
+    if (totalScore === 0) {
+      return {
+        primaryStyle: 'technical_implementer',
+        styleConfidence: 0,
+        styleBreakdown: {
+          strategicArchitect: 0,
+          technicalImplementer: 0,
+          learningExplorer: 0,
+          rapidPrototyper: 0,
+          creativeCollaborator: 0
+        },
+        styleInsights: ['Insufficient data for style analysis']
+      };
+    }
+    
+    const styleBreakdown = {
+      strategicArchitect: Math.round((strategicScore / totalScore) * 100),
+      technicalImplementer: Math.round((technicalScore / totalScore) * 100),
+      learningExplorer: Math.round((learningScore / totalScore) * 100),
+      rapidPrototyper: Math.round((prototyperScore / totalScore) * 100),
+      creativeCollaborator: Math.round((collaboratorScore / totalScore) * 100)
+    };
+    
+    // Determine primary style
+    const maxScore = Math.max(
+      styleBreakdown.strategicArchitect,
+      styleBreakdown.technicalImplementer,
+      styleBreakdown.learningExplorer,
+      styleBreakdown.rapidPrototyper,
+      styleBreakdown.creativeCollaborator
+    );
+    
+    let primaryStyle: 'strategic_architect' | 'technical_implementer' | 'learning_explorer' | 'rapid_prototyper' | 'creative_collaborator' = 'technical_implementer';
+    
+    if (styleBreakdown.strategicArchitect === maxScore) primaryStyle = 'strategic_architect';
+    else if (styleBreakdown.technicalImplementer === maxScore) primaryStyle = 'technical_implementer';
+    else if (styleBreakdown.learningExplorer === maxScore) primaryStyle = 'learning_explorer';
+    else if (styleBreakdown.rapidPrototyper === maxScore) primaryStyle = 'rapid_prototyper';
+    else if (styleBreakdown.creativeCollaborator === maxScore) primaryStyle = 'creative_collaborator';
+    
+    // Generate style insights
+    if (styleBreakdown.strategicArchitect > 40) {
+      insights.push('Shows strong strategic thinking and system-level approach');
+    }
+    if (styleBreakdown.technicalImplementer > 60) {
+      insights.push('Primarily focused on technical implementation and problem-solving');
+    }
+    if (styleBreakdown.learningExplorer > 50) {
+      insights.push('Demonstrates strong learning curiosity and conceptual thinking');
+    }
+    if (styleBreakdown.rapidPrototyper > 30) {
+      insights.push('Shows pragmatic, speed-focused development approach');
+    }
+    if (styleBreakdown.creativeCollaborator > 30) {
+      insights.push('Exhibits creative problem-solving and design thinking');
+    }
+    
+    // Mixed style detection
+    const topTwoStyles = Object.entries(styleBreakdown)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 2);
+    
+    if (topTwoStyles[1][1] > 25) {
+      insights.push(`Hybrid style: Primary ${primaryStyle.replace('_', ' ')} with strong ${topTwoStyles[1][0].replace(/([A-Z])/g, ' $1').toLowerCase()} tendencies`);
+    }
+    
+    return {
+      primaryStyle,
+      styleConfidence: maxScore,
+      styleBreakdown,
+      styleInsights: insights
+    };
+  }
+  
+  /**
+   * Count pattern matches in content
+   */
+  private countPatternMatches(content: string, patterns: Record<string, RegExp>): number {
+    let count = 0;
+    for (const pattern of Object.values(patterns)) {
+      const matches = content.match(pattern);
+      count += matches ? matches.length : 0;
+    }
+    return count;
   }
 
   /**
