@@ -155,6 +155,14 @@ export default async function PhilosophyPage() {
                   <div className="text-xs text-gray-400 mt-1">Make teachable and reusable</div>
                 </div>
               </div>
+              
+              <div className="mt-6 text-center">
+                <Button href="/strategic-architect-masterclass" className="bg-indigo-600 hover:bg-indigo-700">
+                  <span className="text-lg mr-2">🧠</span>
+                  Explore Full Conversation Analysis
+                  <span className="ml-2 text-xs bg-indigo-500/30 px-2 py-1 rounded">1.83M chars</span>
+                </Button>
+              </div>
             </div>
           </div>
         </Card>
