@@ -81,6 +81,18 @@ export async function GET(request: NextRequest) {
           implementationComplexity: suggestion.implementationComplexity
         })) || []
       }))
+      .sort((a, b) => {
+        // Featured entries always come first
+        const aFeatured = a.title.includes('Philosophical Alignment Analysis') ? 1 : 0;
+        const bFeatured = b.title.includes('Philosophical Alignment Analysis') ? 1 : 0;
+        
+        if (aFeatured !== bFeatured) {
+          return bFeatured - aFeatured; // Featured entries first
+        }
+        
+        // Then sort by creation date (newest first)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      })
       .slice(0, limit);
 
     // Get basic stats for public display

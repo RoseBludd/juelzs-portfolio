@@ -33,6 +33,16 @@ interface PublicJournalCardProps {
 }
 
 const categoryConfig = {
+  'Strategic Philosophy': { 
+    icon: '🧠', 
+    color: 'bg-indigo-500/20 text-indigo-300 border-indigo-700',
+    description: 'Strategic Philosophy & Leadership'
+  },
+  'Leadership Self-Discovery': { 
+    icon: '👑', 
+    color: 'bg-yellow-500/20 text-yellow-300 border-yellow-700',
+    description: 'Leadership Development & Self-Discovery'
+  },
   architecture: { 
     icon: '🏗️', 
     color: 'bg-blue-500/20 text-blue-300 border-blue-700',
@@ -73,6 +83,9 @@ export default function PublicJournalCard({ entry }: PublicJournalCardProps) {
     description: 'Engineering Insight'
   };
 
+  // Check if this is the featured philosophical alignment entry
+  const isFeatured = entry.title.includes('Philosophical Alignment Analysis');
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -104,7 +117,16 @@ export default function PublicJournalCard({ entry }: PublicJournalCardProps) {
   };
 
   return (
-    <Card className="h-full">
+    <Card className={`h-full ${isFeatured ? 'ring-2 ring-indigo-500/50 shadow-indigo-500/20' : ''}`}>
+      {isFeatured && (
+        <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 px-4 py-2 -mx-6 -mt-6 mb-4 border-b border-indigo-500/30">
+          <div className="flex items-center gap-2 text-indigo-300">
+            <span className="text-lg">⭐</span>
+            <span className="text-sm font-medium">Featured Strategic Insight</span>
+            <span className="text-xs bg-indigo-500/30 px-2 py-1 rounded">98/100 Philosophical Alignment</span>
+          </div>
+        </div>
+      )}
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-start justify-between">
