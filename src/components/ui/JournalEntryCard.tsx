@@ -215,9 +215,9 @@ export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSugges
             
             {/* Privacy Toggle */}
             {onTogglePrivacy && (
-              <Button
+              <button
                 onClick={() => onTogglePrivacy(entry.id, !entry.isPrivate)}
-                className={`text-xs sm:text-sm px-2 py-1 ${
+                className={`text-xs sm:text-sm px-2 py-1 rounded transition-colors ${
                   entry.isPrivate 
                     ? 'bg-red-600 hover:bg-red-700 text-white border border-red-500' 
                     : 'bg-green-600 hover:bg-green-700 text-white border border-green-500'
@@ -225,7 +225,7 @@ export default function JournalEntryCard({ entry, onEdit, onDelete, onMarkSugges
                 title={entry.isPrivate ? 'Currently Private - Click to make Public' : 'Currently Public - Click to make Private'}
               >
                 {entry.isPrivate ? '🔒 Private' : '🔓 Public'}
-              </Button>
+              </button>
             )}
             
             <Button
