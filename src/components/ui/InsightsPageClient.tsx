@@ -45,6 +45,8 @@ export default function InsightsPageClient() {
 
   const categories = [
     { value: 'all', label: 'All Insights', icon: '💡', color: 'bg-gray-500/20 text-gray-300' },
+    { value: 'Strategic Philosophy', label: 'Strategic Philosophy', icon: '🧠', color: 'bg-indigo-500/20 text-indigo-300' },
+    { value: 'Leadership Self-Discovery', label: 'Leadership', icon: '👑', color: 'bg-yellow-500/20 text-yellow-300' },
     { value: 'architecture', label: 'Architecture', icon: '🏗️', color: 'bg-blue-500/20 text-blue-300' },
     { value: 'reflection', label: 'Reflections', icon: '💭', color: 'bg-green-500/20 text-green-300' },
     { value: 'milestone', label: 'Milestones', icon: '🎯', color: 'bg-purple-500/20 text-purple-300' },

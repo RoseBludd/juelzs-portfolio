@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
         if (hasPrivateTags) return false;
         
         // Only include certain categories for public
-        const publicCategories = ['architecture', 'reflection', 'milestone', 'planning'];
+        const publicCategories = ['architecture', 'reflection', 'milestone', 'planning', 'Strategic Philosophy', 'Leadership Self-Discovery'];
         if (!publicCategories.includes(entry.category)) return false;
         
         // Must have good content length (not just quick notes)
