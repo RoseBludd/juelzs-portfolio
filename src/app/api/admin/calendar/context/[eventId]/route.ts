@@ -5,10 +5,11 @@ const calendarService = CalendarService.getInstance();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { eventId: string } }
+  context: { params: Promise<{ eventId: string }> }
 ) {
   try {
-    console.log(`🔍 Calendar Context API: Fetching context for event ${params.eventId}...`);
+    const resolvedParams = await context.params;
+    console.log(`🔍 Calendar Context API: Fetching context for event ${resolvedParams.eventId}...`);
     
     const { searchParams } = new URL(request.url);
     const eventType = searchParams.get('type') as CalendarEvent['type'];
@@ -23,7 +24,7 @@ export async function GET(
       );
     }
     
-    const context = await calendarService.getEventContext(params.eventId, eventType);
+    const context = await calendarService.getEventContext(resolvedParams.eventId, eventType);
     
     if (!context) {
       return NextResponse.json(
@@ -35,7 +36,7 @@ export async function GET(
       );
     }
     
-    console.log(`✅ Retrieved context for ${eventType} event: ${params.eventId}`);
+    console.log(`✅ Retrieved context for ${eventType} event: ${resolvedParams.eventId}`);
     
     return NextResponse.json({
       success: true,

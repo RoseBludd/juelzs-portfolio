@@ -3,10 +3,10 @@ import PortfolioService from '@/services/portfolio.service';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const portfolioService = PortfolioService.getInstance();
     
     const recap = await portfolioService.getVideoRecap(id);
