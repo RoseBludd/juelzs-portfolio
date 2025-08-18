@@ -217,12 +217,20 @@ function AllSegmentsView({
             {/* Segment Header */}
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${
                   segment.speaker === 'User' 
-                    ? 'bg-indigo-500/20 text-indigo-400' 
+                    ? 'bg-indigo-500/20 border-2 border-indigo-500/30' 
                     : 'bg-gray-700 text-gray-300'
                 }`}>
-                  {segment.speaker === 'User' ? '👤' : '🤖'}
+                  {segment.speaker === 'User' ? (
+                    <img 
+                      src="/profile-logo.png" 
+                      alt="Juelz" 
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    '🤖'
+                  )}
                 </div>
                 <div>
                   <div className="font-medium text-white">{segment.speaker}</div>
@@ -318,8 +326,12 @@ function PrincipleSegmentCard({
       <div className="space-y-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm">
-              👤
+            <div className="w-8 h-8 rounded-full bg-indigo-500/20 border-2 border-indigo-500/30 flex items-center justify-center overflow-hidden">
+              <img 
+                src="/profile-logo.png" 
+                alt="Juelz" 
+                className="w-full h-full object-cover rounded-full"
+              />
             </div>
             <div>
               <div className="text-sm font-medium text-white">{segment.timestamp}</div>
@@ -357,8 +369,12 @@ function StrategicSegmentCard({ segment }: { segment: ConversationSegment }) {
       <div className="space-y-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm">
-              👤
+            <div className="w-8 h-8 rounded-full bg-indigo-500/20 border-2 border-indigo-500/30 flex items-center justify-center overflow-hidden">
+              <img 
+                src="/profile-logo.png" 
+                alt="Juelz" 
+                className="w-full h-full object-cover rounded-full"
+              />
             </div>
             <div>
               <div className="text-sm font-medium text-white">{segment.timestamp}</div>
@@ -684,8 +700,12 @@ export default function StrategicArchitectMasterclass() {
             <div className="bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-lg p-6 border border-indigo-500/20">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
-                    👤
+                  <div className="w-10 h-10 rounded-full bg-indigo-500/20 border-2 border-indigo-500/30 flex items-center justify-center overflow-hidden">
+                    <img 
+                      src="/profile-logo.png" 
+                      alt="Juelz" 
+                      className="w-full h-full object-cover rounded-full"
+                    />
                   </div>
                   <div>
                     <div className="font-medium text-white">Strategic Direction</div>
@@ -722,8 +742,12 @@ export default function StrategicArchitectMasterclass() {
             <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg p-6 border border-purple-500/20">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center">
-                    👤
+                  <div className="w-10 h-10 rounded-full bg-purple-500/20 border-2 border-purple-500/30 flex items-center justify-center overflow-hidden">
+                    <img 
+                      src="/profile-logo.png" 
+                      alt="Juelz" 
+                      className="w-full h-full object-cover rounded-full"
+                    />
                   </div>
                   <div>
                     <div className="font-medium text-white">Iterative Refinement</div>
@@ -760,8 +784,12 @@ export default function StrategicArchitectMasterclass() {
             <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg p-6 border border-yellow-500/20">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-yellow-500/20 text-yellow-400 flex items-center justify-center">
-                    👤
+                  <div className="w-10 h-10 rounded-full bg-yellow-500/20 border-2 border-yellow-500/30 flex items-center justify-center overflow-hidden">
+                    <img 
+                      src="/profile-logo.png" 
+                      alt="Juelz" 
+                      className="w-full h-full object-cover rounded-full"
+                    />
                   </div>
                   <div>
                     <div className="font-medium text-white">Meta-Analysis</div>
