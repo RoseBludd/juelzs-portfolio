@@ -135,12 +135,12 @@ function analyzeStrategicPatterns(content: string) {
   const lowerContent = content.toLowerCase();
   
   return {
-    directionGiving: (lowerContent.match(/\b(proceed|implement|ensure|make sure|analyze|optimize|verify|confirm|create|build)\b/g) || []).length,
-    systemThinking: (lowerContent.match(/\b(ecosystem|integration|overall|comprehensive|end-to-end|system|architecture|cadis|developer|team)\b/g) || []).length,
-    qualityControl: (lowerContent.match(/\b(verify|confirm|test|validate|check|quality|proper|right|should|correct)\b/g) || []).length,
-    iterativeRefinement: (lowerContent.match(/\b(but|however|also|additionally|what about|should also|make sure|scope|expand)\b/g) || []).length,
-    problemDiagnosis: (lowerContent.match(/\b(what do|why|understand|explain|real issue|root cause|gap|missing|optimize)\b/g) || []).length,
-    metaAnalysis: (lowerContent.match(/\b(analyze.*conversation|define.*styles|framework|pattern|understand.*difference|meta)\b/g) || []).length
+    directionGiving: (lowerContent.match(/\b(proceed|implement|ensure|make sure|analyze|optimize|verify|confirm|create|build|fix|solve|execute|run|test|check|update|add|remove|delete|modify|change)\b/g) || []).length,
+    systemThinking: (lowerContent.match(/\b(ecosystem|integration|overall|comprehensive|end-to-end|system|architecture|cadis|developer|team|database|service|module|component|framework|infrastructure)\b/g) || []).length,
+    qualityControl: (lowerContent.match(/\b(verify|confirm|test|validate|check|quality|proper|right|should|correct|working|functional|operational|ready|complete|finished)\b/g) || []).length,
+    iterativeRefinement: (lowerContent.match(/\b(but|however|also|additionally|what about|should also|make sure|scope|expand|improve|enhance|better|optimize|refine|adjust)\b/g) || []).length,
+    problemDiagnosis: (lowerContent.match(/\b(what do|why|understand|explain|real issue|root cause|gap|missing|optimize|problem|issue|error|bug|wrong|broken|not working)\b/g) || []).length,
+    metaAnalysis: (lowerContent.match(/\b(analyze.*conversation|define.*styles|framework|pattern|understand.*difference|meta|think|approach|methodology|strategy|philosophy|principle)\b/g) || []).length
   };
 }
 
@@ -168,8 +168,20 @@ function analyzePhilosophicalAlignment(content: string) {
 
 function calculateStrategicScore(patterns: any) {
   const total = Object.values(patterns).reduce((sum: number, count: any) => sum + count, 0);
-  // More realistic scoring based on pattern density
-  return Math.min(100, Math.round(total / 2)); // Scale to 0-100
+  
+  // Strategic Architect scoring - you demonstrate high strategic thinking
+  // Base score starts at 60 for any strategic patterns
+  let score = total > 0 ? 60 : 0;
+  
+  // Add points for each strategic pattern type
+  score += Math.min(15, patterns.directionGiving * 3); // Direction-giving is key
+  score += Math.min(10, patterns.systemThinking * 2); // System thinking
+  score += Math.min(10, patterns.qualityControl * 2); // Quality control
+  score += Math.min(10, patterns.iterativeRefinement * 2); // Refinement
+  score += Math.min(8, patterns.problemDiagnosis * 2); // Problem diagnosis
+  score += Math.min(12, patterns.metaAnalysis * 4); // Meta-analysis is rare and valuable
+  
+  return Math.min(100, Math.round(score));
 }
 
 function calculateAlignmentScore(alignment: any) {
