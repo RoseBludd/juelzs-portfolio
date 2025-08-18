@@ -2,17 +2,22 @@ import Link from 'next/link';
 import PortfolioService from '@/services/portfolio.service';
 
 export default async function AdminDashboard() {
-  // Lightweight dashboard - no heavy processing on load
+  // Get data but avoid heavy analysis operations
   const portfolioService = PortfolioService.getInstance();
   
-  // Get basic counts only - no heavy analysis or S3 calls
-  const projects = await portfolioService.getSystemArchitectures(); // Cached data only
-  const videos = await portfolioService.getLatestLeadershipVideos(); // Cached data only
-
-  // Static estimates - no real-time analysis on dashboard load
-  const estimatedAnalyzedProjects = Math.floor(projects.length * 0.7);
-  const estimatedMeetings = videos.length;
-  const estimatedPortfolioRelevant = Math.floor(estimatedMeetings * 0.6);
+  // Get basic project data (this is fast - just GitHub API call)
+  const projects = await portfolioService.getSystemArchitectures();
+  
+  // DON'T call getLatestLeadershipVideos() - this triggers heavy video analysis
+  // Use static count for videos to avoid analysis pipeline
+  const videoCount = 15; // Static estimate to avoid triggering analysis
+  
+  // Use static estimates for S3-dependent data to avoid slow S3 calls
+  const staticStats = {
+    meetingRecordings: 82, // From logs - avoid S3.getMeetingGroups()
+    portfolioRelevant: 35, // Estimated 40% relevance rate
+    analyzedProjects: Math.floor(projects.length * 0.7), // Based on actual project count
+  };
 
   const stats = [
     {
@@ -23,25 +28,25 @@ export default async function AdminDashboard() {
     },
     {
       title: 'Leadership Videos', 
-      value: videos.length,
+      value: videoCount,
       icon: '🎥',
       href: '/admin/meetings',
     },
     {
       title: 'Meeting Recordings',
-      value: estimatedMeetings,
+      value: staticStats.meetingRecordings,
       icon: '📹',
       href: '/admin/meetings',
     },
     {
       title: 'Portfolio Relevant',
-      value: estimatedPortfolioRelevant,
+      value: staticStats.portfolioRelevant,
       icon: '⭐',
       href: '/admin/meetings',
     },
     {
       title: 'Architecture Analysis',
-      value: estimatedAnalyzedProjects,
+      value: staticStats.analyzedProjects,
       icon: '🏗️',
       href: '/admin/architecture',
     },
@@ -157,36 +162,41 @@ export default async function AdminDashboard() {
             <div className="flex items-center text-sm">
               <span className="mr-3">🎥</span>
               <span className="text-gray-300">
-                {videos.filter(v => v.analysis).length} videos have leadership analysis
+                {Math.floor(videoCount * 0.8)} videos have leadership analysis
               </span>
             </div>
             <div className="flex items-center text-sm">
               <span className="mr-3">💼</span>
               <span className="text-gray-300">
-                {projects.filter(p => p.source === 'github').length} projects from GitHub
+                {projects.length} projects from GitHub
               </span>
             </div>
             <div className="flex items-center text-sm">
               <span className="mr-3">📹</span>
               <span className="text-gray-300">
-                {estimatedPortfolioRelevant} portfolio-relevant meetings available
+                {staticStats.portfolioRelevant} portfolio-relevant meetings available
               </span>
             </div>
             <div className="flex items-center text-sm">
               <span className="mr-3">🏗️</span>
               <span className="text-gray-300">
-                {estimatedAnalyzedProjects} projects have architecture analysis
+                {staticStats.analyzedProjects} projects have architecture analysis
               </span>
             </div>
           </div>
           
           <div className="mt-6 pt-4 border-t border-gray-700">
-            <Link
-              href="/admin/meetings"
-              className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
-            >
-              Manage meeting showcase selection →
-            </Link>
+            <div className="flex items-center justify-between">
+              <Link
+                href="/admin/meetings"
+                className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+              >
+                Manage meeting showcase selection →
+              </Link>
+              <span className="text-xs text-gray-500">
+                📊 Static estimates - refresh in individual admin pages
+              </span>
+            </div>
           </div>
         </div>
       </div>
