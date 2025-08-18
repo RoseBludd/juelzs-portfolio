@@ -6,6 +6,7 @@ interface CardProps {
   hover?: boolean;
   padding?: 'sm' | 'md' | 'lg';
   onClick?: () => void;
+  id?: string;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -14,6 +15,7 @@ const Card: React.FC<CardProps> = ({
   hover = false,
   padding = 'md',
   onClick,
+  id,
 }) => {
   const baseClasses = 'bg-gray-800 border border-gray-700 rounded-lg';
   const hoverClasses = hover ? 'hover:bg-gray-750 hover:border-gray-600 transition-all duration-200 cursor-pointer' : '';
@@ -28,14 +30,14 @@ const Card: React.FC<CardProps> = ({
   
   if (onClick) {
     return (
-      <div className={combinedClasses} onClick={onClick}>
+      <div className={combinedClasses} onClick={onClick} id={id}>
         {children}
       </div>
     );
   }
   
   return (
-    <div className={combinedClasses}>
+    <div className={combinedClasses} id={id}>
       {children}
     </div>
   );
