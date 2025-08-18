@@ -505,8 +505,12 @@ export default function CADISJournalPage() {
                           return 'creative-intelligence';
                         }
                         if (title.includes('maintenance') || analysisType.includes('maintenance') || 
-                            tags.includes('maintenance')) {
+                            tags.includes('maintenance') || content.includes('maintenance report')) {
                           return 'system-maintenance';
+                        }
+                        if (title.includes('ecosystem analysis') || content.includes('ecosystem analysis') ||
+                            analysisType.includes('ecosystem-health') || tags.includes('patterns')) {
+                          return 'system-evolution';
                         }
                         return entry.category || 'system-evolution';
                       };
