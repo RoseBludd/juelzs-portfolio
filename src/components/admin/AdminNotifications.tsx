@@ -97,7 +97,8 @@ export default function AdminNotifications() {
       // On mobile, position centrally
       setModalPosition({
         left: false,
-        right: false
+        right: false,
+        hasVerticalSpace: true
       });
       return;
     }

@@ -5,10 +5,10 @@ const calendarService = CalendarService.getInstance();
 
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ eventId: string }> }
+  { params }: { params: Promise<{ eventId: string }> }
 ) {
   try {
-    const resolvedParams = await context.params;
+    const resolvedParams = await params;
     console.log(`🔍 Calendar Context API: Fetching context for event ${resolvedParams.eventId}...`);
     
     const { searchParams } = new URL(request.url);
