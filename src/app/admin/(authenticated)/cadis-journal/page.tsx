@@ -229,6 +229,32 @@ export default function CADISJournalPage() {
           >
             {isGenerating ? '🧠 Analyzing...' : '🧠 Generate Insights'}
           </Button>
+          <select 
+            onChange={(e) => generateSpecificScenario(e.target.value)}
+            className="bg-gray-700 text-white border border-gray-600 rounded px-2 py-1 text-xs sm:text-sm"
+            defaultValue=""
+          >
+            <option value="">🎯 Select Specific Scenario</option>
+            <optgroup label="🔮 Quantum Business Intelligence">
+              <option value="quantum-revenue-optimization">Revenue Optimization (8 layers)</option>
+              <option value="quantum-client-success-prediction">Client Success Prediction (7 layers)</option>
+              <option value="quantum-scaling-intelligence">Scaling Intelligence (9 layers)</option>
+              <option value="quantum-competitive-advantage">Competitive Advantage (6 layers)</option>
+              <option value="quantum-resource-allocation">Resource Allocation (7 layers)</option>
+              <option value="quantum-innovation-pipeline">Innovation Pipeline (8 layers)</option>
+              <option value="quantum-market-timing">Market Timing (6 layers)</option>
+              <option value="quantum-ecosystem-synergy">Ecosystem Synergy (10 layers)</option>
+              <option value="quantum-client-acquisition">Client Acquisition (7 layers)</option>
+              <option value="quantum-operational-excellence">Operational Excellence (8 layers)</option>
+              <option value="quantum-strategic-foresight">Strategic Foresight (9 layers)</option>
+              <option value="quantum-value-creation">Value Creation (7 layers)</option>
+              <option value="cadis-self-advancement">CADIS Self-Advancement (10 layers)</option>
+            </optgroup>
+            <optgroup label="🤖 System Intelligence">
+              <option value="ai-module-composer">AI Module Composer (8 layers)</option>
+              <option value="ecosystem-symbiosis-engine">Ecosystem Symbiosis (7 layers)</option>
+            </optgroup>
+          </select>
         </div>
       </div>
 

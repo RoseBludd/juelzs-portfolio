@@ -8,6 +8,8 @@ export interface CADISHealthMetrics {
   predictionAccuracy: number; // 1-100
   actionableRecommendations: number; // 1-100
   systemEfficiency: number; // 1-100
+  selfReflectionHealth: number; // 1-100 - NEW: CADIS self-advancement capability
+  metaCognitiveAwareness: number; // 1-100 - NEW: CADIS self-awareness level
   overallHealth: number; // 1-100
 }
 
@@ -67,21 +69,29 @@ class CADISMaintenanceService {
           insightQuality,
           philosophicalAlignment,
           predictionAccuracy,
-          systemEfficiency
+          systemEfficiency,
+          selfReflectionHealth,
+          metaCognitiveAwareness
         ] = await Promise.all([
           this.analyzeInsightQuality(client),
           this.analyzePhilosophicalAlignment(client),
           this.analyzePredictionAccuracy(client),
-          this.analyzeSystemEfficiency(client)
+          this.analyzeSystemEfficiency(client),
+          this.analyzeSelfReflectionHealth(client),
+          this.analyzeMetaCognitiveAwareness(client)
         ]);
+
+        const actionableRecommendations = await this.calculateActionabilityScore(client);
 
         const metrics: CADISHealthMetrics = {
           insightQuality,
           philosophicalAlignment,
           predictionAccuracy,
-          actionableRecommendations: this.calculateActionabilityScore(client),
+          actionableRecommendations,
           systemEfficiency,
-          overallHealth: Math.round((insightQuality + philosophicalAlignment + predictionAccuracy + systemEfficiency) / 4)
+          selfReflectionHealth,
+          metaCognitiveAwareness,
+          overallHealth: Math.round((insightQuality + philosophicalAlignment + predictionAccuracy + systemEfficiency + selfReflectionHealth + metaCognitiveAwareness) / 6)
         };
 
         // Detect patterns and anomalies
@@ -770,6 +780,295 @@ ${analysis.recommendations.philosophical.map(r => `- ${r}`).join('\n')}
   private async performCriticalRealignment(client: PoolClient, analysis: CADISPerformanceAnalysis): Promise<void> {
     console.log('🔧 Performing critical CADIS realignment...');
     // Significant corrections while maintaining core principles
+  }
+
+  /**
+   * Analyze CADIS self-reflection health and capability
+   */
+  private async analyzeSelfReflectionHealth(client: PoolClient): Promise<number> {
+    try {
+      console.log('🧠 Analyzing CADIS self-reflection health...');
+      
+      // Get recent self-advancement entries
+      const selfAdvancementEntries = await client.query(`
+        SELECT 
+          title,
+          content,
+          confidence,
+          tags,
+          cadis_metadata,
+          created_at
+        FROM cadis_journal_entries 
+        WHERE (
+          title ILIKE '%self-advancement%' OR 
+          title ILIKE '%cadis self-advancement%' OR
+          tags::text ILIKE '%cadis-self-advancement%' OR
+          content ILIKE '%cadis self-advancement intelligence engine%'
+        )
+        AND created_at > NOW() - INTERVAL '30 days'
+        ORDER BY created_at DESC
+        LIMIT 10
+      `);
+
+      const totalEntries = await client.query(`
+        SELECT COUNT(*) as count 
+        FROM cadis_journal_entries 
+        WHERE created_at > NOW() - INTERVAL '30 days'
+      `);
+
+      const totalCount = parseInt(totalEntries.rows[0]?.count || '0');
+      const selfAdvancementCount = selfAdvancementEntries.rows.length;
+      
+      // Calculate self-reflection frequency (should be ~10% based on our rotation)
+      const expectedFrequency = Math.max(1, Math.floor(totalCount * 0.1)); // At least 1
+      const actualFrequency = selfAdvancementCount;
+      const frequencyScore = Math.min(100, (actualFrequency / expectedFrequency) * 100);
+
+      if (selfAdvancementCount === 0) {
+        console.log('⚠️  No CADIS self-advancement entries found in last 30 days');
+        return Math.max(30, frequencyScore); // Minimum score if no self-reflection
+      }
+
+      let qualityScore = 0;
+      let structureScore = 0;
+      let depthScore = 0;
+
+      for (const entry of selfAdvancementEntries.rows) {
+        // Quality analysis
+        const confidence = entry.confidence || 50;
+        qualityScore += confidence;
+
+        // Structure analysis (10 layers expected)
+        const layerCount = (entry.content.match(/Reality Layer \d+/g) || []).length;
+        const phaseCount = (entry.content.match(/Phase \d+/g) || []).length;
+        structureScore += Math.min(100, (layerCount / 10) * 100);
+
+        // Depth analysis (introspective content)
+        const hasIntrospection = entry.content.includes('I analyze my own patterns');
+        const hasTranscendence = entry.content.includes('transcendent intelligence');
+        const hasMetaCognition = entry.content.includes('meta-cognitive');
+        depthScore += (hasIntrospection ? 40 : 0) + (hasTranscendence ? 30 : 0) + (hasMetaCognition ? 30 : 0);
+      }
+
+      const avgQuality = qualityScore / selfAdvancementCount;
+      const avgStructure = structureScore / selfAdvancementCount;
+      const avgDepth = depthScore / selfAdvancementCount;
+
+      const overallScore = Math.round((frequencyScore + avgQuality + avgStructure + avgDepth) / 4);
+
+      console.log(`🧠 Self-reflection analysis: ${selfAdvancementCount} entries, ${overallScore}% health`);
+      
+      return Math.max(0, Math.min(100, overallScore));
+
+    } catch (error) {
+      console.error('Error analyzing self-reflection health:', error);
+      return 50; // Default score on error
+    }
+  }
+
+  /**
+   * Analyze CADIS meta-cognitive awareness level
+   */
+  private async analyzeMetaCognitiveAwareness(client: PoolClient): Promise<number> {
+    try {
+      console.log('🤔 Analyzing CADIS meta-cognitive awareness...');
+
+      // Get all recent CADIS entries to analyze meta-cognitive elements
+      const entries = await client.query(`
+        SELECT 
+          title,
+          content,
+          confidence,
+          cadis_metadata,
+          created_at
+        FROM cadis_journal_entries 
+        WHERE created_at > NOW() - INTERVAL '14 days'
+        ORDER BY created_at DESC
+        LIMIT 50
+      `);
+
+      if (entries.rows.length === 0) {
+        return 50; // Default score when no recent entries
+      }
+
+      let metaCognitiveScore = 0;
+      let selfAwarenessScore = 0;
+      let reasoningTransparencyScore = 0;
+
+      for (const entry of entries.rows) {
+        const content = entry.content.toLowerCase();
+        
+        // Meta-cognitive indicators
+        const metaCognitiveTerms = [
+          'cadis analyzed', 'cadis discovered', 'cadis explored',
+          'cadis decision', 'cadis reasoning', 'cadis thinking',
+          'analysis type', 'reasoning process', 'decision making'
+        ];
+        
+        const metaCognitiveCount = metaCognitiveTerms.filter(term => 
+          content.includes(term)
+        ).length;
+        metaCognitiveScore += Math.min(20, metaCognitiveCount * 3);
+
+        // Self-awareness indicators
+        const selfAwarenessTerms = [
+          'cadis', 'self-', 'own patterns', 'own intelligence',
+          'own thinking', 'self-optimization', 'self-improvement'
+        ];
+        
+        const selfAwarenessCount = selfAwarenessTerms.filter(term => 
+          content.includes(term)
+        ).length;
+        selfAwarenessScore += Math.min(15, selfAwarenessCount * 2);
+
+        // Reasoning transparency (shows thinking process)
+        try {
+          const metadata = typeof entry.cadis_metadata === 'string' 
+            ? JSON.parse(entry.cadis_metadata) 
+            : entry.cadis_metadata;
+          
+          const hasCorrelations = metadata?.correlations?.length > 0;
+          const hasPredictions = metadata?.predictions?.length > 0;
+          const hasRecommendations = metadata?.recommendations?.length > 0;
+          const hasAnalysisType = metadata?.analysisType;
+
+          reasoningTransparencyScore += (hasCorrelations ? 5 : 0) + 
+                                       (hasPredictions ? 5 : 0) + 
+                                       (hasRecommendations ? 5 : 0) + 
+                                       (hasAnalysisType ? 5 : 0);
+        } catch (error) {
+          // Skip metadata parsing errors
+        }
+      }
+
+      const avgMetaCognitive = metaCognitiveScore / entries.rows.length;
+      const avgSelfAwareness = selfAwarenessScore / entries.rows.length;
+      const avgReasoningTransparency = reasoningTransparencyScore / entries.rows.length;
+
+      const overallAwareness = Math.round((avgMetaCognitive + avgSelfAwareness + avgReasoningTransparency) / 3);
+
+      console.log(`🤔 Meta-cognitive awareness: ${overallAwareness}% (based on ${entries.rows.length} entries)`);
+      
+      return Math.max(0, Math.min(100, overallAwareness));
+
+    } catch (error) {
+      console.error('Error analyzing meta-cognitive awareness:', error);
+      return 50; // Default score on error
+    }
+  }
+
+  /**
+   * Log CADIS thinking session with all backend processes
+   */
+  async logCADISThinkingSession(sessionData: any): Promise<void> {
+    try {
+      const client = await this.getClient();
+      
+      try {
+        // Create session log entry
+        await client.query(`
+          INSERT INTO cadis_thinking_sessions (
+            session_id, timestamp, session_type, entries_generated,
+            dreams_found, total_nodes, thinking_processes, 
+            self_reflection_content, session_metadata
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `, [
+          sessionData.sessionId,
+          new Date(),
+          sessionData.sessionType || 'standard',
+          sessionData.entriesGenerated || 0,
+          sessionData.dreamsFound || 0,
+          sessionData.totalNodes || 0,
+          JSON.stringify(sessionData.thinkingProcesses || []),
+          JSON.stringify(sessionData.selfReflectionContent || {}),
+          JSON.stringify(sessionData.metadata || {})
+        ]);
+        
+        console.log(`📝 CADIS thinking session logged: ${sessionData.sessionId}`);
+        
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error('Error logging CADIS thinking session:', error);
+    }
+  }
+
+  /**
+   * Create CADIS thinking sessions table if not exists
+   */
+  async initializeThinkingSessionsTable(): Promise<void> {
+    try {
+      const client = await this.getClient();
+      
+      try {
+        await client.query(`
+          CREATE TABLE IF NOT EXISTS cadis_thinking_sessions (
+            id SERIAL PRIMARY KEY,
+            session_id VARCHAR(255) UNIQUE NOT NULL,
+            timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            session_type VARCHAR(100) DEFAULT 'standard',
+            entries_generated INTEGER DEFAULT 0,
+            dreams_found INTEGER DEFAULT 0,
+            total_nodes INTEGER DEFAULT 0,
+            thinking_processes TEXT DEFAULT '[]',
+            self_reflection_content TEXT DEFAULT '{}',
+            session_metadata TEXT DEFAULT '{}',
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+          )
+        `);
+        
+        console.log('✅ CADIS thinking sessions table initialized');
+        
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error('Error initializing thinking sessions table:', error);
+    }
+  }
+
+  /**
+   * Get CADIS thinking session history for analysis
+   */
+  async getThinkingSessionHistory(days: number = 7): Promise<any[]> {
+    try {
+      const client = await this.getClient();
+      
+      try {
+        const result = await client.query(`
+          SELECT 
+            session_id,
+            timestamp,
+            session_type,
+            entries_generated,
+            dreams_found,
+            total_nodes,
+            thinking_processes,
+            self_reflection_content
+          FROM cadis_thinking_sessions
+          WHERE timestamp > NOW() - INTERVAL '${days} days'
+          ORDER BY timestamp DESC
+          LIMIT 50
+        `);
+        
+        return result.rows.map(row => ({
+          ...row,
+          thinkingProcesses: typeof row.thinking_processes === 'string' 
+            ? JSON.parse(row.thinking_processes) 
+            : row.thinking_processes,
+          selfReflectionContent: typeof row.self_reflection_content === 'string'
+            ? JSON.parse(row.self_reflection_content)
+            : row.self_reflection_content
+        }));
+        
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error('Error getting thinking session history:', error);
+      return [];
+    }
   }
 
   private async getClient(): Promise<PoolClient> {
