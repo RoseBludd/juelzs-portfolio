@@ -588,7 +588,12 @@ function LearningRecommendations({
   segments: ConversationSegment[];
 }) {
   const getRecommendations = (goal: string) => {
-    const recommendations = {
+    const recommendations: Record<string, {
+      icon: string;
+      title: string;
+      insights: string[];
+      keyQuestions: string[];
+    }> = {
       'strategic-leadership': {
         icon: '👑',
         title: 'Strategic Leadership Learning Path',
