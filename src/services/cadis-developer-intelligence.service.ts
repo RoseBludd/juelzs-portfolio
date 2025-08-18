@@ -303,7 +303,7 @@ class CADISDeveloperIntelligenceService {
         qualityTrend
       };
     } catch (error) {
-      console.warn(`Error analyzing code submissions for ${developerId}:`, error.message);
+      console.warn(`Error analyzing code submissions for ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         total: 0, totalContentSize: 0, averageSubmissionSize: 0, 
         approvedSubmissions: 0, averageScore: 0, recentSubmissions: 0, qualityTrend: 'stable'
@@ -356,7 +356,7 @@ class CADISDeveloperIntelligenceService {
         onTimeCompletion
       };
     } catch (error) {
-      console.warn(`Error analyzing task performance for ${developerId}:`, error.message);
+      console.warn(`Error analyzing task performance for ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         totalAssignments: 0, completedTasks: 0, completionRate: 0,
         averageComplexity: 'medium', recentAssignments: 0, onTimeCompletion: 0
@@ -406,7 +406,7 @@ class CADISDeveloperIntelligenceService {
         maintenanceScore: Math.round(maintenanceScore)
       };
     } catch (error) {
-      console.warn(`Error analyzing module contributions for ${developerId}:`, error.message);
+      console.warn(`Error analyzing module contributions for ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         totalUpdates: 0, recentUpdates: 0, averageProgress: 0,
         totalTimeSpent: 0, updateTypes: [], maintenanceScore: 0
@@ -449,7 +449,7 @@ class CADISDeveloperIntelligenceService {
         latestActivity: sessionData.latest_session ? new Date(sessionData.latest_session) : null
       };
     } catch (error) {
-      console.warn(`Error analyzing work sessions for ${developerId}:`, error.message);
+      console.warn(`Error analyzing work sessions for ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         totalSessions: 0, totalHours: 0, averageSessionLength: 0,
         recentSessions: 0, consistencyScore: 0, latestActivity: null
@@ -491,7 +491,7 @@ class CADISDeveloperIntelligenceService {
         activityConsistency: Math.round(activityConsistency)
       };
     } catch (error) {
-      console.warn(`Error analyzing platform activity for ${developerId}:`, error.message);
+      console.warn(`Error analyzing platform activity for ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         totalActivities: 0, activityTypes: 0, engagementScore: 0,
         recentActivities: 0, activityConsistency: 0

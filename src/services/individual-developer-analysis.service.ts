@@ -290,7 +290,7 @@ class IndividualDeveloperAnalysisService {
         codeImplementationRate
       };
     } catch (error) {
-      console.warn(`Could not analyze modules for developer ${developerId}:`, error.message);
+      console.warn(`Could not analyze modules for developer ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         totalModules: 0,
         recentModules: 0,
@@ -331,7 +331,7 @@ class IndividualDeveloperAnalysisService {
         estimatedVsActualHours: 100 // Placeholder - would need actual time tracking
       };
     } catch (error) {
-      console.warn(`Could not analyze tasks for developer ${developerId}:`, error.message);
+      console.warn(`Could not analyze tasks for developer ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         tasksAssigned: 0,
         tasksCompleted: 0,
@@ -415,7 +415,7 @@ class IndividualDeveloperAnalysisService {
         principleAdherence: principleScore
       };
     } catch (error) {
-      console.warn(`Could not analyze code quality for developer ${developerId}:`, error.message);
+      console.warn(`Could not analyze code quality for developer ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         modularityScore: 60,
         reusabilityScore: 60,
@@ -458,7 +458,7 @@ class IndividualDeveloperAnalysisService {
         documentationQuality: Math.round(documentationQuality)
       };
     } catch (error) {
-      console.warn(`Could not analyze documentation for developer ${developerId}:`, error.message);
+      console.warn(`Could not analyze documentation for developer ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         loomVideosCreated: 0,
         scribeDocsCreated: 0,
@@ -523,7 +523,7 @@ class IndividualDeveloperAnalysisService {
         principleAlignment
       };
     } catch (error) {
-      console.warn(`Could not calculate trends for developer ${developerId}:`, error.message);
+      console.warn(`Could not calculate trends for developer ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         productivityTrend: 'stable' as const,
         qualityTrend: 'stable' as const,

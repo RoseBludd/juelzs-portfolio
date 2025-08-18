@@ -233,7 +233,7 @@ class DeveloperPerformanceAnalysisService {
         vibezClient.release();
       }
     } catch (error) {
-      console.warn('Could not get developers from VIBEZS_DB, using module contributors:', error.message);
+      console.warn('Could not get developers from VIBEZS_DB, using module contributors:', error instanceof Error ? error.message : String(error));
       
       // Fallback: get contributors from module registry
       const moduleContributors = await client.query(`
@@ -347,7 +347,7 @@ class DeveloperPerformanceAnalysisService {
         averageComplexity: totalModules > 0 ? Math.round(totalComplexity / totalModules) : 0
       };
     } catch (error) {
-      console.warn(`Could not analyze modules for developer ${developerId}:`, error.message);
+      console.warn(`Could not analyze modules for developer ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         total: 0,
         recentCount: 0,
@@ -440,7 +440,7 @@ class DeveloperPerformanceAnalysisService {
         consistencyScore
       };
     } catch (error) {
-      console.warn(`Could not analyze code quality for developer ${developerId}:`, error.message);
+      console.warn(`Could not analyze code quality for developer ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         overallScore: 60,
         modularityScore: 60,
@@ -453,20 +453,111 @@ class DeveloperPerformanceAnalysisService {
   }
 
   /**
-   * Analyze cursor chat activity (placeholder for when cursor integration is available)
+   * Analyze cursor chat activity (now with real data from VIBEZS_DB)
    */
   private async analyzeCursorActivity(client: PoolClient, developerId: string): Promise<any> {
-    // Placeholder for cursor chat analysis
-    // This would integrate with cursor chat logs when available
-    
-    return {
-      totalChats: 0,
-      recentActivity: 0,
-      problemSolvingPatterns: ['Independent research', 'Systematic debugging'],
-      learningIndicators: ['Asks clarifying questions', 'Seeks best practices'],
-      collaborationScore: 75,
-      independenceLevel: 80
-    };
+    try {
+      // Get cursor chats for this developer
+      const cursorChats = await client.query(`
+        SELECT 
+          cc.*,
+          LENGTH(cc.content) as content_length
+        FROM cursor_chats cc
+        WHERE cc.developer_id::text = $1::text
+        ORDER BY cc.created_at DESC
+      `, [developerId]);
+
+      const recentChats = await client.query(`
+        SELECT COUNT(*) as count
+        FROM cursor_chats cc
+        WHERE cc.developer_id::text = $1::text
+        AND cc.created_at > NOW() - INTERVAL '30 days'
+      `, [developerId]);
+
+      const totalChats = cursorChats.rows.length;
+      const recentActivity = parseInt(recentChats.rows[0]?.count || '0');
+
+      if (totalChats === 0) {
+        return {
+          totalChats: 0,
+          recentActivity: 0,
+          problemSolvingPatterns: ['No cursor chat data available'],
+          learningIndicators: ['Encourage cursor usage for development'],
+          collaborationScore: 50,
+          independenceLevel: 50
+        };
+      }
+
+      // Analyze chat patterns
+      let problemSolvingChats = 0;
+      let learningIndicatorChats = 0;
+      let technicalDiscussions = 0;
+      const problemSolvingPatterns: string[] = [];
+      const learningIndicators: string[] = [];
+
+      cursorChats.rows.forEach(chat => {
+        const content = (chat.content || '').toLowerCase();
+        const title = (chat.chat_title || '').toLowerCase();
+
+        // Problem-solving patterns
+        if (content.includes('error') || content.includes('bug') || content.includes('fix') || 
+            content.includes('debug') || title.includes('fix')) {
+          problemSolvingChats++;
+          problemSolvingPatterns.push('Error debugging and resolution');
+        }
+
+        if (content.includes('optimize') || content.includes('refactor') || content.includes('improve')) {
+          problemSolvingPatterns.push('Code optimization and improvement');
+        }
+
+        // Learning indicators
+        if (content.includes('how to') || content.includes('learn') || content.includes('understand') ||
+            content.includes('explain') || content.includes('what is')) {
+          learningIndicatorChats++;
+          learningIndicators.push('Seeks explanations and understanding');
+        }
+
+        if (content.includes('best practice') || content.includes('recommended') || content.includes('should i')) {
+          learningIndicators.push('Asks for best practices and guidance');
+        }
+
+        // Technical discussions
+        if (content.includes('component') || content.includes('function') || content.includes('api') ||
+            content.includes('database') || content.includes('service')) {
+          technicalDiscussions++;
+        }
+      });
+
+      // Calculate scores
+      const collaborationScore = Math.min(100, 
+        (problemSolvingChats * 15) + 
+        (technicalDiscussions * 10) + 
+        (totalChats * 3)
+      );
+
+      const independenceLevel = Math.max(20, Math.min(100,
+        100 - (learningIndicatorChats * 8) + (problemSolvingChats * 5)
+      ));
+
+      return {
+        totalChats,
+        recentActivity,
+        problemSolvingPatterns: [...new Set(problemSolvingPatterns)],
+        learningIndicators: [...new Set(learningIndicators)],
+        collaborationScore: Math.round(collaborationScore),
+        independenceLevel: Math.round(independenceLevel)
+      };
+    } catch (error) {
+      console.warn(`Error analyzing cursor activity for ${developerId}:`, error instanceof Error ? error.message : String(error));
+      return {
+        totalChats: 0,
+        recentActivity: 0,
+        problemSolvingPatterns: ['Analysis unavailable'],
+        learningIndicators: ['Cursor chat analysis pending'],
+        collaborationScore: 60,
+        independenceLevel: 70
+      };
+    }
   }
 
   /**
@@ -522,7 +613,7 @@ class DeveloperPerformanceAnalysisService {
         coachingNeeds
       };
     } catch (error) {
-      console.warn(`Could not calculate trends for developer ${developerId}:`, error.message);
+      console.warn(`Could not calculate trends for developer ${developerId}:`, error instanceof Error ? error.message : String(error));
       return {
         productivityTrend: 'stable' as const,
         qualityTrend: 'stable' as const,
