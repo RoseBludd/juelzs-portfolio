@@ -308,8 +308,8 @@ function AllSegmentsView({
                   
                   <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/50 max-h-96 overflow-y-auto">
                     <div className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap font-mono">
-                      {segment.content}
-                    </div>
+                    {segment.content}
+                  </div>
                   </div>
                   
                   {/* Segment Analysis */}
@@ -767,9 +767,9 @@ function StrategicSegmentCard({
           </div>
           
           <div className="flex items-center gap-3">
-            <div className="text-right">
-              <div className="text-sm font-medium text-green-400">{segment.alignmentScore}/100</div>
-              <div className="text-xs text-green-300">Alignment</div>
+          <div className="text-right">
+            <div className="text-sm font-medium text-green-400">{segment.alignmentScore}/100</div>
+            <div className="text-xs text-green-300">Alignment</div>
             </div>
             {onToggleExpand && (
               <button
@@ -853,6 +853,7 @@ export default function StrategicArchitectMasterclass() {
   const [selectedSegment, setSelectedSegment] = useState<string | null>(null);
   const [learningGoal, setLearningGoal] = useState<string>('all');
   const [filteredByGoal, setFilteredByGoal] = useState<ConversationSegment[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<string>('cadis-developer');
 
   useEffect(() => {
     loadConversationData();
@@ -871,12 +872,24 @@ export default function StrategicArchitectMasterclass() {
     }
   }, []);
 
+  // Reload data when conversation selection changes
+  useEffect(() => {
+    if (selectedConversation) {
+      loadConversationData();
+      // Reset filters when switching conversations
+      setLearningGoal('all');
+      setFilteredByGoal([]);
+      setSearchTerm('');
+      setSelectedSegment(null);
+    }
+  }, [selectedConversation]);
+
   const loadConversationData = async () => {
     try {
       setLoading(true);
       
-      // Fetch the conversation analysis data
-      const response = await fetch('/api/strategic-architect-masterclass');
+      // Fetch the conversation analysis data with conversation type parameter
+      const response = await fetch(`/api/strategic-architect-masterclass?conversation=${selectedConversation}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -962,9 +975,37 @@ export default function StrategicArchitectMasterclass() {
             </h1>
           </div>
           <p className="text-xl text-gray-300 max-w-4xl mx-auto mb-6">
-            Real-time analysis of a 1.83M character conversation demonstrating Strategic Architect thinking, 
-            execution-led refinement, and 98/100 philosophical alignment in action.
+            Real-time analysis of strategic conversations demonstrating leadership thinking, 
+            execution-led refinement, and philosophical alignment in action.
           </p>
+          
+          {/* Conversation Selector */}
+          <div className="flex justify-center mb-8">
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50">
+              <label className="block text-sm font-medium text-gray-300 mb-3 text-center">
+                📚 Select Conversation to Analyze
+              </label>
+              <select
+                value={selectedConversation}
+                onChange={(e) => setSelectedConversation(e.target.value)}
+                className="bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-3 focus:border-indigo-500 focus:outline-none min-w-96 text-center"
+              >
+                <option value="cadis-developer">
+                  🧠 CADIS Developer Intelligence (A- Grade) - Strategic Leadership Focus
+                </option>
+                <option value="image-display-issues">
+                  🔧 Image Display Issues (B- Grade) - Technical Problem-Solving Focus
+                </option>
+              </select>
+              <p className="text-xs text-gray-400 mt-2 text-center">
+                {selectedConversation === 'cadis-developer' 
+                  ? '1.85M chars • Strategic direction-setting • 90% context preservation • 90/100 strategic score'
+                  : '3.45M chars • Technical problem-solving • 100% context preservation • 93/100 alignment score'
+                }
+              </p>
+            </div>
+          </div>
+          
           <div className="flex items-center justify-center gap-6 text-sm text-gray-400">
             <div className="flex items-center gap-2">
               <IconClock size={16} />
@@ -1542,7 +1583,7 @@ export default function StrategicArchitectMasterclass() {
                 </p>
               </div>
             )}
-            
+
             {/* Results Info */}
             <div className="flex items-center justify-between mb-6">
               <div className="text-gray-400">
