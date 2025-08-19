@@ -62,7 +62,7 @@ interface ConversationAnalysis {
 function ExecutionPrincipleView({ segments }: { segments: ConversationSegment[] }) {
   const executionSegments = segments.filter(segment => 
     segment.speaker === 'User' && 
-    segment.content.toLowerCase().match(/\b(proceed|implement|build|create|fix|solve|execute|action|do it|make sure)\b/g)
+    segment.content.toLowerCase().match(/\b(proceed|implement|build|create|fix|solve|execute|action|do it|make sure|ensure|verify|confirm|analyze)\b/g)
   );
 
   return (
@@ -74,14 +74,21 @@ function ExecutionPrincipleView({ segments }: { segments: ConversationSegment[] 
         </p>
       </div>
       
-      {executionSegments.slice(0, 15).map((segment, index) => (
-        <PrincipleSegmentCard 
-          key={segment.id} 
-          segment={segment} 
-          principleColor="green"
-          principleKeywords={['proceed', 'implement', 'build', 'create', 'execute', 'make sure']}
-        />
-      ))}
+      {executionSegments.length > 0 ? (
+        executionSegments.slice(0, 15).map((segment, index) => (
+          <PrincipleSegmentCard 
+            key={segment.id} 
+            segment={segment} 
+            principleColor="green"
+            principleKeywords={['proceed', 'implement', 'build', 'create', 'execute', 'make sure', 'ensure', 'verify', 'confirm', 'analyze']}
+          />
+        ))
+      ) : (
+        <div className="text-center py-8 text-gray-400">
+          <p>No execution-focused moments found in this conversation.</p>
+          <p className="text-sm mt-2">This conversation may focus more on other principles like problem-solving or system thinking.</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -89,7 +96,7 @@ function ExecutionPrincipleView({ segments }: { segments: ConversationSegment[] 
 function ModularityPrincipleView({ segments }: { segments: ConversationSegment[] }) {
   const modularitySegments = segments.filter(segment => 
     segment.speaker === 'User' && 
-    segment.content.toLowerCase().match(/\b(modular|component|service|singleton|module|reusable|separate|individual)\b/g)
+    segment.content.toLowerCase().match(/\b(modular|component|service|singleton|module|reusable|separate|individual|architecture|system|structure)\b/g)
   );
 
   return (
@@ -101,14 +108,21 @@ function ModularityPrincipleView({ segments }: { segments: ConversationSegment[]
         </p>
       </div>
       
-      {modularitySegments.slice(0, 15).map((segment, index) => (
-        <PrincipleSegmentCard 
-          key={segment.id} 
-          segment={segment} 
-          principleColor="blue"
-          principleKeywords={['modular', 'component', 'service', 'singleton', 'module', 'separate']}
-        />
-      ))}
+      {modularitySegments.length > 0 ? (
+        modularitySegments.slice(0, 15).map((segment, index) => (
+          <PrincipleSegmentCard 
+            key={segment.id} 
+            segment={segment} 
+            principleColor="blue"
+            principleKeywords={['modular', 'component', 'service', 'singleton', 'module', 'separate', 'architecture', 'system', 'structure']}
+          />
+        ))
+      ) : (
+        <div className="text-center py-8 text-gray-400">
+          <p>No modularity-focused moments found in this conversation.</p>
+          <p className="text-sm mt-2">This conversation may focus more on other principles like execution or problem-solving.</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -128,14 +142,21 @@ function ReusabilityPrincipleView({ segments }: { segments: ConversationSegment[
         </p>
       </div>
       
-      {reusabilitySegments.slice(0, 15).map((segment, index) => (
-        <PrincipleSegmentCard 
-          key={segment.id} 
-          segment={segment} 
-          principleColor="purple"
-          principleKeywords={['reusable', 'framework', 'pattern', 'systematic', 'scale', 'comprehensive']}
-        />
-      ))}
+      {reusabilitySegments.length > 0 ? (
+        reusabilitySegments.slice(0, 15).map((segment, index) => (
+          <PrincipleSegmentCard 
+            key={segment.id} 
+            segment={segment} 
+            principleColor="purple"
+            principleKeywords={['reusable', 'framework', 'pattern', 'systematic', 'scale', 'comprehensive', 'standard', 'consistent']}
+          />
+        ))
+      ) : (
+        <div className="text-center py-8 text-gray-400">
+          <p>No reusability-focused moments found in this conversation.</p>
+          <p className="text-sm mt-2">This conversation may focus more on other principles like execution or modularity.</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -155,14 +176,21 @@ function TeachabilityPrincipleView({ segments }: { segments: ConversationSegment
         </p>
       </div>
       
-      {teachabilitySegments.slice(0, 15).map((segment, index) => (
-        <PrincipleSegmentCard 
-          key={segment.id} 
-          segment={segment} 
-          principleColor="yellow"
-          principleKeywords={['document', 'explain', 'understand', 'define', 'analyze', 'styles']}
-        />
-      ))}
+      {teachabilitySegments.length > 0 ? (
+        teachabilitySegments.slice(0, 15).map((segment, index) => (
+          <PrincipleSegmentCard 
+            key={segment.id} 
+            segment={segment} 
+            principleColor="yellow"
+            principleKeywords={['document', 'explain', 'understand', 'define', 'analyze', 'styles', 'investigate', 'study']}
+          />
+        ))
+      ) : (
+        <div className="text-center py-8 text-gray-400">
+          <p>No teachability-focused moments found in this conversation.</p>
+          <p className="text-sm mt-2">This conversation may focus more on other principles like execution or problem-solving.</p>
+        </div>
+      )}
     </div>
   );
 }
