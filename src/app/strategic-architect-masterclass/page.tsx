@@ -61,7 +61,7 @@ interface ConversationAnalysis {
 // Principle View Components
 function ExecutionPrincipleView({ segments }: { segments: ConversationSegment[] }) {
   const executionSegments = segments.filter(segment => 
-    segment.speaker === 'User' && 
+    (segment.speaker === 'User' || segment.speaker === 'Exchange') && 
     segment.content.toLowerCase().match(/\b(proceed|implement|build|create|fix|solve|execute|action|do it|make sure|ensure|verify|confirm|analyze)\b/g)
   );
 
@@ -76,10 +76,10 @@ function ExecutionPrincipleView({ segments }: { segments: ConversationSegment[] 
       
       {executionSegments.length > 0 ? (
         executionSegments.slice(0, 15).map((segment, index) => (
-          <PrincipleSegmentCard 
-            key={segment.id} 
-            segment={segment} 
-            principleColor="green"
+        <PrincipleSegmentCard 
+          key={segment.id} 
+          segment={segment} 
+          principleColor="green"
             principleKeywords={['proceed', 'implement', 'build', 'create', 'execute', 'make sure', 'ensure', 'verify', 'confirm', 'analyze']}
           />
         ))
@@ -110,10 +110,10 @@ function ModularityPrincipleView({ segments }: { segments: ConversationSegment[]
       
       {modularitySegments.length > 0 ? (
         modularitySegments.slice(0, 15).map((segment, index) => (
-          <PrincipleSegmentCard 
-            key={segment.id} 
-            segment={segment} 
-            principleColor="blue"
+        <PrincipleSegmentCard 
+          key={segment.id} 
+          segment={segment} 
+          principleColor="blue"
             principleKeywords={['modular', 'component', 'service', 'singleton', 'module', 'separate', 'architecture', 'system', 'structure']}
           />
         ))
@@ -129,8 +129,8 @@ function ModularityPrincipleView({ segments }: { segments: ConversationSegment[]
 
 function ReusabilityPrincipleView({ segments }: { segments: ConversationSegment[] }) {
   const reusabilitySegments = segments.filter(segment => 
-    segment.speaker === 'User' && 
-    segment.content.toLowerCase().match(/\b(reusable|framework|pattern|template|systematic|scale|optimize|comprehensive)\b/g)
+    (segment.speaker === 'User' || segment.speaker === 'Exchange') && 
+    segment.content.toLowerCase().match(/\b(reusable|framework|pattern|template|systematic|scale|optimize|comprehensive|standard|consistent)\b/g)
   );
 
   return (
@@ -144,10 +144,10 @@ function ReusabilityPrincipleView({ segments }: { segments: ConversationSegment[
       
       {reusabilitySegments.length > 0 ? (
         reusabilitySegments.slice(0, 15).map((segment, index) => (
-          <PrincipleSegmentCard 
-            key={segment.id} 
-            segment={segment} 
-            principleColor="purple"
+        <PrincipleSegmentCard 
+          key={segment.id} 
+          segment={segment} 
+          principleColor="purple"
             principleKeywords={['reusable', 'framework', 'pattern', 'systematic', 'scale', 'comprehensive', 'standard', 'consistent']}
           />
         ))
@@ -163,8 +163,8 @@ function ReusabilityPrincipleView({ segments }: { segments: ConversationSegment[
 
 function TeachabilityPrincipleView({ segments }: { segments: ConversationSegment[] }) {
   const teachabilitySegments = segments.filter(segment => 
-    segment.speaker === 'User' && 
-    segment.content.toLowerCase().match(/\b(document|explain|understand|framework|define|teach|learn|analyze|styles|difference)\b/g)
+    (segment.speaker === 'User' || segment.speaker === 'Exchange') && 
+    segment.content.toLowerCase().match(/\b(document|explain|understand|framework|define|teach|learn|analyze|styles|difference|investigate|study)\b/g)
   );
 
   return (
@@ -178,10 +178,10 @@ function TeachabilityPrincipleView({ segments }: { segments: ConversationSegment
       
       {teachabilitySegments.length > 0 ? (
         teachabilitySegments.slice(0, 15).map((segment, index) => (
-          <PrincipleSegmentCard 
-            key={segment.id} 
-            segment={segment} 
-            principleColor="yellow"
+        <PrincipleSegmentCard 
+          key={segment.id} 
+          segment={segment} 
+          principleColor="yellow"
             principleKeywords={['document', 'explain', 'understand', 'define', 'analyze', 'styles', 'investigate', 'study']}
           />
         ))
@@ -1321,13 +1321,18 @@ export default function StrategicArchitectMasterclass() {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-green-400">
-                    {Math.round(conversationData.filter(s => s.speaker === 'User').reduce((sum, s) => sum + s.strategicScore, 0) / Math.max(conversationData.filter(s => s.speaker === 'User').length, 1)) || 0}/100
+                    {(() => {
+                      const strategicSegments = conversationData.filter(s => (s.speaker === 'User' || s.speaker === 'Exchange') && s.strategicScore > 0);
+                      return strategicSegments.length > 0 
+                        ? Math.round(strategicSegments.reduce((sum, s) => sum + s.strategicScore, 0) / strategicSegments.length)
+                        : 0;
+                    })()}/100
                   </div>
                   <div className="text-sm text-gray-400">Avg Strategic Score</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-indigo-400">
-                    {conversationData.filter(s => s.speaker === 'User' && s.strategicScore >= 70).length}
+                    {conversationData.filter(s => (s.speaker === 'User' || s.speaker === 'Exchange') && s.strategicScore >= 70).length}
                   </div>
                   <div className="text-sm text-gray-400">Strategic Patterns</div>
                 </div>
@@ -1566,8 +1571,8 @@ export default function StrategicArchitectMasterclass() {
                 If it needs to be done, do it
                 <span className="ml-2 text-xs bg-green-500/20 px-2 py-1 rounded">
                   {conversationData.filter(s => 
-                    s.speaker === 'User' && 
-                    s.content.toLowerCase().match(/\b(proceed|implement|build|create|fix|solve|execute|action|do it|make sure|ensure|verify|confirm)\b/g)
+                    (s.speaker === 'User' || s.speaker === 'Exchange') && 
+                    s.content.toLowerCase().match(/\b(proceed|implement|build|create|fix|solve|execute|action|do it|make sure|ensure|verify|confirm|analyze)\b/g)
                   ).length}
                 </span>
               </button>
@@ -1583,7 +1588,7 @@ export default function StrategicArchitectMasterclass() {
                 Make it modular
                 <span className="ml-2 text-xs bg-blue-500/20 px-2 py-1 rounded">
                   {conversationData.filter(s => 
-                    s.speaker === 'User' && 
+                    (s.speaker === 'User' || s.speaker === 'Exchange') && 
                     s.content.toLowerCase().match(/\b(modular|component|service|singleton|module|reusable|separate|individual|architecture|system)\b/g)
                   ).length}
                 </span>
@@ -1600,7 +1605,7 @@ export default function StrategicArchitectMasterclass() {
                 Make it reusable
                 <span className="ml-2 text-xs bg-purple-500/20 px-2 py-1 rounded">
                   {conversationData.filter(s => 
-                    s.speaker === 'User' && 
+                    (s.speaker === 'User' || s.speaker === 'Exchange') && 
                     s.content.toLowerCase().match(/\b(reusable|framework|pattern|template|systematic|scale|standard|consistent)\b/g)
                   ).length}
                 </span>
@@ -1617,7 +1622,7 @@ export default function StrategicArchitectMasterclass() {
                 Make it teachable
                 <span className="ml-2 text-xs bg-yellow-500/20 px-2 py-1 rounded">
                   {conversationData.filter(s => 
-                    s.speaker === 'User' && 
+                    (s.speaker === 'User' || s.speaker === 'Exchange') && 
                     s.content.toLowerCase().match(/\b(document|explain|understand|framework|define|teach|learn|analyze|study|investigate)\b/g)
                   ).length}
                 </span>
@@ -1633,7 +1638,7 @@ export default function StrategicArchitectMasterclass() {
                 <span className="mr-2">🧠</span>
                 Strategic Patterns
                 <span className="ml-2 text-xs bg-indigo-500/20 px-2 py-1 rounded">
-                  {conversationData.filter(s => s.speaker === 'User' && s.strategicScore >= 70).length}
+                  {conversationData.filter(s => (s.speaker === 'User' || s.speaker === 'Exchange') && s.strategicScore >= 70).length}
                 </span>
               </button>
             </div>

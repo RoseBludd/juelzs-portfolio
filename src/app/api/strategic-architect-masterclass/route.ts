@@ -574,7 +574,11 @@ function generateOverallAnalysis(content: string, segments: any[], conversationT
 
   return {
     totalCharacters: content.length,
-    totalExchanges: segments.filter(s => s.speaker === 'User').length, // Count user messages as exchanges
+    totalExchanges: Math.max(
+      segments.filter(s => s.speaker === 'User').length,
+      segments.filter(s => s.speaker === 'Exchange').length,
+      Math.floor(segments.length / 2)
+    ), // Count exchanges properly for both conversation types
     strategicRatio: actualStrategicRatio,
     philosophicalAlignment: Math.max(conversationType === 'image-display-issues' ? 93 : 98, avgAlignmentScore),
     keyMoments: analysisData.keyMoments,
