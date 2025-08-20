@@ -17,11 +17,11 @@ export async function POST(request: NextRequest) {
     const client = await dbService.getClient();
     
     try {
-      // Get all journal entries for analysis
+      // Get all journal entries for analysis (original content only)
       const entriesQuery = await client.query(`
         SELECT 
           id, title, content, category, tags, 
-          ai_analysis, created_at, updated_at
+          created_at, updated_at
         FROM journal_entries 
         WHERE is_private = false OR is_private IS NULL
         ORDER BY created_at DESC

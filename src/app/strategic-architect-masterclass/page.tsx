@@ -1024,11 +1024,16 @@ export default function StrategicArchitectMasterclass() {
                 <option value="image-display-issues">
                   🔧 Image Display Issues (B- Grade) - Technical Problem-Solving Focus
                 </option>
+                <option value="genius-game-development">
+                  🎮 Genius Game Development (A Grade) - Progressive Enhancement Focus
+                </option>
               </select>
               <p className="text-xs text-gray-400 mt-2 text-center">
                 {selectedConversation === 'cadis-developer' 
                   ? '1.85M chars • Strategic direction-setting • 90% context preservation • 90/100 strategic score'
-                  : '3.45M chars • Technical problem-solving • 100% context preservation • 93/100 alignment score'
+                  : selectedConversation === 'image-display-issues'
+                  ? '3.45M chars • Technical problem-solving • 100% context preservation • 93/100 alignment score'
+                  : '85K chars • Progressive enhancement • 100% context preservation • 88/100 strategic score'
                 }
               </p>
             </div>

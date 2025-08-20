@@ -46,6 +46,31 @@ export async function GET(request: NextRequest) {
           analysis: null
         });
       }
+    } else if (conversationType === 'genius-game-development') {
+      // Load genius game development conversation
+      const fs = require('fs');
+      const filePath = 'conversations/genius-game-development-gemini.md';
+      
+      try {
+        content = fs.readFileSync(filePath, 'utf8');
+        metadata = {
+          conversationId: 'genius-game-development',
+          title: 'Genius Game Development with Gemini AI',
+          developerName: 'Strategic Architect',
+          role: 'strategic_architect',
+          createdAt: new Date('2025-08-20'),
+          totalCharacters: content.length,
+          source: 'file_system'
+        };
+        console.log(`📊 Loaded genius game conversation: ${content.length.toLocaleString()} characters`);
+      } catch (fileError) {
+        console.error('Error reading genius game conversation file:', fileError);
+        return NextResponse.json({
+          error: 'Genius game conversation file not found',
+          segments: [],
+          analysis: null
+        });
+      }
     } else {
       // Get the conversation from cursor_chats database (default: CADIS)
       const client = getClient();
@@ -508,7 +533,38 @@ function generateOverallAnalysis(content: string, segments: any[], conversationT
   const technicalPatterns = (lowerContent.match(/\b(error|bug|fix|debug|code|script|function|api|database|sql)\b/g) || []).length;
   const actualStrategicRatio = Math.round((strategicPatterns / (strategicPatterns + technicalPatterns)) * 100);
   
-  const analysisData = conversationType === 'image-display-issues' ? {
+  const analysisData = conversationType === 'genius-game-development' ? {
+    keyMoments: [
+      'proceed with what needs to be done. make it to where i have a selection as well with the department',
+      'instead of naming live simulation, it should be genius. then proceed with everything else we need as progressive enhancement',
+      'lets add to where we use veo and once we make our changes, it shows cinematically',
+      'it should give them analysis on what they did that made them fail and how to shift the mindset properly. not give them the answer',
+      'make sure it functions, even if veo is at capacity.. it should show everything else',
+      'in the simulations though, ensure they can enter text so can be analyze based on their real choices'
+    ],
+    evolutionPhases: [
+      {
+        phase: 'Initial Enhancement',
+        focus: 'Department selection and dashboard creation',
+        strategicIntensity: 82
+      },
+      {
+        phase: 'Progressive Enhancement',
+        focus: 'Iterative feature development and user experience',
+        strategicIntensity: 88
+      },
+      {
+        phase: 'Advanced Integration',
+        focus: 'AI integration and dynamic analysis systems',
+        strategicIntensity: 90
+      },
+      {
+        phase: 'User Experience Optimization',
+        focus: 'Graceful degradation and alternative solutions',
+        strategicIntensity: 85
+      }
+    ]
+  } : conversationType === 'image-display-issues' ? {
     keyMoments: [
       'im still not seeing the images unfortunately... analyze properly and ensure you are making the right approach',
       'this is the reason that everything should be singleton services and decoupled',
@@ -580,7 +636,11 @@ function generateOverallAnalysis(content: string, segments: any[], conversationT
       Math.floor(segments.length / 2)
     ), // Count exchanges properly for both conversation types
     strategicRatio: actualStrategicRatio,
-    philosophicalAlignment: Math.max(conversationType === 'image-display-issues' ? 93 : 98, avgAlignmentScore),
+    philosophicalAlignment: Math.max(
+      conversationType === 'image-display-issues' ? 93 : 
+      conversationType === 'genius-game-development' ? 95 : 98, 
+      avgAlignmentScore
+    ),
     keyMoments: analysisData.keyMoments,
     evolutionPhases: analysisData.evolutionPhases,
     conversationType
