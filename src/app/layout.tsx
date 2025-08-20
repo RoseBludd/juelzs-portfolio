@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AppInitializer from "@/components/AppInitializer";
+import AdminKeyboardShortcut from "@/components/AdminKeyboardShortcut";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -92,6 +93,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-900 text-gray-100`}
       >
         <AppInitializer />
+        <AdminKeyboardShortcut />
         <Header />
         <main className="min-h-screen pt-16">
           {children}

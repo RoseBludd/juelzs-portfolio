@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkAdminAuth } from '@/lib/auth';
 import CADISJournalService from '@/services/cadis-journal.service';
+import CADISGeniusGameIntelligenceService from '@/services/cadis-genius-game-intelligence.service';
 
 export async function POST(request: NextRequest) {
   // Check admin authentication
@@ -15,19 +16,21 @@ export async function POST(request: NextRequest) {
 
     console.log('🧠 CADIS generating new ecosystem insights...');
 
-    // Generate different types of insights including creative intelligence and journal analysis
+    // Generate different types of insights including creative intelligence, journal analysis, and Genius Game intelligence
     const [
       ecosystemInsight,
       moduleInsights,
       dreamStateInsight,
       creativeInsights,
-      journalAnalysisDream
+      journalAnalysisDream,
+      geniusGameInsight
     ] = await Promise.all([
       cadisService.generateEcosystemInsight(),
       cadisService.analyzeModuleRegistryChanges(),
       cadisService.generateDreamStatePredictions(),
       cadisService.generateCreativeIntelligence(),
-      cadisService.generateJournalAnalysisDream()
+      cadisService.generateJournalAnalysisDream(),
+      CADISGeniusGameIntelligenceService.getInstance().generateGeniusGameIntelligence()
     ]);
 
     const generatedEntries = [];
@@ -56,14 +59,19 @@ export async function POST(request: NextRequest) {
       await cadisService.createCADISEntry(journalAnalysisDream);
       generatedEntries.push(journalAnalysisDream);
     }
+    
+    if (geniusGameInsight) {
+      await cadisService.createCADISEntry(geniusGameInsight);
+      generatedEntries.push(geniusGameInsight);
+    }
 
-    console.log(`✅ Generated ${generatedEntries.length} CADIS insights`);
+    console.log(`✅ Generated ${generatedEntries.length} CADIS insights (including Genius Game intelligence)`);
 
     return NextResponse.json({ 
       success: true, 
       generated: generatedEntries.length,
-      insights: generatedEntries.map(e => ({
-        id: e.id,
+      insights: generatedEntries.map((e, index) => ({
+        id: (e as any).id || `generated_${index}`,
         title: e.title,
         category: e.category,
         confidence: e.confidence,

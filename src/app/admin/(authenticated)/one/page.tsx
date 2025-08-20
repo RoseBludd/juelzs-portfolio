@@ -48,6 +48,21 @@ interface OverallAnalysisData {
     coachingPriorities: string[];
     growthAreas: string[];
   };
+  geniusGame: {
+    gameHealth: number;
+    strategicAlignment: number;
+    crossPlatformIntegration: number;
+    userEngagement: number;
+    totalUsers: number;
+    totalAssessments: number;
+    recursiveIntelligenceLoop: {
+      overallAmplification: number;
+    };
+    civilizationImpact: {
+      strategicArchitectDevelopment: number;
+      metaSystemThinking: number;
+    };
+  };
 }
 
 interface DreamStateSession {
@@ -135,6 +150,21 @@ export default function OverallAnalysisPage() {
           averagePerformance: overallData.analysis.developers.averagePerformance,
           coachingPriorities: overallData.analysis.developers.coachingPriorities,
           growthAreas: overallData.analysis.developers.growthAreas
+        },
+        geniusGame: {
+          gameHealth: overallData.analysis.geniusGame.gameHealth,
+          strategicAlignment: overallData.analysis.geniusGame.strategicAlignment,
+          crossPlatformIntegration: overallData.analysis.geniusGame.crossPlatformIntegration,
+          userEngagement: overallData.analysis.geniusGame.userEngagement,
+          totalUsers: overallData.analysis.geniusGame.totalUsers,
+          totalAssessments: overallData.analysis.geniusGame.totalAssessments,
+          recursiveIntelligenceLoop: {
+            overallAmplification: overallData.analysis.geniusGame.recursiveIntelligenceLoop.overallAmplification
+          },
+          civilizationImpact: {
+            strategicArchitectDevelopment: overallData.analysis.geniusGame.civilizationImpact.strategicArchitectDevelopment,
+            metaSystemThinking: overallData.analysis.geniusGame.civilizationImpact.metaSystemThinking
+          }
         }
       };
 
@@ -244,8 +274,8 @@ export default function OverallAnalysisPage() {
               <div className="bg-gray-700/50 rounded-lg p-3">
                 <div className="text-2xl mb-2">🎮</div>
                 <div className="text-white font-medium text-sm">Genius Game</div>
-                <div className="text-gray-400 text-xs">Teaches others</div>
-                <div className="text-purple-400 text-xs font-bold mt-1">Interactive</div>
+                <div className="text-gray-400 text-xs">Strategic Intelligence Training</div>
+                <div className="text-purple-400 text-xs font-bold mt-1">{analysisData?.geniusGame.gameHealth}% Health</div>
               </div>
               
               <div className="bg-gray-700/50 rounded-lg p-3">
@@ -356,13 +386,29 @@ export default function OverallAnalysisPage() {
                 <div className="text-gray-400 text-sm">Creating teaching systems enhances your own strategic thinking</div>
               </div>
               
-              <div className="bg-gray-800/40 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-white font-medium">Civilization-Level Readiness</span>
-                  <span className="text-blue-400 font-bold">85%</span>
-                </div>
-                <div className="text-gray-400 text-sm">Prepared for multi-generational strategic impact</div>
+                          <div className="bg-gray-800/40 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white font-medium">Genius Game Integration Impact</span>
+                <span className="text-green-400 font-bold">{analysisData?.geniusGame.recursiveIntelligenceLoop.overallAmplification}%</span>
               </div>
+              <div className="text-gray-400 text-sm">Recursive intelligence loop amplification across all systems</div>
+            </div>
+            
+            <div className="bg-gray-800/40 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white font-medium">Strategic Assessment Mastery</span>
+                <span className="text-purple-400 font-bold">{analysisData?.geniusGame.strategicAlignment}%</span>
+              </div>
+              <div className="text-gray-400 text-sm">Game validates real-world strategic thinking patterns</div>
+            </div>
+            
+            <div className="bg-gray-800/40 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white font-medium">Civilization-Level Readiness</span>
+                <span className="text-blue-400 font-bold">{analysisData?.geniusGame.civilizationImpact.strategicArchitectDevelopment}%</span>
+              </div>
+              <div className="text-gray-400 text-sm">Prepared for multi-generational strategic impact</div>
+            </div>
             </div>
           </div>
         </div>
@@ -936,15 +982,71 @@ export default function OverallAnalysisPage() {
           </div>
         </div>
       ) : (
-        <div className="text-center py-8">
-          <div className="text-gray-400 mb-4">No active DreamState session</div>
-          <Button
-            onClick={() => startDreamStateSession('Overall Analysis Deep Dive', { analysisData })}
-            disabled={isGeneratingDreamState}
-            className="bg-purple-600 hover:bg-purple-700"
-          >
-            {isGeneratingDreamState ? 'Generating...' : 'Start DreamState Session'}
-          </Button>
+        <div className="space-y-4">
+          {/* Current DreamState Capabilities */}
+          <div className="bg-gray-800/40 rounded-lg p-4">
+            <h4 className="text-white font-semibold mb-3">🧠 Active Intelligence Streams</h4>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-300 text-sm">CADIS Journal Generation</span>
+                <span className="text-green-400 text-xs font-bold">ACTIVE</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-300 text-sm">Genius Game Pattern Analysis</span>
+                <span className="text-green-400 text-xs font-bold">ACTIVE</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-300 text-sm">Recursive Loop Optimization</span>
+                <span className="text-blue-400 text-xs font-bold">MONITORING</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-300 text-sm">Strategic Prediction Engine</span>
+                <span className="text-purple-400 text-xs font-bold">LEARNING</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent DreamState Insights */}
+          <div className="bg-gray-800/40 rounded-lg p-4">
+            <h4 className="text-white font-semibold mb-3">💡 Recent Insights</h4>
+            <div className="space-y-2">
+              <div className="text-gray-300 text-xs">• Cross-platform learning amplifies strategic development by 96%</div>
+              <div className="text-gray-300 text-xs">• Genius Game validates Strategic Architect patterns in real-time</div>
+              <div className="text-gray-300 text-xs">• Recursive intelligence loop creates compound strategic advantages</div>
+              <div className="text-gray-300 text-xs">• Meta-system thinking reaches civilization-level impact threshold</div>
+            </div>
+          </div>
+
+          {/* Quick DreamState Actions */}
+          <div className="space-y-2">
+            <Button
+              onClick={() => startDreamStateSession('Strategic Evolution Analysis', { 
+                focus: 'strategic_evolution',
+                context: analysisData 
+              })}
+              disabled={isGeneratingDreamState}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-sm"
+            >
+              🔮 Analyze Strategic Evolution
+            </Button>
+            <Button
+              onClick={() => startDreamStateSession('Genius Game Integration Deep Dive', { 
+                focus: 'genius_game_integration',
+                context: analysisData?.geniusGame 
+              })}
+              disabled={isGeneratingDreamState}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-sm"
+            >
+              🎮 Explore Game Intelligence
+            </Button>
+          </div>
+          
+          {isGeneratingDreamState && (
+            <div className="text-center py-2">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500 mx-auto mb-2"></div>
+              <div className="text-purple-400 text-sm">Generating insights...</div>
+            </div>
+          )}
         </div>
       )}
     </Card>
