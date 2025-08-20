@@ -9,7 +9,221 @@ import JournalStats from '@/components/ui/JournalStats';
 import JournalTemplates from '@/components/ui/JournalTemplates';
 import { JournalEntry, JournalStats as JournalStatsType, JournalSearchFilters } from '@/services/journal.service';
 
-type TabType = 'entries' | 'analytics' | 'reminders' | 'settings';
+type TabType = 'entries' | 'analytics' | 'cadis-analysis' | 'reminders' | 'settings';
+
+// CADIS Analysis Tab Component
+function CADISAnalysisTab({ 
+  entries, 
+  cadisAnalysis, 
+  setCadisAnalysis, 
+  isAnalyzing, 
+  setIsAnalyzing 
+}: {
+  entries: JournalEntry[];
+  cadisAnalysis: any;
+  setCadisAnalysis: (analysis: any) => void;
+  isAnalyzing: boolean;
+  setIsAnalyzing: (analyzing: boolean) => void;
+}) {
+  const generateCADISAnalysis = async () => {
+    try {
+      setIsAnalyzing(true);
+      
+      const response = await fetch('/api/admin/journal/cadis-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate CADIS analysis');
+      }
+      
+      const data = await response.json();
+      setCadisAnalysis(data.analysis);
+      
+    } catch (error) {
+      console.error('Error generating CADIS analysis:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-medium text-white mb-2">🧠 CADIS Journal Analysis</h3>
+          <p className="text-gray-400 text-sm">
+            CADIS analyzes your journal entries to understand your thinking patterns, philosophical alignment, and strategic evolution
+          </p>
+        </div>
+        <Button 
+          onClick={generateCADISAnalysis}
+          disabled={isAnalyzing || entries.length === 0}
+          className="bg-purple-600 hover:bg-purple-700"
+        >
+          {isAnalyzing ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Analyzing...
+            </>
+          ) : (
+            '🧠 Generate Analysis'
+          )}
+        </Button>
+      </div>
+
+      {entries.length === 0 && (
+        <div className="text-center py-12 bg-gray-800/50 rounded-lg border border-gray-700">
+          <div className="text-gray-400 mb-4 text-4xl">📝</div>
+          <h4 className="text-white font-medium mb-2">No Journal Entries Found</h4>
+          <p className="text-gray-400 text-sm">
+            Create some journal entries first, then CADIS can analyze your thinking patterns and philosophical alignment.
+          </p>
+        </div>
+      )}
+
+      {cadisAnalysis && (
+        <div className="space-y-6">
+          {/* Overall Analysis Summary */}
+          <div className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 rounded-lg p-6 border border-purple-500/20">
+            <h4 className="text-xl font-semibold text-purple-300 mb-4 flex items-center gap-3">
+              🧠 CADIS Analysis Summary
+              <span className="px-3 py-1 bg-purple-600/20 text-purple-300 rounded-full text-sm">
+                {entries.length} entries analyzed
+              </span>
+            </h4>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h5 className="font-semibold text-white mb-3">📊 Thinking Patterns</h5>
+                <div className="space-y-3">
+                  {cadisAnalysis.thinkingPatterns?.map((pattern: any, index: number) => (
+                    <div key={index} className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-purple-300 font-medium">{pattern.type}</span>
+                        <span className="text-gray-400 text-sm">{pattern.frequency}%</span>
+                      </div>
+                      <p className="text-gray-300 text-sm">{pattern.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <h5 className="font-semibold text-white mb-3">🎯 Philosophical Alignment</h5>
+                <div className="space-y-3">
+                  {Object.entries(cadisAnalysis.philosophicalAlignment || {}).map(([principle, score]: [string, any]) => (
+                    <div key={principle} className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-indigo-300 font-medium capitalize">{principle.replace(/([A-Z])/g, ' $1')}</span>
+                        <span className="text-green-400 font-bold">{score}/100</span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${score}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Strategic Evolution Timeline */}
+          {cadisAnalysis.evolutionTimeline && (
+            <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+              <h4 className="text-lg font-semibold text-white mb-4">📈 Strategic Evolution Timeline</h4>
+              <div className="space-y-4">
+                {cadisAnalysis.evolutionTimeline.map((phase: any, index: number) => (
+                  <div key={index} className="flex items-start gap-4">
+                    <div className="w-8 h-8 bg-indigo-500/20 rounded-full flex items-center justify-center border-2 border-indigo-500/30">
+                      <span className="text-indigo-300 text-sm font-bold">{index + 1}</span>
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="font-medium text-white">{phase.phase}</h5>
+                      <p className="text-gray-400 text-sm mt-1">{phase.description}</p>
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="text-xs text-gray-500">Period: {phase.period}</span>
+                        <span className="text-xs text-green-400">Growth: {phase.growthScore}/100</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Dream Exploration Node */}
+          {cadisAnalysis.dreamExploration && (
+            <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-lg p-6 border border-cyan-500/20">
+              <h4 className="text-lg font-semibold text-cyan-300 mb-4 flex items-center gap-3">
+                🌟 Journal Dream Exploration
+                <span className="px-2 py-1 bg-cyan-600/20 text-cyan-300 rounded-full text-xs">
+                  {cadisAnalysis.dreamExploration.totalNodes} nodes
+                </span>
+              </h4>
+              
+              <div className="mb-4">
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  {cadisAnalysis.dreamExploration.description}
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                {cadisAnalysis.dreamExploration.nodes?.map((node: any, index: number) => (
+                  <div key={index} className="bg-gray-800/50 rounded-lg p-4 border border-cyan-500/20">
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 bg-cyan-500/20 rounded-full flex items-center justify-center">
+                        <span className="text-cyan-300 text-xs">{index + 1}</span>
+                      </div>
+                      <div className="flex-1">
+                        <h6 className="font-medium text-cyan-300 mb-2">{node.title}</h6>
+                        <p className="text-gray-300 text-sm mb-3">{node.exploration}</p>
+                        
+                        {node.possibilities && (
+                          <div>
+                            <h6 className="text-xs font-medium text-gray-400 mb-2">Possibilities Explored:</h6>
+                            <div className="flex flex-wrap gap-2">
+                              {node.possibilities.map((possibility: string, idx: number) => (
+                                <span key={idx} className="px-2 py-1 bg-cyan-600/20 text-cyan-300 rounded text-xs">
+                                  {possibility}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!cadisAnalysis && entries.length > 0 && (
+        <div className="text-center py-12 bg-gray-800/50 rounded-lg border border-gray-700">
+          <div className="text-purple-400 mb-4 text-4xl">🧠</div>
+          <h4 className="text-white font-medium mb-2">Ready for CADIS Analysis</h4>
+          <p className="text-gray-400 text-sm mb-4">
+            CADIS can analyze your {entries.length} journal entries to understand your thinking patterns, 
+            philosophical alignment, and strategic evolution.
+          </p>
+          <Button 
+            onClick={generateCADISAnalysis}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            🧠 Start Analysis
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function JournalPage() {
   const [activeTab, setActiveTab] = useState<TabType>('entries');
@@ -25,6 +239,8 @@ export default function JournalPage() {
   const [error, setError] = useState<string | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [cadisAnalysis, setCadisAnalysis] = useState<any>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -332,6 +548,7 @@ export default function JournalPage() {
   const tabs = [
     { id: 'entries' as TabType, label: 'Entries', icon: '📝', count: entries.length },
     { id: 'analytics' as TabType, label: 'Analytics', icon: '📊' },
+    { id: 'cadis-analysis' as TabType, label: 'CADIS Analysis', icon: '🧠' },
     { id: 'reminders' as TabType, label: 'Reminders', icon: '🔔', count: reminders.length },
     { id: 'settings' as TabType, label: 'Settings', icon: '⚙️' }
   ];
@@ -500,6 +717,16 @@ export default function JournalPage() {
                 </div>
               )}
             </div>
+          )}
+
+          {activeTab === 'cadis-analysis' && (
+            <CADISAnalysisTab 
+              entries={entries}
+              cadisAnalysis={cadisAnalysis}
+              setCadisAnalysis={setCadisAnalysis}
+              isAnalyzing={isAnalyzing}
+              setIsAnalyzing={setIsAnalyzing}
+            />
           )}
 
           {activeTab === 'reminders' && (

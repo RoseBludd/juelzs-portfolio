@@ -15,17 +15,19 @@ export async function POST(request: NextRequest) {
 
     console.log('🧠 CADIS generating new ecosystem insights...');
 
-    // Generate different types of insights including creative intelligence
+    // Generate different types of insights including creative intelligence and journal analysis
     const [
       ecosystemInsight,
       moduleInsights,
       dreamStateInsight,
-      creativeInsights
+      creativeInsights,
+      journalAnalysisDream
     ] = await Promise.all([
       cadisService.generateEcosystemInsight(),
       cadisService.analyzeModuleRegistryChanges(),
       cadisService.generateDreamStatePredictions(),
-      cadisService.generateCreativeIntelligence()
+      cadisService.generateCreativeIntelligence(),
+      cadisService.generateJournalAnalysisDream()
     ]);
 
     const generatedEntries = [];
@@ -48,6 +50,11 @@ export async function POST(request: NextRequest) {
     for (const creativeInsight of creativeInsights) {
       await cadisService.createCADISEntry(creativeInsight);
       generatedEntries.push(creativeInsight);
+    }
+    
+    if (journalAnalysisDream) {
+      await cadisService.createCADISEntry(journalAnalysisDream);
+      generatedEntries.push(journalAnalysisDream);
     }
 
     console.log(`✅ Generated ${generatedEntries.length} CADIS insights`);
