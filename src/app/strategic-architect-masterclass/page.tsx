@@ -61,7 +61,7 @@ interface ConversationAnalysis {
 // Principle View Components
 function ExecutionPrincipleView({ segments }: { segments: ConversationSegment[] }) {
   const executionSegments = segments.filter(segment => 
-    (segment.speaker === 'User' || segment.speaker === 'Exchange') && 
+    (segment.speaker === 'User' || segment.speaker === 'Assistant') && 
     segment.content.toLowerCase().match(/\b(proceed|implement|build|create|fix|solve|execute|action|do it|make sure|ensure|verify|confirm|analyze)\b/g)
   );
 
@@ -129,7 +129,7 @@ function ModularityPrincipleView({ segments }: { segments: ConversationSegment[]
 
 function ReusabilityPrincipleView({ segments }: { segments: ConversationSegment[] }) {
   const reusabilitySegments = segments.filter(segment => 
-    (segment.speaker === 'User' || segment.speaker === 'Exchange') && 
+    (segment.speaker === 'User' || segment.speaker === 'Assistant') && 
     segment.content.toLowerCase().match(/\b(reusable|framework|pattern|template|systematic|scale|optimize|comprehensive|standard|consistent)\b/g)
   );
 
@@ -163,7 +163,7 @@ function ReusabilityPrincipleView({ segments }: { segments: ConversationSegment[
 
 function TeachabilityPrincipleView({ segments }: { segments: ConversationSegment[] }) {
   const teachabilitySegments = segments.filter(segment => 
-    (segment.speaker === 'User' || segment.speaker === 'Exchange') && 
+    (segment.speaker === 'User' || segment.speaker === 'Assistant') && 
     segment.content.toLowerCase().match(/\b(document|explain|understand|framework|define|teach|learn|analyze|styles|difference|investigate|study)\b/g)
   );
 

@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     console.log('🧠 CADIS analyzing journal entries for user patterns...');
     
     const dbService = DatabaseService.getInstance();
-    const client = await dbService.getClient();
+    const client = await dbService.getPoolClient();
     
     try {
       // Get all journal entries for analysis (original content only)

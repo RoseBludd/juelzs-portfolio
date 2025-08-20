@@ -12,6 +12,11 @@ const navigation = [
     icon: '📊',
   },
   {
+    name: 'Overall Analysis',
+    href: '/admin/one',
+    icon: '🧭',
+  },
+  {
     name: 'Meetings',
     href: '/admin/meetings',
     icon: '🎥',
