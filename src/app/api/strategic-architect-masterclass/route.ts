@@ -46,6 +46,61 @@ export async function GET(request: NextRequest) {
           analysis: null
         });
       }
+    } else if (conversationType === 'overall-analysis-insights') {
+      // Load and combine BOTH the Cursor and Gemini conversations (happening simultaneously)
+      const fs = require('fs');
+      
+      try {
+        // Load Cursor conversation
+        const cursorFilePath = 'c:\\Users\\GENIUS\\Downloads\\cursor_overall_analysis_and_insights_da.md';
+        const cursorContent = fs.readFileSync(cursorFilePath, 'utf8');
+        console.log(`📊 Loaded Cursor conversation: ${cursorContent.length.toLocaleString()} characters`);
+        
+        // Load Gemini conversation
+        const geminiFilePath = 'c:\\Users\\GENIUS\\Downloads\\gemini chat 2.txt';
+        let geminiContent = '';
+        try {
+          geminiContent = fs.readFileSync(geminiFilePath, 'utf8');
+          console.log(`📊 Loaded Gemini conversation: ${geminiContent.length.toLocaleString()} characters`);
+        } catch (geminiError) {
+          console.warn('⚠️ Could not load Gemini conversation, using Cursor only');
+        }
+        
+        // Combine both conversations with clear separation
+        content = `# Combined Strategic Intelligence Conversations
+## Cursor Conversation: Overall Analysis & Insights Dashboard Development
+${cursorContent}
+
+${geminiContent ? `
+---
+
+## Gemini Conversation: Genius Game Strategic Enhancement
+${geminiContent}
+` : ''}`;
+        
+        metadata = {
+          conversationId: 'overall-analysis-insights-combined',
+          title: 'Combined Strategic Intelligence: Cursor + Gemini Analysis',
+          developerName: 'Strategic Architect',
+          role: 'strategic_architect',
+          createdAt: new Date('2025-08-20'),
+          totalCharacters: content.length,
+          source: 'combined_conversations',
+          cursorCharacters: cursorContent.length,
+          geminiCharacters: geminiContent.length
+        };
+        console.log(`📊 Combined conversation total: ${content.length.toLocaleString()} characters`);
+        console.log(`   📝 Cursor: ${cursorContent.length.toLocaleString()} chars`);
+        console.log(`   🤖 Gemini: ${geminiContent.length.toLocaleString()} chars`);
+        
+      } catch (fileError) {
+        console.error('Error reading overall analysis conversation files:', fileError);
+        return NextResponse.json({
+          error: 'Overall Analysis conversation files not found',
+          segments: [],
+          analysis: null
+        });
+      }
     } else if (conversationType === 'genius-game-development') {
       // Load genius game development conversation
       const fs = require('fs');
@@ -533,7 +588,38 @@ function generateOverallAnalysis(content: string, segments: any[], conversationT
   const technicalPatterns = (lowerContent.match(/\b(error|bug|fix|debug|code|script|function|api|database|sql)\b/g) || []).length;
   const actualStrategicRatio = Math.round((strategicPatterns / (strategicPatterns + technicalPatterns)) * 100);
   
-  const analysisData = conversationType === 'genius-game-development' ? {
+  const analysisData = conversationType === 'overall-analysis-insights' ? {
+    keyMoments: [
+      'ok great.. in admin, we can make a new page, admin/one and from here, i should be able to get an overall analysis of me',
+      'The recursive intelligence loop discovery and visual representation of a recursive strategic intelligence system',
+      'should we add any of this to our overview that is in admin.? proceed if so',
+      'this make me think that i should allow people to spinup their own version of the same game',
+      'so what can expect people to really get out of this..? explain.. is there anything like this.?',
+      'so what is this called... seem like a big loop happened.. took my style of thinking that cadis grades, then started genius series for the books then from there went and made a game'
+    ],
+    evolutionPhases: [
+      {
+        phase: 'System Foundation',
+        focus: 'Overall analysis dashboard creation with comprehensive data integration',
+        strategicIntensity: 92
+      },
+      {
+        phase: 'Recursive Intelligence Discovery',
+        focus: 'Meta-realization of self-amplifying strategic intelligence systems',
+        strategicIntensity: 98
+      },
+      {
+        phase: 'Game Integration Enhancement',
+        focus: 'Integration of Genius Game insights into strategic analysis',
+        strategicIntensity: 95
+      },
+      {
+        phase: 'Ecosystem Platform Vision',
+        focus: 'Scaling strategic thinking development across organizations',
+        strategicIntensity: 97
+      }
+    ]
+  } : conversationType === 'genius-game-development' ? {
     keyMoments: [
       'proceed with what needs to be done. make it to where i have a selection as well with the department',
       'instead of naming live simulation, it should be genius. then proceed with everything else we need as progressive enhancement',
@@ -638,7 +724,8 @@ function generateOverallAnalysis(content: string, segments: any[], conversationT
     strategicRatio: actualStrategicRatio,
     philosophicalAlignment: Math.max(
       conversationType === 'image-display-issues' ? 93 : 
-      conversationType === 'genius-game-development' ? 95 : 98, 
+      conversationType === 'genius-game-development' ? 95 : 
+      conversationType === 'overall-analysis-insights' ? 98 : 98, 
       avgAlignmentScore
     ),
     keyMoments: analysisData.keyMoments,

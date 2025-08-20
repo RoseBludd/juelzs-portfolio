@@ -1027,13 +1027,18 @@ export default function StrategicArchitectMasterclass() {
                 <option value="genius-game-development">
                   🎮 Genius Game Development (A Grade) - Progressive Enhancement Focus
                 </option>
+                <option value="overall-analysis-insights">
+                  🧭 Combined Strategic Intelligence: Cursor + Gemini (A+ Grade) - Recursive Intelligence Focus
+                </option>
               </select>
               <p className="text-xs text-gray-400 mt-2 text-center">
                 {selectedConversation === 'cadis-developer' 
                   ? '1.85M chars • Strategic direction-setting • 90% context preservation • 90/100 strategic score'
                   : selectedConversation === 'image-display-issues'
                   ? '3.45M chars • Technical problem-solving • 100% context preservation • 93/100 alignment score'
-                  : '85K chars • Progressive enhancement • 100% context preservation • 88/100 strategic score'
+                  : selectedConversation === 'genius-game-development'
+                  ? '85K chars • Progressive enhancement • 100% context preservation • 88/100 strategic score'
+                  : 'Combined • Recursive intelligence • 100% context preservation • 98/100 strategic score'
                 }
               </p>
             </div>
