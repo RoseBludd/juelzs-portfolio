@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
 
   try {
     console.log('🧭 Loading comprehensive overall analysis...');
+    const overallStart = Date.now();
     
     // Determine base URL for internal API calls (works in prod and dev)
     const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
@@ -41,9 +42,11 @@ export async function GET(request: NextRequest) {
     
     try {
       // Gather comprehensive data from all sources
+      console.log('⏱️ Gathering analysis from sources...', { baseUrl });
       const analysisData = await gatherComprehensiveAnalysis(client, baseUrl);
       
-      console.log('✅ Overall analysis complete');
+      const elapsed = Date.now() - overallStart;
+      console.log('✅ Overall analysis complete in', `${elapsed}ms`);
       
       return NextResponse.json({
         success: true,
@@ -71,28 +74,61 @@ async function gatherComprehensiveAnalysis(client: PoolClient | null, baseUrl: s
   
   try {
     // 1. Masterclass Chat Analysis
+    const msStart = Date.now();
     const masterclassData = await analyzeMasterclassChats(client, baseUrl);
+    console.log('   • Masterclass loaded in', `${Date.now() - msStart}ms`, '→', {
+      totalSegments: masterclassData?.totalSegments,
+      philosophicalAlignment: masterclassData?.philosophicalAlignment
+    });
     
     // 2. Journal Analysis
+    const journalStart = Date.now();
     const journalData = await analyzeJournalData(client);
+    console.log('   • Journal analyzed in', `${Date.now() - journalStart}ms`, '→', {
+      totalEntries: journalData?.totalEntries,
+      aiInsights: journalData?.aiInsights
+    });
     
     // 3. CADIS Intelligence Analysis
+    const cadisStart = Date.now();
     const cadisData = await analyzeCADISIntelligence(client);
+    console.log('   • CADIS analyzed in', `${Date.now() - cadisStart}ms`, '→', {
+      totalInsights: cadisData?.totalInsights,
+      systemHealth: cadisData?.systemHealth
+    });
     
     // 4. Meeting Analysis
+    const meetingStart = Date.now();
     const meetingData = await analyzeMeetingData(client);
+    console.log('   • Meetings analyzed in', `${Date.now() - meetingStart}ms`, '→', {
+      totalMeetings: meetingData?.totalMeetings
+    });
     
     // 5. Developer Team Analysis
+    const devStart = Date.now();
     const developerData = await analyzeDeveloperTeam(client);
+    console.log('   • Developers analyzed in', `${Date.now() - devStart}ms`, '→', {
+      teamSize: developerData?.teamSize
+    });
     
     // 6. Book/Documentation Analysis
+    const booksStart = Date.now();
     const bookData = await analyzeBookProgress();
+    console.log('   • Books analyzed in', `${Date.now() - booksStart}ms`);
     
     // 7. System Health Analysis
+    const sysStart = Date.now();
     const systemHealth = await analyzeSystemHealth(client);
+    console.log('   • System health analyzed in', `${Date.now() - sysStart}ms`, '→', {
+      overallHealth: systemHealth?.overallHealth
+    });
     
     // 8. Genius Game Strategic Intelligence Analysis
+    const gameStart = Date.now();
     const geniusGameData = await analyzeGeniusGameIntelligence();
+    console.log('   • Genius Game analyzed in', `${Date.now() - gameStart}ms`, '→', {
+      gameHealth: geniusGameData?.gameHealth
+    });
     
     // 9. Generate Overall Insights
     const overallInsights = await generateOverallInsights({

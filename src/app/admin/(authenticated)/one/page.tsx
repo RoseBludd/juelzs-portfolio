@@ -94,13 +94,31 @@ export default function OverallAnalysisPage() {
       setError(null);
       
       // Load comprehensive analysis from the dedicated API
-      const overallResponse = await fetch('/api/admin/overall-analysis', { cache: 'no-store' });
+      const startTime = performance.now();
+      const fetchUrl = '/api/admin/overall-analysis';
+      console.log('[ONE] 🔵 Starting overall analysis fetch:', fetchUrl);
+      const overallResponse = await fetch(fetchUrl, { cache: 'no-store' });
+      const afterFetchMs = Math.round(performance.now() - startTime);
+      console.log('[ONE] 🟡 Overall analysis response:', {
+        ok: overallResponse.ok,
+        status: overallResponse.status,
+        statusText: overallResponse.statusText,
+        elapsedMs: afterFetchMs
+      });
       
       if (!overallResponse.ok) {
-        throw new Error('Failed to load overall analysis');
+        let bodyText: string | undefined;
+        try { bodyText = await overallResponse.text(); } catch {}
+        console.warn('[ONE] ⚠️ Non-OK response body:', bodyText?.slice(0, 500));
+        throw new Error(`Failed to load overall analysis (status ${overallResponse.status})`);
       }
       
       const overallData = await overallResponse.json();
+      console.log('[ONE] 🟢 Overall analysis payload received:', {
+        success: !!overallData?.success,
+        hasAnalysis: !!overallData?.analysis,
+        keys: overallData ? Object.keys(overallData) : [],
+      });
       
       if (!overallData.success) {
         throw new Error(overallData.error || 'Failed to load analysis data');
@@ -168,13 +186,25 @@ export default function OverallAnalysisPage() {
         }
       };
 
+      console.log('[ONE] 📊 Aggregated analysis summary:', {
+        totalDataPoints: aggregatedAnalysis.summary.totalDataPoints,
+        analysisScore: aggregatedAnalysis.summary.analysisScore,
+        confidenceLevel: aggregatedAnalysis.summary.confidenceLevel,
+        masterclassSegments: aggregatedAnalysis.masterclassChats.evolutionPhases?.length,
+        journalEntries: aggregatedAnalysis.journal.totalEntries,
+        cadisInsights: aggregatedAnalysis.cadisInsights.totalInsights,
+        meetings: aggregatedAnalysis.meetings.totalMeetings
+      });
+
       setAnalysisData(aggregatedAnalysis);
+      console.log('[ONE] ✅ Overall analysis state updated in UI');
       
     } catch (error) {
-      console.error('Error loading overall analysis:', error);
+      console.error('[ONE] ❌ Error loading overall analysis:', error);
       setError('Failed to load overall analysis data');
     } finally {
       setIsLoading(false);
+      console.log('[ONE] ⏹️ Overall analysis load finished');
     }
   };
 
