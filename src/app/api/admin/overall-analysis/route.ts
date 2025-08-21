@@ -17,10 +17,16 @@ export async function GET(request: NextRequest) {
     console.log('🧭 Loading comprehensive overall analysis...');
     
     // Determine base URL for internal API calls (works in prod and dev)
-    const forwardedProto = request.headers.get('x-forwarded-proto') || 'http';
-    const host = request.headers.get('host');
-    const runtimeBaseUrlEnv = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL;
-    const baseUrl = runtimeBaseUrlEnv || (host ? `${forwardedProto}://${host}` : 'http://localhost:3000');
+    const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
+    const forwardedHost = request.headers.get('x-forwarded-host');
+    const host = forwardedHost || request.headers.get('host');
+    const runtimeBaseUrlEnv = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || process.env.BASE_URL || process.env.VERCEL_URL;
+    // If VERCEL_URL is provided without protocol, add it
+    const normalizedEnvUrl = runtimeBaseUrlEnv && !/^https?:\/\//.test(runtimeBaseUrlEnv)
+      ? `${forwardedProto}://${runtimeBaseUrlEnv}`
+      : runtimeBaseUrlEnv;
+
+    const baseUrl = normalizedEnvUrl || (host ? `${forwardedProto}://${host}` : 'http://localhost:3000');
 
     const dbService = DatabaseService.getInstance();
     let client: PoolClient | null = null;
@@ -30,6 +36,7 @@ export async function GET(request: NextRequest) {
       client = await dbService.getPoolClient();
     } catch (dbError) {
       console.warn('⚠️ Database not available, proceeding with fallback data:', (dbError as Error).message);
+      client = null;
     }
     
     try {
@@ -155,6 +162,8 @@ async function analyzeMasterclassChats(client: PoolClient | null, baseUrl: strin
           ]
         };
       }
+    } else {
+      console.warn('⚠️ Masterclass API request failed:', response.status, response.statusText);
     }
     
     console.log('⚠️ Could not fetch enhanced masterclass data, falling back to database...');

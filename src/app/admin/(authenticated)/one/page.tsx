@@ -94,7 +94,7 @@ export default function OverallAnalysisPage() {
       setError(null);
       
       // Load comprehensive analysis from the dedicated API
-      const overallResponse = await fetch('/api/admin/overall-analysis');
+      const overallResponse = await fetch('/api/admin/overall-analysis', { cache: 'no-store' });
       
       if (!overallResponse.ok) {
         throw new Error('Failed to load overall analysis');
