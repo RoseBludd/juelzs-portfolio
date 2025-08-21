@@ -139,7 +139,7 @@ class CADISGeniusGameIntelligenceService {
   /**
    * Analyze the Genius Game ecosystem for strategic patterns
    */
-  private async analyzeGeniusGameEcosystem(client: PoolClient): Promise<GeniusGameAnalysis | null> {
+  private async analyzeGeniusGameEcosystem(_client?: PoolClient): Promise<GeniusGameAnalysis | null> {
     try {
       // Note: This would connect to the Genius Game database
       // For now, we'll simulate the analysis based on the provided schema
@@ -251,7 +251,8 @@ class CADISGeniusGameIntelligenceService {
    */
   async getGeniusGameMetrics(): Promise<any> {
     try {
-      const analysis = await this.analyzeGeniusGameEcosystem(await this.getClient());
+      // Avoid unnecessary DB access; analysis is currently simulated
+      const analysis = await this.analyzeGeniusGameEcosystem();
       
       if (!analysis) {
         return {

@@ -139,7 +139,7 @@ async function analyzeMasterclassChats(client: PoolClient | null, baseUrl: strin
     // Get enhanced conversation data from Strategic Architect Masterclass API
     console.log('📊 Fetching enhanced masterclass conversation data...');
     
-    const response = await fetch(`${baseUrl}/api/strategic-architect-masterclass?conversation=overall-analysis-insights`);
+    const response = await fetch(`${baseUrl}/api/strategic-architect-masterclass?conversation=overall-analysis-insights`, { cache: 'no-store' });
     
     if (response.ok) {
       const masterclassApiData = await response.json();
