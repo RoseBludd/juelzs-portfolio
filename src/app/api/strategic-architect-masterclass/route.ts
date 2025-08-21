@@ -47,23 +47,48 @@ export async function GET(request: NextRequest) {
         });
       }
     } else if (conversationType === 'overall-analysis-insights') {
-      // Load and combine BOTH the Cursor and Gemini conversations (happening simultaneously)
+      // Load and combine BOTH the Cursor and Gemini conversations.
+      // Make this domain-agnostic by supporting environment file paths and
+      // falling back to bundled examples when not present.
       const fs = require('fs');
       
       try {
-        // Load Cursor conversation
-        const cursorFilePath = 'c:\\Users\\GENIUS\\Downloads\\cursor_overall_analysis_and_insights_da.md';
-        const cursorContent = fs.readFileSync(cursorFilePath, 'utf8');
+        // Resolve paths from env with safe fallbacks
+        const cursorEnv = process.env.CURSOR_OVERALL_ANALYSIS_PATH;
+        const geminiEnv = process.env.GEMINI_OVERALL_ANALYSIS_PATH;
+        const cursorDefaultWin = 'c:\\Users\\GENIUS\\Downloads\\cursor_overall_analysis_and_insights_da.md';
+        const geminiDefaultWin = 'c:\\Users\\GENIUS\\Downloads\\gemini chat 2.txt';
+        // Use repo examples if available
+        const cursorDefaultRepo = path.join(process.cwd(), 'conversations', 'overall-analysis-insights-dashboard.md');
+        const geminiDefaultRepo = path.join(process.cwd(), 'conversations', 'genius-game-development-gemini.md');
+
+        const cursorCandidates = [cursorEnv, cursorDefaultRepo, cursorDefaultWin].filter(Boolean) as string[];
+        const geminiCandidates = [geminiEnv, geminiDefaultRepo, geminiDefaultWin].filter(Boolean) as string[];
+
+        const resolveFirstExisting = (candidates: string[]): string | null => {
+          for (const candidate of candidates) {
+            try { if (fs.existsSync(candidate)) return candidate; } catch {}
+          }
+          return null;
+        };
+
+        const cursorPath = resolveFirstExisting(cursorCandidates);
+        const geminiPath = resolveFirstExisting(geminiCandidates);
+
+        if (!cursorPath) {
+          throw new Error('Cursor conversation file not found in any known location');
+        }
+
+        const cursorContent = fs.readFileSync(cursorPath, 'utf8');
         console.log(`📊 Loaded Cursor conversation: ${cursorContent.length.toLocaleString()} characters`);
         
-        // Load Gemini conversation
-        const geminiFilePath = 'c:\\Users\\GENIUS\\Downloads\\gemini chat 2.txt';
+        // Load Gemini conversation if available
         let geminiContent = '';
-        try {
-          geminiContent = fs.readFileSync(geminiFilePath, 'utf8');
+        if (geminiPath) {
+          geminiContent = fs.readFileSync(geminiPath, 'utf8');
           console.log(`📊 Loaded Gemini conversation: ${geminiContent.length.toLocaleString()} characters`);
-        } catch (geminiError) {
-          console.warn('⚠️ Could not load Gemini conversation, using Cursor only');
+        } else {
+          console.warn('⚠️ Gemini conversation not found, using Cursor only');
         }
         
         // Combine both conversations with clear separation
@@ -95,11 +120,17 @@ ${geminiContent}
         
       } catch (fileError) {
         console.error('Error reading overall analysis conversation files:', fileError);
-        return NextResponse.json({
-          error: 'Overall Analysis conversation files not found',
-          segments: [],
-          analysis: null
-        });
+        // Graceful fallback to empty-but-valid response so callers never 500
+        content = '# Overall Analysis Conversations (fallback)\nNo local files available.';
+        metadata = {
+          conversationId: 'overall-analysis-insights-fallback',
+          title: 'Overall Analysis Fallback',
+          developerName: 'Strategic Architect',
+          role: 'strategic_architect',
+          createdAt: new Date(),
+          totalCharacters: content.length,
+          source: 'fallback'
+        };
       }
     } else if (conversationType === 'genius-game-development') {
       // Load genius game development conversation

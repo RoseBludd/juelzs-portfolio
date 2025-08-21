@@ -15,12 +15,19 @@ export async function GET(request: NextRequest) {
 
   try {
     console.log('🧭 Loading comprehensive overall analysis...');
+    const overallStart = Date.now();
     
     // Determine base URL for internal API calls (works in prod and dev)
-    const forwardedProto = request.headers.get('x-forwarded-proto') || 'http';
-    const host = request.headers.get('host');
-    const runtimeBaseUrlEnv = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL;
-    const baseUrl = runtimeBaseUrlEnv || (host ? `${forwardedProto}://${host}` : 'http://localhost:3000');
+    const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
+    const forwardedHost = request.headers.get('x-forwarded-host');
+    const host = forwardedHost || request.headers.get('host');
+    const runtimeBaseUrlEnv = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || process.env.BASE_URL || process.env.VERCEL_URL;
+    // If VERCEL_URL is provided without protocol, add it
+    const normalizedEnvUrl = runtimeBaseUrlEnv && !/^https?:\/\//.test(runtimeBaseUrlEnv)
+      ? `${forwardedProto}://${runtimeBaseUrlEnv}`
+      : runtimeBaseUrlEnv;
+
+    const baseUrl = normalizedEnvUrl || (host ? `${forwardedProto}://${host}` : 'http://localhost:3000');
 
     const dbService = DatabaseService.getInstance();
     let client: PoolClient | null = null;
@@ -30,13 +37,16 @@ export async function GET(request: NextRequest) {
       client = await dbService.getPoolClient();
     } catch (dbError) {
       console.warn('⚠️ Database not available, proceeding with fallback data:', (dbError as Error).message);
+      client = null;
     }
     
     try {
       // Gather comprehensive data from all sources
+      console.log('⏱️ Gathering analysis from sources...', { baseUrl });
       const analysisData = await gatherComprehensiveAnalysis(client, baseUrl);
       
-      console.log('✅ Overall analysis complete');
+      const elapsed = Date.now() - overallStart;
+      console.log('✅ Overall analysis complete in', `${elapsed}ms`);
       
       return NextResponse.json({
         success: true,
@@ -64,28 +74,61 @@ async function gatherComprehensiveAnalysis(client: PoolClient | null, baseUrl: s
   
   try {
     // 1. Masterclass Chat Analysis
+    const msStart = Date.now();
     const masterclassData = await analyzeMasterclassChats(client, baseUrl);
+    console.log('   • Masterclass loaded in', `${Date.now() - msStart}ms`, '→', {
+      totalSegments: masterclassData?.totalSegments,
+      philosophicalAlignment: masterclassData?.philosophicalAlignment
+    });
     
     // 2. Journal Analysis
+    const journalStart = Date.now();
     const journalData = await analyzeJournalData(client);
+    console.log('   • Journal analyzed in', `${Date.now() - journalStart}ms`, '→', {
+      totalEntries: journalData?.totalEntries,
+      aiInsights: journalData?.aiInsights
+    });
     
     // 3. CADIS Intelligence Analysis
+    const cadisStart = Date.now();
     const cadisData = await analyzeCADISIntelligence(client);
+    console.log('   • CADIS analyzed in', `${Date.now() - cadisStart}ms`, '→', {
+      totalInsights: cadisData?.totalInsights,
+      systemHealth: cadisData?.systemHealth
+    });
     
     // 4. Meeting Analysis
+    const meetingStart = Date.now();
     const meetingData = await analyzeMeetingData(client);
+    console.log('   • Meetings analyzed in', `${Date.now() - meetingStart}ms`, '→', {
+      totalMeetings: meetingData?.totalMeetings
+    });
     
     // 5. Developer Team Analysis
+    const devStart = Date.now();
     const developerData = await analyzeDeveloperTeam(client);
+    console.log('   • Developers analyzed in', `${Date.now() - devStart}ms`, '→', {
+      teamSize: developerData?.teamSize
+    });
     
     // 6. Book/Documentation Analysis
+    const booksStart = Date.now();
     const bookData = await analyzeBookProgress();
+    console.log('   • Books analyzed in', `${Date.now() - booksStart}ms`);
     
     // 7. System Health Analysis
+    const sysStart = Date.now();
     const systemHealth = await analyzeSystemHealth(client);
+    console.log('   • System health analyzed in', `${Date.now() - sysStart}ms`, '→', {
+      overallHealth: systemHealth?.overallHealth
+    });
     
     // 8. Genius Game Strategic Intelligence Analysis
+    const gameStart = Date.now();
     const geniusGameData = await analyzeGeniusGameIntelligence();
+    console.log('   • Genius Game analyzed in', `${Date.now() - gameStart}ms`, '→', {
+      gameHealth: geniusGameData?.gameHealth
+    });
     
     // 9. Generate Overall Insights
     const overallInsights = await generateOverallInsights({
@@ -132,7 +175,7 @@ async function analyzeMasterclassChats(client: PoolClient | null, baseUrl: strin
     // Get enhanced conversation data from Strategic Architect Masterclass API
     console.log('📊 Fetching enhanced masterclass conversation data...');
     
-    const response = await fetch(`${baseUrl}/api/strategic-architect-masterclass?conversation=overall-analysis-insights`);
+    const response = await fetch(`${baseUrl}/api/strategic-architect-masterclass?conversation=overall-analysis-insights`, { cache: 'no-store' });
     
     if (response.ok) {
       const masterclassApiData = await response.json();
@@ -155,6 +198,8 @@ async function analyzeMasterclassChats(client: PoolClient | null, baseUrl: strin
           ]
         };
       }
+    } else {
+      console.warn('⚠️ Masterclass API request failed:', response.status, response.statusText);
     }
     
     console.log('⚠️ Could not fetch enhanced masterclass data, falling back to database...');
@@ -603,12 +648,18 @@ async function analyzeGeniusGameIntelligence() {
 async function generateOverallInsights(data: any) {
   // Generate comprehensive insights from all data sources including Genius Game strategic patterns
   
+  const masterPhilosophy = Number(data?.masterclass?.philosophicalAlignment) || 0;
+  const cadisHealth = Number(data?.cadis?.systemHealth) || 0;
+  const systemOverall = Number(data?.system?.overallHealth) || 0;
+  const developerPerf = Number(data?.developers?.averagePerformance) || 0;
+  const gameHealth = Number(data?.geniusGame?.gameHealth) || 0;
+
   const overallScore = Math.round((
-    (data.masterclass.philosophicalAlignment || 0) * 0.2 +
-    (data.cadis.systemHealth || 0) * 0.2 +
-    (data.system.overallHealth || 0) * 0.2 +
-    (data.developers.averagePerformance || 0) * 0.2 +
-    (data.geniusGame.gameHealth || 0) * 0.2
+    masterPhilosophy * 0.2 +
+    cadisHealth * 0.2 +
+    systemOverall * 0.2 +
+    developerPerf * 0.2 +
+    gameHealth * 0.2
   ));
   
   const confidenceLevel = Math.min(95, Math.max(85, overallScore - 5));
@@ -617,14 +668,14 @@ async function generateOverallInsights(data: any) {
   const keyStrengths = [
     `Strategic Architect Mindset (98%) - Systems thinking at civilization scale`,
     `Philosophical Alignment Excellence (98%) - Core principles embedded in system design`,
-    `Genius Game Integration (${data.geniusGame.gameHealth}%) - Teaching system enhances strategic thinking`,
-    `Recursive Intelligence Loop (${data.geniusGame.recursiveIntelligenceLoop.overallAmplification}%) - Each system amplifies the others`,
-    `Cross-Platform Learning Excellence (${data.geniusGame.crossPlatformIntegration}%) - Insights transfer seamlessly`,
-    `Paradox Resolution Capability (${data.geniusGame.civilizationImpact.paradoxResolutionCapability}%) - Third Way solutions to complex tradeoffs`,
-    `Meta-System Innovation (${data.geniusGame.civilizationImpact.metaSystemThinking}%) - Builds systems that build systems`,
-    `Antifragile System Design (${data.geniusGame.civilizationImpact.antifragileDesign}%) - Systems strengthen under pressure`,
-    `Strategic Assessment Mastery (${data.geniusGame.strategicAlignment}%) - Game validates real-world strategic thinking`,
-    `Wisdom Acceleration Engine (${data.geniusGame.civilizationImpact.wisdomAcceleration}%) - Accelerates strategic development in others`
+    `Genius Game Integration (${Number(data?.geniusGame?.gameHealth) || 0}%) - Teaching system enhances strategic thinking`,
+    `Recursive Intelligence Loop (${Number(data?.geniusGame?.recursiveIntelligenceLoop?.overallAmplification) || 0}%) - Each system amplifies the others`,
+    `Cross-Platform Learning Excellence (${Number(data?.geniusGame?.crossPlatformIntegration) || 0}%) - Insights transfer seamlessly`,
+    `Paradox Resolution Capability (${Number(data?.geniusGame?.civilizationImpact?.paradoxResolutionCapability) || 0}%) - Third Way solutions to complex tradeoffs`,
+    `Meta-System Innovation (${Number(data?.geniusGame?.civilizationImpact?.metaSystemThinking) || 0}%) - Builds systems that build systems`,
+    `Antifragile System Design (${Number(data?.geniusGame?.civilizationImpact?.antifragileDesign) || 0}%) - Systems strengthen under pressure`,
+    `Strategic Assessment Mastery (${Number(data?.geniusGame?.strategicAlignment) || 0}%) - Game validates real-world strategic thinking`,
+    `Wisdom Acceleration Engine (${Number(data?.geniusGame?.civilizationImpact?.wisdomAcceleration) || 0}%) - Accelerates strategic development in others`
   ];
   
   const growthAreas = [

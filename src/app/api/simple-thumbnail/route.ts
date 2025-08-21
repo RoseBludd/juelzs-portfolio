@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+function getOpenAIClient(): OpenAI | null {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
+  return new OpenAI({ apiKey });
+}
 
 // POST - Generate simple thumbnail by analyzing video at intervals
 export async function POST(request: NextRequest) {
@@ -172,6 +174,12 @@ async function analyzeWithGPTVision(base64Image: string, videoKey: string, times
   try {
     console.log(`🤖 [${videoKey}] Analyzing with GPT Vision...`);
     
+    const openai = getOpenAIClient();
+    if (!openai) {
+      console.warn(`⚠️ [${videoKey}] OPENAI_API_KEY not set; returning fallback score`);
+      return 50;
+    }
+
     const response = await openai.chat.completions.create({
       model: "gpt-4-vision-preview",
       messages: [

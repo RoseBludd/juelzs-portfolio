@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAIClient(): OpenAI | null {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
+  return new OpenAI({ apiKey });
+}
 
 interface ServiceDefinition {
   title: string;
@@ -202,6 +204,14 @@ Respond in this exact JSON format:
     "type": "exact service type"
   }
 }`;
+
+    const openai = getOpenAIClient();
+    if (!openai) {
+      return NextResponse.json({
+        error: 'OpenAI not configured',
+        suggestion: 'Set OPENAI_API_KEY or contact support',
+      }, { status: 503 });
+    }
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',
