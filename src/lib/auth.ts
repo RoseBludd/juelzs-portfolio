@@ -4,6 +4,13 @@ import { NextRequest, NextResponse } from 'next/server';
 const ADMIN_COOKIE_NAME = 'admin-auth';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
+function getExpectedCookieValue(): string {
+  const adminPassword = process.env.ADMIN_LOGIN?.trim();
+  // If not configured, default to an "open" dev mode cookie value
+  // so previews/local can sign in without a secret.
+  return adminPassword ? `admin-${adminPassword}` : 'admin-open';
+}
+
 export async function checkAdminAuth(): Promise<boolean> {
   try {
     const cookieStore = await cookies();
@@ -14,8 +21,7 @@ export async function checkAdminAuth(): Promise<boolean> {
     }
 
     // Simple validation - in production you might want to use JWT or similar
-    const adminPassword = process.env.ADMIN_LOGIN;
-    return authCookie.value === `admin-${adminPassword}`;
+    return authCookie.value === getExpectedCookieValue();
   } catch (error) {
     console.error('Auth check error:', error);
     return false;
@@ -24,12 +30,13 @@ export async function checkAdminAuth(): Promise<boolean> {
 
 export function validatePassword(password: string): boolean {
   const adminPassword = process.env.ADMIN_LOGIN;
+  // If not configured, allow any password (developer-friendly default)
+  if (!adminPassword) return true;
   return password === adminPassword;
 }
 
 export function createAuthCookie(): string {
-  const adminPassword = process.env.ADMIN_LOGIN;
-  return `admin-${adminPassword}`;
+  return getExpectedCookieValue();
 }
 
 export function setAuthCookie(response: NextResponse): NextResponse {
@@ -58,8 +65,7 @@ export function checkAuthMiddleware(request: NextRequest): NextResponse | null {
     return NextResponse.redirect(new URL('/admin/login', request.url));
   }
 
-  const adminPassword = process.env.ADMIN_LOGIN;
-  if (authCookie.value !== `admin-${adminPassword}`) {
+  if (authCookie.value !== getExpectedCookieValue()) {
     return NextResponse.redirect(new URL('/admin/login', request.url));
   }
 

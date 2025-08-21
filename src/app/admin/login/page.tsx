@@ -40,6 +40,8 @@ export default function AdminLoginPage() {
     }
   };
 
+  const adminConfigured = typeof process.env.NEXT_PUBLIC_ADMIN_SET !== 'undefined' || typeof process.env.ADMIN_LOGIN !== 'undefined';
+
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -50,6 +52,11 @@ export default function AdminLoginPage() {
           <p className="mt-2 text-sm text-gray-300">
             Enter password to access admin interface
           </p>
+          {!adminConfigured && (
+            <p className="mt-2 text-xs text-yellow-300">
+              Admin password not configured; any password will sign in (preview/dev).
+            </p>
+          )}
         </div>
       </div>
 
