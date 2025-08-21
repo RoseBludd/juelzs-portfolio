@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+function getOpenAIClient(): OpenAI | null {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
+  return new OpenAI({ apiKey });
+}
 
 // POST - Analyze thumbnail with GPT Vision
 export async function POST(request: NextRequest) {
@@ -38,6 +40,12 @@ Scoring guidelines:
 - 0-29: Unusable - Black screen, error, or completely unclear
 
 Just respond with the number score.`;
+
+    const openai = getOpenAIClient();
+    if (!openai) {
+      console.warn(`⚠️ [${videoKey}] OPENAI_API_KEY not set; returning fallback score`);
+      return NextResponse.json({ success: true, score: 50, raw_response: 'fallback-no-openai' });
+    }
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
