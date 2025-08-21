@@ -12,10 +12,10 @@ export default function AdminKeyboardShortcut() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Check for Ctrl+Shift+A (or Cmd+Shift+A on Mac)
+      // Check for Ctrl+Alt+A (or Cmd+Alt+A on Mac) - avoiding browser bookmark shortcut
       if (
         (event.ctrlKey || event.metaKey) && 
-        event.shiftKey && 
+        event.altKey && 
         event.key.toLowerCase() === 'a'
       ) {
         event.preventDefault();
@@ -25,7 +25,7 @@ export default function AdminKeyboardShortcut() {
         
         // Optional: Show a brief indicator that the shortcut was triggered
         const indicator = document.createElement('div');
-        indicator.textContent = '🚀 Accessing Admin...';
+        indicator.textContent = '🚀 Admin Access (Ctrl+Alt+A)';
         indicator.style.cssText = `
           position: fixed;
           top: 20px;

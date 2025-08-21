@@ -126,6 +126,69 @@ ${geminiContent}
           analysis: null
         });
       }
+    } else if (conversationType === 'advanced-strategic-patterns') {
+      // Load advanced strategic patterns conversation (placeholder for now)
+      content = `# Advanced Strategic Patterns - Meta-System Architecture
+
+This conversation demonstrates advanced strategic thinking patterns including meta-system architecture, recursive intelligence design, and civilization-level strategic planning.
+
+**User**
+Let's design a meta-system that can evolve its own strategic thinking capabilities. This should be more than just AI - it should be a framework that helps organizations develop increasingly sophisticated strategic thinking over time.
+
+**Cursor** 
+Excellent direction. You're asking for something that transcends traditional system design - a recursive strategic intelligence framework. Let me outline the architecture:
+
+## Meta-System Architecture for Strategic Evolution
+
+### 1. Core Strategic Intelligence Engine
+- **Pattern Recognition Layer**: Identifies strategic patterns across domains
+- **Paradox Resolution Engine**: Handles complex tradeoffs and third-way solutions  
+- **Meta-Cognitive Processor**: Thinks about thinking, evaluates strategic quality
+- **Wisdom Acceleration Module**: Helps others develop strategic capabilities faster
+
+### 2. Recursive Enhancement Loop
+The system improves its own strategic thinking through:
+- **Self-Analysis**: Evaluates its own strategic recommendations
+- **Outcome Tracking**: Learns from strategic decisions and their results
+- **Pattern Evolution**: Develops more sophisticated strategic frameworks over time
+- **Teaching Integration**: Becomes more strategic by teaching strategy to others
+
+This creates a compound effect where each cycle of strategic thinking enhances the next cycle.
+
+**User**
+Perfect. Now let's think about how this integrates with existing business systems. The meta-system shouldn't replace current operations - it should enhance them by adding a strategic thinking layer that evolves.
+
+**Cursor**
+Exactly right - progressive enhancement rather than replacement. Here's the integration architecture:
+
+## Strategic Layer Integration
+
+### 1. Non-Invasive Enhancement
+- **Strategic Overlay**: Adds strategic analysis without changing existing systems
+- **Decision Augmentation**: Enhances existing decisions with strategic context
+- **Pattern Injection**: Introduces strategic patterns into daily operations
+- **Gradual Sophistication**: Slowly elevates organizational strategic thinking
+
+### 2. Business System Integration Points
+- **CRM Enhancement**: Customer relationships become strategic relationships
+- **Project Management**: Projects become strategic experiments with learning loops
+- **Team Communications**: Conversations include strategic context and pattern recognition
+- **Decision Workflows**: Decisions include strategic impact analysis and long-term thinking
+
+The key is that the meta-system makes everything more strategic without disrupting what already works.
+
+This demonstrates the highest level of strategic architecture thinking - creating systems that create better systems.`;
+
+      metadata = {
+        conversationId: 'advanced-strategic-patterns',
+        title: 'Advanced Strategic Patterns & Meta-System Architecture',
+        developerName: 'Strategic Architect',
+        role: 'strategic_architect',
+        createdAt: new Date('2025-08-22'),
+        totalCharacters: content.length,
+        source: 'strategic_placeholder'
+      };
+      console.log(`📊 Loaded advanced strategic patterns: ${content.length.toLocaleString()} characters`);
     } else {
       // Get the conversation from cursor_chats database (default: CADIS)
       const client = getClient();

@@ -85,7 +85,7 @@ This isn't just another developer portfolio. It's a **comprehensive AI-driven le
 **Keyboard Shortcut & Navigation Hub** - Seamless access to all your admin systems:
 
 #### **Global Admin Access**
-- **⌨️ Ctrl+Shift+A Shortcut**: Instant admin access from anywhere on the website with visual feedback
+- **⌨️ Ctrl+Alt+A Shortcut**: Instant admin access from anywhere on the website with visual feedback (avoiding browser bookmark conflict)
 - **🎯 Unified Navigation**: Cross-platform admin links in every admin interface
 - **🎮 Genius Game Admin**: Direct access to `https://genius.vibezs.io/admin`
 - **⚡ VibezS Dev Admin**: Direct access to `https://dev.juelzs.com/admin`
@@ -941,7 +941,7 @@ GITHUB_USERNAME="your-github-username"
    - **Admin Interface**: `http://localhost:3000/admin`
    - **Overall Analysis Hub**: `http://localhost:3000/admin/one`
    - **Journal Management**: `http://localhost:3000/admin/journal`
-   - **Global Admin Shortcut**: Press `Ctrl+Shift+A` from anywhere
+   - **Global Admin Shortcut**: Press `Ctrl+Alt+A` from anywhere
 
 ### **Testing Your Installation**
 
@@ -1265,7 +1265,7 @@ GITHUB_USERNAME=your-github-username
 ## 🏆 **What Makes This Unique**
 
 1. **Revolutionary Recursive Intelligence System**: Complete cross-platform strategic intelligence amplification with Genius Game integration creating the first documented self-enhancing strategic thinking system
-2. **Unified Cross-Platform Admin Hub**: Global Ctrl+Shift+A keyboard shortcut with seamless navigation between portfolio, Genius Game, and VibezS development admin systems
+2. **Unified Cross-Platform Admin Hub**: Global Ctrl+Alt+A keyboard shortcut with seamless navigation between portfolio, Genius Game, and VibezS development admin systems
 3. **Genius Game Strategic Intelligence Integration**: Complete analysis of 11 strategic intelligence database tables with 94% game health and 96% cross-platform learning amplification
 4. **Executive-Level Leadership Analysis**: AI synthesis of all leadership videos into comprehensive executive assessment (9/10 overall rating) with CEO/founder evaluation interface
 5. **Enhanced DreamState Analysis**: Real-time intelligence streaming with active CADIS analysis, Genius Game pattern recognition, and strategic prediction capabilities

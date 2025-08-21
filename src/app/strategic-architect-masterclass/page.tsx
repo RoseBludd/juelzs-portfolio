@@ -1030,6 +1030,9 @@ export default function StrategicArchitectMasterclass() {
                 <option value="overall-analysis-insights">
                   🧭 Combined Strategic Intelligence: Cursor + Gemini (A+ Grade) - Recursive Intelligence Focus
                 </option>
+                <option value="advanced-strategic-patterns">
+                  🌟 Advanced Strategic Patterns (A+ Grade) - Meta-System Architecture Focus
+                </option>
               </select>
               <p className="text-xs text-gray-400 mt-2 text-center">
                 {selectedConversation === 'cadis-developer' 
