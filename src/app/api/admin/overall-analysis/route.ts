@@ -648,12 +648,18 @@ async function analyzeGeniusGameIntelligence() {
 async function generateOverallInsights(data: any) {
   // Generate comprehensive insights from all data sources including Genius Game strategic patterns
   
+  const masterPhilosophy = Number(data?.masterclass?.philosophicalAlignment) || 0;
+  const cadisHealth = Number(data?.cadis?.systemHealth) || 0;
+  const systemOverall = Number(data?.system?.overallHealth) || 0;
+  const developerPerf = Number(data?.developers?.averagePerformance) || 0;
+  const gameHealth = Number(data?.geniusGame?.gameHealth) || 0;
+
   const overallScore = Math.round((
-    (data.masterclass.philosophicalAlignment || 0) * 0.2 +
-    (data.cadis.systemHealth || 0) * 0.2 +
-    (data.system.overallHealth || 0) * 0.2 +
-    (data.developers.averagePerformance || 0) * 0.2 +
-    (data.geniusGame.gameHealth || 0) * 0.2
+    masterPhilosophy * 0.2 +
+    cadisHealth * 0.2 +
+    systemOverall * 0.2 +
+    developerPerf * 0.2 +
+    gameHealth * 0.2
   ));
   
   const confidenceLevel = Math.min(95, Math.max(85, overallScore - 5));
@@ -662,14 +668,14 @@ async function generateOverallInsights(data: any) {
   const keyStrengths = [
     `Strategic Architect Mindset (98%) - Systems thinking at civilization scale`,
     `Philosophical Alignment Excellence (98%) - Core principles embedded in system design`,
-    `Genius Game Integration (${data.geniusGame.gameHealth}%) - Teaching system enhances strategic thinking`,
-    `Recursive Intelligence Loop (${data.geniusGame.recursiveIntelligenceLoop.overallAmplification}%) - Each system amplifies the others`,
-    `Cross-Platform Learning Excellence (${data.geniusGame.crossPlatformIntegration}%) - Insights transfer seamlessly`,
-    `Paradox Resolution Capability (${data.geniusGame.civilizationImpact.paradoxResolutionCapability}%) - Third Way solutions to complex tradeoffs`,
-    `Meta-System Innovation (${data.geniusGame.civilizationImpact.metaSystemThinking}%) - Builds systems that build systems`,
-    `Antifragile System Design (${data.geniusGame.civilizationImpact.antifragileDesign}%) - Systems strengthen under pressure`,
-    `Strategic Assessment Mastery (${data.geniusGame.strategicAlignment}%) - Game validates real-world strategic thinking`,
-    `Wisdom Acceleration Engine (${data.geniusGame.civilizationImpact.wisdomAcceleration}%) - Accelerates strategic development in others`
+    `Genius Game Integration (${Number(data?.geniusGame?.gameHealth) || 0}%) - Teaching system enhances strategic thinking`,
+    `Recursive Intelligence Loop (${Number(data?.geniusGame?.recursiveIntelligenceLoop?.overallAmplification) || 0}%) - Each system amplifies the others`,
+    `Cross-Platform Learning Excellence (${Number(data?.geniusGame?.crossPlatformIntegration) || 0}%) - Insights transfer seamlessly`,
+    `Paradox Resolution Capability (${Number(data?.geniusGame?.civilizationImpact?.paradoxResolutionCapability) || 0}%) - Third Way solutions to complex tradeoffs`,
+    `Meta-System Innovation (${Number(data?.geniusGame?.civilizationImpact?.metaSystemThinking) || 0}%) - Builds systems that build systems`,
+    `Antifragile System Design (${Number(data?.geniusGame?.civilizationImpact?.antifragileDesign) || 0}%) - Systems strengthen under pressure`,
+    `Strategic Assessment Mastery (${Number(data?.geniusGame?.strategicAlignment) || 0}%) - Game validates real-world strategic thinking`,
+    `Wisdom Acceleration Engine (${Number(data?.geniusGame?.civilizationImpact?.wisdomAcceleration) || 0}%) - Accelerates strategic development in others`
   ];
   
   const growthAreas = [
