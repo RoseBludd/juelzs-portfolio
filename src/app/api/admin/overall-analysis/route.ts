@@ -16,12 +16,25 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🧭 Loading comprehensive overall analysis...');
     
+    // Determine base URL for internal API calls (works in prod and dev)
+    const forwardedProto = request.headers.get('x-forwarded-proto') || 'http';
+    const host = request.headers.get('host');
+    const runtimeBaseUrlEnv = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL;
+    const baseUrl = runtimeBaseUrlEnv || (host ? `${forwardedProto}://${host}` : 'http://localhost:3000');
+
     const dbService = DatabaseService.getInstance();
-    const client = await dbService.getPoolClient();
+    let client: PoolClient | null = null;
+    
+    // Attempt to get a DB client but do not fail the whole request if unavailable
+    try {
+      client = await dbService.getPoolClient();
+    } catch (dbError) {
+      console.warn('⚠️ Database not available, proceeding with fallback data:', (dbError as Error).message);
+    }
     
     try {
       // Gather comprehensive data from all sources
-      const analysisData = await gatherComprehensiveAnalysis(client);
+      const analysisData = await gatherComprehensiveAnalysis(client, baseUrl);
       
       console.log('✅ Overall analysis complete');
       
@@ -32,7 +45,9 @@ export async function GET(request: NextRequest) {
       });
       
     } finally {
-      client.release();
+      if (client) {
+        client.release();
+      }
     }
     
   } catch (error) {
@@ -44,12 +59,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function gatherComprehensiveAnalysis(client: PoolClient) {
+async function gatherComprehensiveAnalysis(client: PoolClient | null, baseUrl: string) {
   console.log('📊 Gathering data from all sources...');
   
   try {
     // 1. Masterclass Chat Analysis
-    const masterclassData = await analyzeMasterclassChats(client);
+    const masterclassData = await analyzeMasterclassChats(client, baseUrl);
     
     // 2. Journal Analysis
     const journalData = await analyzeJournalData(client);
@@ -112,12 +127,12 @@ async function gatherComprehensiveAnalysis(client: PoolClient) {
   }
 }
 
-async function analyzeMasterclassChats(client: PoolClient) {
+async function analyzeMasterclassChats(client: PoolClient | null, baseUrl: string) {
   try {
     // Get enhanced conversation data from Strategic Architect Masterclass API
     console.log('📊 Fetching enhanced masterclass conversation data...');
     
-    const response = await fetch('http://localhost:3000/api/strategic-architect-masterclass?conversation=overall-analysis-insights');
+    const response = await fetch(`${baseUrl}/api/strategic-architect-masterclass?conversation=overall-analysis-insights`);
     
     if (response.ok) {
       const masterclassApiData = await response.json();
@@ -144,6 +159,24 @@ async function analyzeMasterclassChats(client: PoolClient) {
     
     console.log('⚠️ Could not fetch enhanced masterclass data, falling back to database...');
     
+    // Fallback to database analysis when available, otherwise return static defaults
+    if (!client) {
+      return {
+        totalConversations: 0,
+        totalSegments: 0,
+        totalCharacters: 0,
+        strategicIntensity: 0,
+        philosophicalAlignment: 0,
+        keyInsights: [],
+        evolutionPhases: [
+          { phase: 'Strategic Foundation', focus: 'System Architecture', intensity: 85 },
+          { phase: 'Execution Refinement', focus: 'Implementation Excellence', intensity: 92 },
+          { phase: 'Scale Optimization', focus: 'Growth Systems', intensity: 88 },
+          { phase: 'Mastery Integration', focus: 'Holistic Excellence', intensity: 95 }
+        ]
+      };
+    }
+
     // Fallback to database analysis
     const conversationQuery = await client.query(`
       SELECT 
@@ -207,8 +240,24 @@ async function analyzeMasterclassChats(client: PoolClient) {
   }
 }
 
-async function analyzeJournalData(client: PoolClient) {
+async function analyzeJournalData(client: PoolClient | null) {
   try {
+    if (!client) {
+      return {
+        totalEntries: 0,
+        categoriesAnalyzed: [],
+        averageLength: 0,
+        aiInsights: 0,
+        patterns: [
+          'Strategic Decision Making',
+          'System Architecture Thinking',
+          'Leadership Development',
+          'Technical Excellence Focus',
+          'Continuous Learning'
+        ],
+        recentInsights: []
+      };
+    }
     const journalStats = await client.query(`
       SELECT 
         COUNT(*) as total_entries,
@@ -271,25 +320,29 @@ async function analyzeJournalData(client: PoolClient) {
   }
 }
 
-async function analyzeCADISIntelligence(client: PoolClient) {
+async function analyzeCADISIntelligence(client: PoolClient | null) {
   try {
     const cadisService = CADISJournalService.getInstance();
     const maintenanceService = CADISMaintenanceService.getInstance();
     
-    // Get CADIS entries
-    const cadisEntries = await client.query(`
-      SELECT 
-        COUNT(*) as total_insights,
-        AVG(confidence) as avg_confidence,
-        COUNT(*) FILTER (WHERE category = 'dreamstate-prediction') as dreamstate_predictions,
-        COUNT(*) FILTER (WHERE impact = 'high' OR impact = 'critical') as high_impact_insights
-      FROM cadis_journal_entries
-    `);
+    // Get CADIS entries if DB is available, otherwise use defaults
+    let cadisStats = { total_insights: '0', avg_confidence: '0', dreamstate_predictions: '0', high_impact_insights: '0' } as any;
+    if (client) {
+      const cadisEntries = await client.query(`
+        SELECT 
+          COUNT(*) as total_insights,
+          AVG(confidence) as avg_confidence,
+          COUNT(*) FILTER (WHERE category = 'dreamstate-prediction') as dreamstate_predictions,
+          COUNT(*) FILTER (WHERE impact = 'high' OR impact = 'critical') as high_impact_insights
+        FROM cadis_journal_entries
+      `);
+      cadisStats = cadisEntries.rows[0];
+    }
     
     // Get system health from maintenance service
     const maintenanceAnalysis = await maintenanceService.performMaintenanceAnalysis();
     
-    const stats = cadisEntries.rows[0];
+    const stats = cadisStats;
     
     return {
       totalInsights: parseInt(stats.total_insights || '0'),
@@ -320,7 +373,7 @@ async function analyzeCADISIntelligence(client: PoolClient) {
   }
 }
 
-async function analyzeMeetingData(client: PoolClient) {
+async function analyzeMeetingData(client: PoolClient | null) {
   try {
     // This would integrate with your S3 meeting analysis
     // For now, providing estimated data based on your system
@@ -360,18 +413,22 @@ async function analyzeMeetingData(client: PoolClient) {
   }
 }
 
-async function analyzeDeveloperTeam(client: PoolClient) {
+async function analyzeDeveloperTeam(client: PoolClient | null) {
   try {
     // Analyze active developers
-    const developerStats = await client.query(`
-      SELECT 
-        COUNT(*) as team_size,
-        COUNT(*) FILTER (WHERE status = 'active') as active_developers
-      FROM developers 
-      WHERE email NOT LIKE '%test%'
-    `);
+    let developerStatsRows: any[] = [];
+    if (client) {
+      const developerStats = await client.query(`
+        SELECT 
+          COUNT(*) as team_size,
+          COUNT(*) FILTER (WHERE status = 'active') as active_developers
+        FROM developers 
+        WHERE email NOT LIKE '%test%'
+      `);
+      developerStatsRows = developerStats.rows;
+    }
     
-    const stats = developerStats.rows[0];
+    const stats = developerStatsRows[0] || {};
     
     return {
       teamSize: parseInt(stats.active_developers || '3'),
@@ -443,7 +500,7 @@ async function analyzeBookProgress() {
   };
 }
 
-async function analyzeSystemHealth(client: PoolClient) {
+async function analyzeSystemHealth(client: PoolClient | null) {
   try {
     // Analyze overall system metrics
     const systemMetrics = {
