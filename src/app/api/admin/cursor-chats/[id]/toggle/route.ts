@@ -15,7 +15,11 @@ async function getDb(): Promise<{ client: PoolClient; release: () => void }> {
   return { client, release: () => client.release() };
 }
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const params = await context.params;
   const id = params.id;
   const { client, release } = await getDb();
   try {
