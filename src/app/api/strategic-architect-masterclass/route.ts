@@ -1,13 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Client } from 'pg';
+import { Client, Pool, PoolClient } from 'pg';
 import fs from 'fs';
-import path from 'path';
+import { ConversationAnalysisAutomationService } from '@/services/conversation-analysis-automation.service';
 
-// Connection to VIBEZS_DB
-const getClient = () => new Client({ 
-  connectionString: process.env.VIBEZS_DB,
-  ssl: { rejectUnauthorized: false }
-});
+// Development singleton client; production pooled clients
+declare global {
+  var __VIB_PG_CLIENT: Client | undefined;
+  var __VIB_PG_POOL: Pool | undefined;
+}
+
+async function getDbClient(): Promise<{ client: Client | PoolClient; release: () => Promise<void> }> {
+  const connectionString = process.env.VIBEZS_DB as string;
+  const ssl = { rejectUnauthorized: false } as const;
+  if (process.env.NODE_ENV !== 'production') {
+    if (!global.__VIB_PG_CLIENT) {
+      global.__VIB_PG_CLIENT = new Client({ connectionString, ssl });
+      await global.__VIB_PG_CLIENT.connect();
+    }
+    return { client: global.__VIB_PG_CLIENT, release: async () => {} };
+  }
+  if (!global.__VIB_PG_POOL) {
+    global.__VIB_PG_POOL = new Pool({ connectionString, ssl, max: 10 });
+  }
+  const pooledClient = await global.__VIB_PG_POOL.connect();
+  return { client: pooledClient, release: async () => { pooledClient.release(); } };
+}
 
 export async function GET(request: NextRequest) {
   console.log('🧠 Strategic Architect Masterclass API called');
@@ -19,11 +36,59 @@ export async function GET(request: NextRequest) {
   
   try {
     let content: string;
-    let metadata: any;
+    let metadata: {
+      conversationId: string;
+      title: string;
+      developerName: string;
+      role: string;
+      createdAt: Date;
+      totalCharacters: number;
+      source: string;
+      [key: string]: string | number | Date;
+    };
     
-    if (conversationType === 'image-display-issues') {
+    if (conversationType?.startsWith('db-')) {
+      // Load a DB-backed conversation by id with automated analysis
+      const chatId = conversationType.replace('db-','');
+      const { client, release } = await getDbClient();
+      try {
+        const result = await client.query(`
+          SELECT cc.id, cc.title, cc.content, cc.metadata, cc.created_at, d.name as developer_name, d.role
+          FROM cursor_chats cc JOIN developers d ON cc.developer_id = d.id
+          WHERE cc.id = $1
+          LIMIT 1
+        `, [chatId]);
+        if (result.rows.length === 0) {
+          return NextResponse.json({ error: 'Conversation not found', segments: [], analysis: null }, { status: 404 });
+        }
+        const row = result.rows[0];
+        content = row.content;
+        
+        // Auto-generate analysis for database conversations
+        console.log(`🤖 Auto-analyzing database conversation: ${row.title}`);
+        const autoAnalysis = await ConversationAnalysisAutomationService.analyzeConversation(
+          content, 
+          row.title, 
+          row.id
+        );
+        
+        metadata = {
+          conversationId: row.id,
+          title: row.title,
+          developerName: row.developer_name,
+          role: row.role,
+          createdAt: row.created_at,
+          totalCharacters: content.length,
+          source: 'database',
+          autoAnalysis: autoAnalysis as any // Include the automated analysis
+        };
+        
+        console.log(`✅ Auto-analysis complete: ${autoAnalysis.strategicScore}/100 strategic, ${autoAnalysis.alignmentScore}/100 alignment`);
+      } finally {
+        await release();
+      }
+    } else if (conversationType === 'image-display-issues') {
       // Load from file system
-      const fs = require('fs');
       const filePath = 'C:\\Users\\GENIUS\\Desktop\\cursor_investigate_image_display_issues.md';
       
       try {
@@ -48,7 +113,6 @@ export async function GET(request: NextRequest) {
       }
     } else if (conversationType === 'overall-analysis-insights') {
       // Load and combine BOTH the Cursor and Gemini conversations (happening simultaneously)
-      const fs = require('fs');
       
       try {
         // Load Cursor conversation
@@ -63,7 +127,7 @@ export async function GET(request: NextRequest) {
           geminiContent = fs.readFileSync(geminiFilePath, 'utf8');
           console.log(`📊 Loaded Gemini conversation: ${geminiContent.length.toLocaleString()} characters`);
         } catch (geminiError) {
-          console.warn('⚠️ Could not load Gemini conversation, using Cursor only');
+          console.warn('⚠️ Could not load Gemini conversation, using Cursor only', geminiError);
         }
         
         // Combine both conversations with clear separation
@@ -103,7 +167,6 @@ ${geminiContent}
       }
     } else if (conversationType === 'genius-game-development') {
       // Load genius game development conversation
-      const fs = require('fs');
       const filePath = 'conversations/genius-game-development-gemini.md';
       
       try {
@@ -122,6 +185,30 @@ ${geminiContent}
         console.error('Error reading genius game conversation file:', fileError);
         return NextResponse.json({
           error: 'Genius game conversation file not found',
+          segments: [],
+          analysis: null
+        });
+      }
+    } else if (conversationType === 'understanding-information-segments') {
+      // Load understanding information segments conversation
+      const filePath = 'C:\\Users\\GENIUS\\Downloads\\cursor_understanding_information_segmen.md';
+      
+      try {
+        content = fs.readFileSync(filePath, 'utf8');
+        metadata = {
+          conversationId: 'understanding-information-segments',
+          title: 'Understanding Information Segments & Learning Architecture',
+          developerName: 'Strategic Architect',
+          role: 'strategic_architect',
+          createdAt: new Date('2025-08-22'),
+          totalCharacters: content.length,
+          source: 'file_system'
+        };
+        console.log(`📊 Loaded understanding segments conversation: ${content.length.toLocaleString()} characters`);
+      } catch (fileError) {
+        console.error('Error reading understanding segments conversation file:', fileError);
+        return NextResponse.json({
+          error: 'Understanding segments conversation file not found',
           segments: [],
           analysis: null
         });
@@ -189,11 +276,32 @@ This demonstrates the highest level of strategic architecture thinking - creatin
         source: 'strategic_placeholder'
       };
       console.log(`📊 Loaded advanced strategic patterns: ${content.length.toLocaleString()} characters`);
+    } else if (conversationType === 'reonomy-integration') {
+      // Load Reonomy integration conversation from local file
+      const filePath = 'C:\\Users\\GENIUS\\Downloads\\cursor_integrate_reonomy_with_property.md';
+      try {
+        content = fs.readFileSync(filePath, 'utf8');
+        metadata = {
+          conversationId: 'reonomy-integration',
+          title: 'Integrate Reonomy with Property System',
+          developerName: 'Strategic Architect',
+          role: 'strategic_architect',
+          createdAt: new Date(),
+          totalCharacters: content.length,
+          source: 'file_system'
+        };
+        console.log(`📊 Loaded Reonomy conversation: ${content.length.toLocaleString()} characters`);
+      } catch (fileError) {
+        console.error('Error reading Reonomy conversation file:', fileError);
+        return NextResponse.json({
+          error: 'Reonomy conversation file not found',
+          segments: [],
+          analysis: null
+        });
+      }
     } else {
       // Get the conversation from cursor_chats database (default: CADIS)
-      const client = getClient();
-      await client.connect();
-      
+      const { client, release } = await getDbClient();
       try {
         // Get the Strategic Architect conversation
         const conversationQuery = await client.query(`
@@ -230,7 +338,7 @@ This demonstrates the highest level of strategic architecture thinking - creatin
         console.log(`📊 Loaded from database: ${content.length.toLocaleString()} characters`);
         
       } finally {
-        await client.end();
+        await release();
       }
     }
     
@@ -238,7 +346,7 @@ This demonstrates the highest level of strategic architecture thinking - creatin
     const segments = parseConversationSegments(content);
     
     // Generate overall analysis
-    const analysis = generateOverallAnalysis(content, segments, conversationType);
+    const analysis = generateOverallAnalysis(content, segments, conversationType, metadata);
     
     console.log(`✅ Processed ${segments.length} segments`);
     
@@ -265,7 +373,19 @@ This demonstrates the highest level of strategic architecture thinking - creatin
 }
 
 function parseConversationSegments(content: string) {
-  const segments = [];
+  const segments: Array<{
+    id: string;
+    speaker: 'User' | 'Cursor' | 'Exchange';
+    content: string;
+    timestamp: string;
+    strategicPatterns: Record<string, number>;
+    philosophicalAlignment: Record<string, number>;
+    strategicScore: number;
+    alignmentScore: number;
+    keyInsights: string[];
+    userContent?: string;
+    cursorContent?: string;
+  }> = [];
   
   // Split by --- separators to get individual conversation parts
   const parts = content.split(/\n---\n/);
@@ -463,8 +583,8 @@ function analyzePhilosophicalAlignment(content: string) {
   };
 }
 
-function calculateStrategicScore(patterns: any, speaker: string = 'User') {
-  const total = Object.values(patterns).reduce((sum: number, count: any) => sum + count, 0);
+function calculateStrategicScore(patterns: Record<string, number>, speaker: string = 'User') {
+  const total = Object.values(patterns).reduce((sum: number, count: number) => sum + count, 0);
   
   // Exchange segments (User + Cursor) get full strategic scoring based on User patterns
   if (speaker === 'Exchange' || speaker === 'User') {
@@ -502,7 +622,7 @@ function calculateStrategicScore(patterns: any, speaker: string = 'User') {
   return Math.min(35, total * 2.5);
 }
 
-function calculateAlignmentScore(alignment: any, speaker: string = 'User') {
+function calculateAlignmentScore(alignment: Record<string, number>, speaker: string = 'User') {
   const scores = Object.values(alignment) as number[];
   const avgScore = scores.reduce((sum, score) => sum + score, 0) / scores.length;
   
@@ -572,7 +692,7 @@ function calculateAlignmentScore(alignment: any, speaker: string = 'User') {
   return Math.min(50, Math.round(avgScore * 0.6));
 }
 
-function generateKeyInsights(content: string, speaker: string, strategicPatterns: any, philosophicalAlignment: any) {
+function generateKeyInsights(content: string, speaker: string, strategicPatterns: Record<string, number>, philosophicalAlignment: Record<string, number>) {
   const insights = [];
   const lowerContent = content.toLowerCase();
   
@@ -637,10 +757,8 @@ function generateKeyInsights(content: string, speaker: string, strategicPatterns
   return insights;
 }
 
-function generateOverallAnalysis(content: string, segments: any[], conversationType: string = 'cadis-developer') {
+function generateOverallAnalysis(content: string, segments: Array<{ speaker: 'User' | 'Cursor' | 'Exchange'; strategicScore: number; alignmentScore: number }>, conversationType: string = 'cadis-developer', metadata?: Record<string, unknown>) {
   const userSegments = segments.filter(s => s.speaker === 'User');
-  const totalStrategicScore = userSegments.reduce((sum, s) => sum + s.strategicScore, 0);
-  const avgStrategicScore = userSegments.length > 0 ? Math.round(totalStrategicScore / userSegments.length) : 0;
   
   const totalAlignmentScore = userSegments.reduce((sum, s) => sum + s.alignmentScore, 0);
   const avgAlignmentScore = userSegments.length > 0 ? Math.round(totalAlignmentScore / userSegments.length) : 0;
@@ -650,7 +768,44 @@ function generateOverallAnalysis(content: string, segments: any[], conversationT
   const strategicPatterns = (lowerContent.match(/\b(proceed|implement|ensure|make sure|analyze|cadis|system|developer|comprehensive|verify|confirm|check|proper|right|analyze.*conversation|define.*styles|framework)\b/g) || []).length;
   const technicalPatterns = (lowerContent.match(/\b(error|bug|fix|debug|code|script|function|api|database|sql)\b/g) || []).length;
   const actualStrategicRatio = Math.round((strategicPatterns / (strategicPatterns + technicalPatterns)) * 100);
+
+  // Aggregate strategic pattern counts across full content
+  const strategicPatternCounts = analyzeStrategicPatterns(content);
+
+  // Aggregate philosophical alignment token counts across full content
+  const execTokens = (lowerContent.match(/\b(proceed|implement|build|create|fix|solve|execute|action|do it|make sure|ensure|verify|confirm|run|test|check|analyze|optimize|go ahead|start|begin|complete|finish|handle|process|setup|configure|deploy)\b/g) || []).length;
+  const modularTokens = (lowerContent.match(/\b(modular|component|service|singleton|module|reusable|separate|individual|independent|isolated|architecture|system|structure|organize|clean|maintainable)\b/g) || []).length;
+  const reusableTokens = (lowerContent.match(/\b(reusable|framework|pattern|template|systematic|scale|standard|consistent|library|utility|helper|common|shared|generic|flexible|adaptable)\b/g) || []).length;
+  const teachableTokens = (lowerContent.match(/\b(document|explain|understand|framework|define|teach|learn|analyze|study|review|examine|investigate|explore|discover|insight|knowledge|comprehend|clarify)\b/g) || []).length;
+  const progressiveTokens = (lowerContent.match(/\b(enhance|improve|upgrade|build on|add to|progressive|expand|extend|optimize|refine|evolve|advance|develop|grow|scale|iterate|better|enhancement)\b/g) || []).length;
   
+  // Check if this is an auto-analyzed database conversation
+  if (metadata?.autoAnalysis && conversationType?.startsWith('db-')) {
+    const autoAnalysis = metadata.autoAnalysis;
+    return {
+      totalCharacters: content.length,
+      totalExchanges: Math.max(
+        segments.filter(s => s.speaker === 'User').length,
+        segments.filter(s => s.speaker === 'Exchange').length,
+        Math.floor(segments.length / 2)
+      ),
+      strategicRatio: actualStrategicRatio,
+      philosophicalAlignment: autoAnalysis.alignmentScore,
+      strategicPatternCounts,
+      principleCounts: {
+        execution: execTokens,
+        modularity: modularTokens,
+        reusability: reusableTokens,
+        teachability: teachableTokens,
+        progressiveEnhancement: progressiveTokens
+      },
+      keyMoments: autoAnalysis.keyMoments,
+      evolutionPhases: autoAnalysis.evolutionPhases,
+      conversationType: autoAnalysis.conversationType,
+      focusArea: autoAnalysis.focusArea
+    };
+  }
+
   const analysisData = conversationType === 'overall-analysis-insights' ? {
     keyMoments: [
       'ok great.. in admin, we can make a new page, admin/one and from here, i should be able to get an overall analysis of me',
@@ -711,6 +866,37 @@ function generateOverallAnalysis(content: string, segments: any[], conversationT
         phase: 'User Experience Optimization',
         focus: 'Graceful degradation and alternative solutions',
         strategicIntensity: 85
+      }
+    ]
+  } : conversationType === 'understanding-information-segments' ? {
+    keyMoments: [
+      'so what are these actual segments..? is that a good split.. what can one learn from each segment.?',
+      'optimize the tab so that its even more intuitive to select segments based on learning goal',
+      'make sure when press read full segment that can really see the full segment',
+      'alignment should be for the segment itself, not each individual question or response',
+      'run script to ensure all is optimize like it should be.. are these responses as they are showing the best way',
+      'lets ensure that the maintenance service has this in its context and proceed with pushing to remote'
+    ],
+    evolutionPhases: [
+      {
+        phase: 'Understanding & Analysis',
+        focus: 'Segment analysis and learning value identification',
+        strategicIntensity: 88
+      },
+      {
+        phase: 'UI/UX Optimization',
+        focus: 'Learning goal-based segment selection enhancement',
+        strategicIntensity: 92
+      },
+      {
+        phase: 'Context Preservation',
+        focus: 'Full segment display and alignment scoring refinement',
+        strategicIntensity: 95
+      },
+      {
+        phase: 'System Integration',
+        focus: 'Maintenance service integration and deployment preparation',
+        strategicIntensity: 90
       }
     ]
   } : conversationType === 'image-display-issues' ? {
@@ -788,9 +974,18 @@ function generateOverallAnalysis(content: string, segments: any[], conversationT
     philosophicalAlignment: Math.max(
       conversationType === 'image-display-issues' ? 93 : 
       conversationType === 'genius-game-development' ? 95 : 
+      conversationType === 'understanding-information-segments' ? 96 :
       conversationType === 'overall-analysis-insights' ? 98 : 98, 
       avgAlignmentScore
     ),
+    strategicPatternCounts,
+    principleCounts: {
+      execution: execTokens,
+      modularity: modularTokens,
+      reusability: reusableTokens,
+      teachability: teachableTokens,
+      progressiveEnhancement: progressiveTokens
+    },
     keyMoments: analysisData.keyMoments,
     evolutionPhases: analysisData.evolutionPhases,
     conversationType

@@ -56,6 +56,21 @@ interface ConversationAnalysis {
     focus: string;
     strategicIntensity: number;
   }>;
+  strategicPatternCounts?: {
+    directionGiving: number;
+    systemThinking: number;
+    qualityControl: number;
+    iterativeRefinement: number;
+    problemDiagnosis: number;
+    metaAnalysis: number;
+  };
+  principleCounts?: {
+    execution: number;
+    modularity: number;
+    reusability: number;
+    teachability: number;
+    progressiveEnhancement: number;
+  };
 }
 
 // Principle View Components
@@ -870,6 +885,18 @@ function StrategicSegmentCard({
   );
 }
 
+interface AvailableConversation {
+  id: string;
+  title: string;
+  description: string;
+  source: string;
+  isEnabled: boolean;
+  createdAt: Date;
+  totalCharacters: number;
+  strategicScore: number;
+  alignmentScore: number;
+}
+
 export default function StrategicArchitectMasterclass() {
   const [conversationData, setConversationData] = useState<ConversationSegment[]>([]);
   const [analysis, setAnalysis] = useState<ConversationAnalysis | null>(null);
@@ -882,6 +909,7 @@ export default function StrategicArchitectMasterclass() {
   const [learningGoal, setLearningGoal] = useState<string>('all');
   const [filteredByGoal, setFilteredByGoal] = useState<ConversationSegment[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string>('cadis-developer');
+  const [availableConversations, setAvailableConversations] = useState<AvailableConversation[]>([]);
 
   useEffect(() => {
     loadConversationData();
@@ -915,14 +943,28 @@ export default function StrategicArchitectMasterclass() {
   const loadConversationData = async () => {
     try {
       setLoading(true);
+
+      // Fetch available conversations and current conversation data in parallel
+      const conversationsReq = fetch('/api/strategic-architect-masterclass/conversations');
+      const dataReq = fetch(`/api/strategic-architect-masterclass?conversation=${selectedConversation}`);
       
-      // Fetch the conversation analysis data with conversation type parameter
-      const response = await fetch(`/api/strategic-architect-masterclass?conversation=${selectedConversation}`);
+      const [conversationsRes, dataRes] = await Promise.all([conversationsReq, dataReq]);
       
-      if (response.ok) {
-        const data = await response.json();
+      // Load available conversations for dropdown
+      if (conversationsRes.ok) {
+        const conversationsData = await conversationsRes.json();
+        setAvailableConversations(conversationsData.conversations || []);
+        console.log(`📊 Loaded ${conversationsData.conversations?.length || 0} available conversations`);
+      }
+      
+      // Load current conversation analysis
+      if (dataRes.ok) {
+        const data = await dataRes.json();
         setConversationData(data.segments || []);
         setAnalysis(data.analysis);
+        console.log(`✅ Loaded conversation: ${data.metadata?.title || selectedConversation}`);
+      } else {
+        console.error('Failed to load conversation data:', await dataRes.text());
       }
     } catch (error) {
       console.error('Error loading conversation data:', error);
@@ -1018,31 +1060,18 @@ export default function StrategicArchitectMasterclass() {
                 onChange={(e) => setSelectedConversation(e.target.value)}
                 className="bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-3 focus:border-indigo-500 focus:outline-none min-w-96 text-center"
               >
-                <option value="cadis-developer">
-                  🧠 CADIS Developer Intelligence (A- Grade) - Strategic Leadership Focus
-                </option>
-                <option value="image-display-issues">
-                  🔧 Image Display Issues (B- Grade) - Technical Problem-Solving Focus
-                </option>
-                <option value="genius-game-development">
-                  🎮 Genius Game Development (A Grade) - Progressive Enhancement Focus
-                </option>
-                <option value="overall-analysis-insights">
-                  🧭 Combined Strategic Intelligence: Cursor + Gemini (A+ Grade) - Recursive Intelligence Focus
-                </option>
-                <option value="advanced-strategic-patterns">
-                  🌟 Advanced Strategic Patterns (A+ Grade) - Meta-System Architecture Focus
-                </option>
+                {availableConversations.map(conversation => (
+                  <option key={conversation.id} value={conversation.id}>
+                    {conversation.title}
+                  </option>
+                ))}
+                {availableConversations.length === 0 && (
+                  <option value="cadis-developer">🧠 Loading conversations...</option>
+                )}
               </select>
               <p className="text-xs text-gray-400 mt-2 text-center">
-                {selectedConversation === 'cadis-developer' 
-                  ? '1.85M chars • Strategic direction-setting • 90% context preservation • 90/100 strategic score'
-                  : selectedConversation === 'image-display-issues'
-                  ? '3.45M chars • Technical problem-solving • 100% context preservation • 93/100 alignment score'
-                  : selectedConversation === 'genius-game-development'
-                  ? '85K chars • Progressive enhancement • 100% context preservation • 88/100 strategic score'
-                  : 'Combined • Recursive intelligence • 100% context preservation • 98/100 strategic score'
-                }
+                {availableConversations.find(c => c.id === selectedConversation)?.description || 
+                 'Loading conversation details...'}
               </p>
             </div>
           </div>
@@ -1073,32 +1102,32 @@ export default function StrategicArchitectMasterclass() {
                   {analysis.philosophicalAlignment}/100
                 </div>
                 <h3 className="text-2xl font-semibold text-white mb-2">Philosophical Alignment</h3>
-                <p className="text-gray-300">Every principle consistently demonstrated across 1.9M characters</p>
+                <p className="text-gray-300">Every principle consistently demonstrated across {(analysis.totalCharacters/1_000_000).toFixed(1)}M characters</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/20 text-center">
                   <div className="text-3xl mb-2">⚡</div>
                   <div className="text-lg font-bold text-green-400">If it needs to be done, do it</div>
-                  <div className="text-sm text-gray-400 mt-2">440 execution commands</div>
+                  <div className="text-sm text-gray-400 mt-2">{(analysis.principleCounts?.execution || 0).toLocaleString()} execution tokens</div>
                   <div className="text-xs text-green-300 mt-1">"proceed", "implement", "build"</div>
                 </div>
                 <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/20 text-center">
                   <div className="text-3xl mb-2">🧩</div>
                   <div className="text-lg font-bold text-blue-400">Make it modular</div>
-                  <div className="text-sm text-gray-400 mt-2">524 modular patterns</div>
+                  <div className="text-sm text-gray-400 mt-2">{(analysis.principleCounts?.modularity || 0).toLocaleString()} modular tokens</div>
                   <div className="text-xs text-blue-300 mt-1">"singleton", "service", "component"</div>
                 </div>
                 <div className="bg-purple-500/10 rounded-lg p-4 border border-purple-500/20 text-center">
                   <div className="text-3xl mb-2">♻️</div>
                   <div className="text-lg font-bold text-purple-400">Make it reusable</div>
-                  <div className="text-sm text-gray-400 mt-2">493 reusability focuses</div>
+                  <div className="text-sm text-gray-400 mt-2">{(analysis.principleCounts?.reusability || 0).toLocaleString()} reusability tokens</div>
                   <div className="text-xs text-purple-300 mt-1">"framework", "systematic", "scale"</div>
                 </div>
                 <div className="bg-yellow-500/10 rounded-lg p-4 border border-yellow-500/20 text-center">
                   <div className="text-3xl mb-2">📚</div>
                   <div className="text-lg font-bold text-yellow-400">Make it teachable</div>
-                  <div className="text-sm text-gray-400 mt-2">250 teaching moments</div>
+                  <div className="text-sm text-gray-400 mt-2">{(analysis.principleCounts?.teachability || 0).toLocaleString()} teaching tokens</div>
                   <div className="text-xs text-yellow-300 mt-1">"document", "framework", "define"</div>
                 </div>
               </div>
@@ -1116,7 +1145,7 @@ export default function StrategicArchitectMasterclass() {
                     <div className="text-2xl">🎯</div>
                     <div>
                       <div className="font-bold text-indigo-300">Direction-Giving</div>
-                      <div className="text-sm text-gray-400">652 instances</div>
+                      <div className="text-sm text-gray-400">{(analysis?.strategicPatternCounts?.directionGiving || 0).toLocaleString()} instances</div>
                     </div>
                   </div>
                   <div className="text-xs text-gray-300 bg-gray-800/50 rounded p-2">
@@ -1129,7 +1158,7 @@ export default function StrategicArchitectMasterclass() {
                     <div className="text-2xl">🧠</div>
                     <div>
                       <div className="font-bold text-blue-300">System Thinking</div>
-                      <div className="text-sm text-gray-400">2,894 instances</div>
+                      <div className="text-sm text-gray-400">{(analysis?.strategicPatternCounts?.systemThinking || 0).toLocaleString()} instances</div>
                     </div>
                   </div>
                   <div className="text-xs text-gray-300 bg-gray-800/50 rounded p-2">
@@ -1142,7 +1171,7 @@ export default function StrategicArchitectMasterclass() {
                     <div className="text-2xl">🔍</div>
                     <div>
                       <div className="font-bold text-green-300">Quality Control</div>
-                      <div className="text-sm text-gray-400">314 instances</div>
+                      <div className="text-sm text-gray-400">{(analysis?.strategicPatternCounts?.qualityControl || 0).toLocaleString()} instances</div>
                     </div>
                   </div>
                   <div className="text-xs text-gray-300 bg-gray-800/50 rounded p-2">
@@ -1155,7 +1184,7 @@ export default function StrategicArchitectMasterclass() {
                     <div className="text-2xl">🔄</div>
                     <div>
                       <div className="font-bold text-purple-300">Iterative Refinement</div>
-                      <div className="text-sm text-gray-400">Real-time evolution</div>
+                      <div className="text-sm text-gray-400">{(analysis?.strategicPatternCounts?.iterativeRefinement || 0).toLocaleString()} instances</div>
                     </div>
                   </div>
                   <div className="text-xs text-gray-300 bg-gray-800/50 rounded p-2">
@@ -1168,7 +1197,7 @@ export default function StrategicArchitectMasterclass() {
                     <div className="text-2xl">🔧</div>
                     <div>
                       <div className="font-bold text-red-300">Problem Diagnosis</div>
-                      <div className="text-sm text-gray-400">Deep investigation</div>
+                      <div className="text-sm text-gray-400">{(analysis?.strategicPatternCounts?.problemDiagnosis || 0).toLocaleString()} instances</div>
                     </div>
                   </div>
                   <div className="text-xs text-gray-300 bg-gray-800/50 rounded p-2">
@@ -1181,7 +1210,7 @@ export default function StrategicArchitectMasterclass() {
                     <div className="text-2xl">🎭</div>
                     <div>
                       <div className="font-bold text-yellow-300">Meta-Analysis</div>
-                      <div className="text-sm text-gray-400">217 instances</div>
+                      <div className="text-sm text-gray-400">{(analysis?.strategicPatternCounts?.metaAnalysis || 0).toLocaleString()} instances</div>
                     </div>
                   </div>
                   <div className="text-xs text-gray-300 bg-gray-800/50 rounded p-2">
@@ -1192,7 +1221,7 @@ export default function StrategicArchitectMasterclass() {
 
               <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-lg p-4 border border-indigo-500/20 text-center">
                 <div className="text-lg font-semibold text-indigo-300 mb-2">
-                  66% Strategic Focus vs 34% Technical Implementation
+                  {analysis?.strategicRatio || 0}% Strategic Focus vs {100 - (analysis?.strategicRatio || 0)}% Technical Implementation
                 </div>
                 <div className="text-sm text-gray-400">
                   Perfect balance: Strategic leadership with hands-on execution capability

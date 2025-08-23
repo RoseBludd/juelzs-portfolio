@@ -57,9 +57,32 @@ const navigation = [
     icon: '🧠',
   },
   {
+    name: 'Cursor Chats',
+    href: '/admin/cursor-chats',
+    icon: '💬',
+  },
+  {
     name: 'Calendar',
     href: '/admin/calendar',
     icon: '📅',
+  },
+];
+
+const crossPlatformAdmin = [
+  {
+    name: 'Genius Game Admin',
+    href: 'https://genius.vibezs.io/admin',
+    icon: '🎮',
+  },
+  {
+    name: 'VibezS Dev Admin',
+    href: 'https://dev.juelzs.com/admin',
+    icon: '⚡',
+  },
+  {
+    name: 'dev.juelzs.com',
+    href: 'https://dev.juelzs.com',
+    icon: '🌐',
   },
 ];
 
@@ -163,6 +186,27 @@ export default function ResponsiveAdminLayout({ children }: ResponsiveAdminLayou
                 })}
               </ul>
 
+              {/* Cross-Platform Admin */}
+              <div className="mt-8 pt-6 border-t border-gray-700">
+                <h3 className="text-sm font-medium text-gray-400 mb-3">Cross-Platform Admin</h3>
+                <ul className="space-y-2">
+                  {crossPlatformAdmin.map(link => (
+                    <li key={link.href}>
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white"
+                      >
+                        <span className="mr-3 text-lg">{link.icon}</span>
+                        {link.name}
+                        <span className="ml-2 text-xs text-gray-400">↗</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
               {/* Notifications Section */}
               <div className="mt-8 pt-6 border-t border-gray-700">
                 <h3 className="text-sm font-medium text-gray-400 mb-3">Notifications</h3>
@@ -214,6 +258,27 @@ export default function ResponsiveAdminLayout({ children }: ResponsiveAdminLayou
                 );
               })}
             </ul>
+
+            {/* Cross-Platform Admin */}
+            <div className="mt-8 pt-6 border-t border-gray-700">
+              <h3 className="text-sm font-medium text-gray-400 mb-3">Cross-Platform Admin</h3>
+              <ul className="space-y-2">
+                {crossPlatformAdmin.map(link => (
+                  <li key={link.href}>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >
+                      <span className="mr-3 text-lg">{link.icon}</span>
+                      {link.name}
+                      <span className="ml-2 text-xs text-gray-400">↗</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             {/* Notifications Section */}
             <div className="mt-8 pt-6 border-t border-gray-700">

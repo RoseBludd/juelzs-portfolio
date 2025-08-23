@@ -65,6 +65,12 @@ const navigation = [
     description: 'AI intelligence insights'
   },
   {
+    name: 'Cursor Chats',
+    href: '/admin/cursor-chats',
+    icon: '💬',
+    description: 'Upload & manage chats'
+  },
+  {
     name: 'Calendar',
     href: '/admin/calendar',
     icon: '📅',
