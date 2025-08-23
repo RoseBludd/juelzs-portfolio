@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createCADISTower, getCADISTower } from '@/services/cadis-tower-babel.service';
 import { getCADISAgent } from '@/services/cadis-background-agent.service';
+import { CADISAutonomousOrchestrator } from '@/services/cadis-autonomous-orchestrator.service';
 
 // Initialize CADIS Tower with comprehensive configuration
 const initializeTower = () => {
@@ -91,7 +92,10 @@ export async function POST(request: NextRequest) {
       type = 'workflow',
       context = {},
       enableConsciousness = false,
-      layers = 3
+      layers = 3,
+      scenario = null,
+      executeReal = false,
+      autonomous = false
     } = body;
 
     if (!userRequest) {
@@ -103,6 +107,63 @@ export async function POST(request: NextRequest) {
 
     // Initialize or get existing tower
     const tower = initializeTower();
+
+    // Handle autonomous processing
+    if (autonomous) {
+      console.log('🤖 Using CADIS Autonomous Orchestrator');
+      const orchestrator = CADISAutonomousOrchestrator.getInstance();
+      
+      // Get background agent config
+      const agentConfig = {
+        githubToken: process.env.GITHUB_TOKEN || '',
+        vercelToken: process.env.VERCEL_TOKEN || '',
+        railwayToken: process.env.RAILWAY_TOKEN || '',
+        openaiApiKey: process.env.OPENAI_API_KEY || '',
+        claudeApiKey: process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY || '',
+        geminiApiKey: process.env.GEMINI_API_KEY || '',
+        elevenLabsApiKey: process.env.ELEVEN_LABS_API_KEY || '',
+        supabaseUrl: process.env.SUPABASE_URL || '',
+        supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+        s3Config: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+          region: process.env.AWS_REGION || 'us-east-1',
+          bucket: process.env.AWS_S3_BUCKET || ''
+        }
+      };
+      
+      const backgroundAgent = getCADISAgent(agentConfig);
+      orchestrator.initialize(tower, backgroundAgent);
+      
+      const result = await orchestrator.processRequest(userRequest, type, context);
+      
+      return NextResponse.json({
+        success: true,
+        result,
+        tower: tower.getStatus(),
+        timestamp: new Date().toISOString(),
+        mode: 'autonomous'
+      });
+    }
+
+    // Handle real scenario execution
+    if (executeReal && scenario) {
+      console.log(`🎯 Executing real scenario: ${scenario.name}`);
+      const scenarioResult = await tower.executeRealScenario(scenario, {
+        type,
+        context,
+        enableConsciousness,
+        layers
+      });
+      
+      return NextResponse.json({
+        success: true,
+        type: 'real-scenario-execution',
+        scenario: scenario.name,
+        result: scenarioResult,
+        timestamp: new Date().toISOString()
+      });
+    }
 
     // Process request through the tower
     const result = await tower.processRequest(userRequest, {

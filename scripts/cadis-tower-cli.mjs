@@ -55,6 +55,10 @@ function showHelp() {
   console.log('  coaching          👨‍💻 Developer performance coaching and improvement');
   console.log('  module_creation   🏗️ Create modules based on vibezs patterns');
   console.log('  production_module 💼 Create sellable, tenant-ready modules with business plans');
+  console.log('  approval          🔐 Manage approval requests (--list, --approve, --reject)');
+  console.log('  agents            🤖 Test specialized agents performance');
+  console.log('  offline           🔌 Test offline intelligence capabilities');
+  console.log('  analyze           🧠 Analyze conversation intelligence patterns');
   
   console.log('\n💡 Examples:');
   console.log('  # Journal analysis');
