@@ -1278,7 +1278,10 @@ export default function StrategicArchitectMasterclass() {
                 Key Strategic Moments
               </h3>
               <p className="text-gray-400">
-                Witness execution-led refinement in action - curated highlights from the {analysis?.totalCharacters ? (analysis.totalCharacters / 1000000).toFixed(2) + 'M' : ''} character conversation
+                {analysis?.focusArea 
+                  ? `Witness ${analysis.focusArea.toLowerCase()} in action - curated highlights from the ${analysis?.totalCharacters ? (analysis.totalCharacters / 1000000).toFixed(2) + 'M' : ''} character conversation`
+                  : `Witness execution-led refinement in action - curated highlights from the ${analysis?.totalCharacters ? (analysis.totalCharacters / 1000000).toFixed(2) + 'M' : ''} character conversation`
+                }
               </p>
             </div>
 
@@ -1297,22 +1300,25 @@ export default function StrategicArchitectMasterclass() {
                       </div>
                       <div>
                         <div className="font-bold text-white text-lg">
-                          {selectedConversation === 'image-display-issues' 
+                          {analysis?.evolutionPhases?.[index]?.phase || 
+                           (selectedConversation === 'image-display-issues' 
                             ? ['Problem Identification', 'Root Cause Analysis', 'Architecture Refinement', 'Solution Implementation', 'Quality Control', 'Strategic Direction'][index] || 'Strategic Moment'
                             : ['Strategic Direction', 'Scope Refinement', 'Deep Investigation', 'Meta-Analysis', 'Quality Control', 'Framework Creation'][index] || 'Strategic Moment'
+                           )
                           }
                         </div>
                         <div className="text-sm text-gray-400">
-                          {selectedConversation === 'image-display-issues' ? 'Problem-Solving' : 'Strategic'} Pattern - Exchange {index + 1}
+                          {analysis?.focusArea || (selectedConversation === 'image-display-issues' ? 'Problem-Solving' : 'Strategic')} Pattern - Exchange {index + 1}
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-lg font-bold text-green-400">
-                        {selectedConversation === 'image-display-issues' ? [85, 90, 95, 80, 95, 88][index] || 85 : [95, 88, 92, 100, 90, 85][index] || 90}/100
+                        {analysis?.evolutionPhases?.[index]?.strategicIntensity || 
+                         (selectedConversation === 'image-display-issues' ? [85, 90, 95, 80, 95, 88][index] || 85 : [95, 88, 92, 100, 90, 85][index] || 90)}/100
                       </div>
                       <div className="text-sm text-green-300">
-                        {selectedConversation === 'image-display-issues' ? 'Strategic Problem-Solving' : 'Strategic Leadership'}
+                        {analysis?.focusArea || (selectedConversation === 'image-display-issues' ? 'Strategic Problem-Solving' : 'Strategic Leadership')}
                       </div>
                     </div>
                   </div>
@@ -1323,29 +1329,30 @@ export default function StrategicArchitectMasterclass() {
                   </div>
                   <div className="grid grid-cols-4 gap-3 text-center text-xs">
                     <div className="bg-indigo-500/20 rounded p-2">
-                      <div className="text-indigo-300 font-medium">
-                        {selectedConversation === 'image-display-issues' ? 'Direction' : 'Direction'}
-                      </div>
+                      <div className="text-indigo-300 font-medium">Direction</div>
                       <div className="text-gray-400">
-                        {selectedConversation === 'image-display-issues' ? [3, 4, 5, 2, 4, 3][index] || 3 : [5, 3, 4, 2, 4, 3][index] || 4}
+                        {Math.min(5, Math.round((analysis?.strategicPatternCounts?.directionGiving || 0) / 10)) || 
+                         (selectedConversation === 'image-display-issues' ? [3, 4, 5, 2, 4, 3][index] || 3 : [5, 3, 4, 2, 4, 3][index] || 4)}
                       </div>
                     </div>
                     <div className="bg-blue-500/20 rounded p-2">
                       <div className="text-blue-300 font-medium">Quality</div>
                       <div className="text-gray-400">
-                        {selectedConversation === 'image-display-issues' ? [4, 3, 2, 3, 5, 4][index] || 3 : [3, 2, 3, 1, 4, 2][index] || 3}
+                        {Math.min(5, Math.round((analysis?.strategicPatternCounts?.qualityControl || 0) / 8)) || 
+                         (selectedConversation === 'image-display-issues' ? [4, 3, 2, 3, 5, 4][index] || 3 : [3, 2, 3, 1, 4, 2][index] || 3)}
                       </div>
                     </div>
                     <div className="bg-green-500/20 rounded p-2">
                       <div className="text-green-300 font-medium">System</div>
                       <div className="text-gray-400">
-                        {selectedConversation === 'image-display-issues' ? [2, 3, 4, 2, 2, 3][index] || 2 : [4, 3, 2, 5, 3, 4][index] || 3}
+                        {Math.min(5, Math.round((analysis?.strategicPatternCounts?.systemThinking || 0) / 12)) || 
+                         (selectedConversation === 'image-display-issues' ? [2, 3, 4, 2, 2, 3][index] || 2 : [4, 3, 2, 5, 3, 4][index] || 3)}
                       </div>
                     </div>
                     <div className="bg-purple-500/20 rounded p-2">
                       <div className="text-purple-300 font-medium">Focus</div>
                       <div className="text-gray-400">
-                        {selectedConversation === 'image-display-issues' ? 'Problem' : 'Strategic'}
+                        {analysis?.focusArea?.split(' ')[0] || (selectedConversation === 'image-display-issues' ? 'Problem' : 'Strategic')}
                       </div>
                     </div>
                   </div>
