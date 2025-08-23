@@ -1,4 +1,3 @@
-import DatabaseService from './database.service';
 import { PoolClient } from 'pg';
 
 export interface CodingScenario {
@@ -67,6 +66,7 @@ class CADISCodingImprovementService {
   }
 
   private async ensureTablesExist(): Promise<void> {
+    const DatabaseService = (await import('./database.service')).default;
     const client = await DatabaseService.getClient();
     
     try {
@@ -192,6 +192,7 @@ class CADISCodingImprovementService {
     ];
 
     // Store scenarios in database
+    const DatabaseService = (await import('./database.service')).default;
     const client = await DatabaseService.getClient();
     try {
       for (const scenario of scenarios) {
@@ -220,6 +221,7 @@ class CADISCodingImprovementService {
   async runCodingScenario(scenarioId: string): Promise<CodingAttempt> {
     console.log(`🚀 Running coding scenario: ${scenarioId}`);
     
+    const DatabaseService = (await import('./database.service')).default;
     const client = await DatabaseService.getClient();
     let scenario: CodingScenario;
     
@@ -355,6 +357,7 @@ class CADISCodingImprovementService {
   }
 
   private async storeCodingAttempt(attempt: CodingAttempt): Promise<void> {
+    const DatabaseService = (await import('./database.service')).default;
     const client = await DatabaseService.getClient();
     
     try {
@@ -381,6 +384,7 @@ class CADISCodingImprovementService {
   }
 
   private async updateCodingProgress(): Promise<void> {
+    const DatabaseService = (await import('./database.service')).default;
     const client = await DatabaseService.getClient();
     
     try {
@@ -455,6 +459,7 @@ class CADISCodingImprovementService {
   }
 
   async getCodingProgress(): Promise<CodingProgress | null> {
+    const DatabaseService = (await import('./database.service')).default;
     const client = await DatabaseService.getClient();
     
     try {
