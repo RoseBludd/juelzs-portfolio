@@ -714,8 +714,8 @@ class ConsciousnessLayer {
   private selfAwarenessLevel = 0;
   private learningHistory: any[] = [];
 
-  constructor(interface: InterfaceLayer, orchestration: OrchestrationLayer, foundation: FoundationLayer) {
-    this.interface = interface;
+  constructor(interfaceLayer: InterfaceLayer, orchestration: OrchestrationLayer, foundation: FoundationLayer) {
+    this.interface = interfaceLayer;
     this.orchestration = orchestration;
     this.foundation = foundation;
   }

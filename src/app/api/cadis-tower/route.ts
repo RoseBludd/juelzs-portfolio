@@ -53,8 +53,19 @@ const initializeTower = () => {
     }
   };
 
-  // Get or create background agent
-  const backgroundAgent = getCADISAgent();
+  // Get or create background agent with configuration
+  const agentConfig = {
+    openaiApiKey: process.env.OPENAI_API_KEY || '',
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
+    geminiApiKey: process.env.GEMINI_API_KEY || '',
+    githubToken: process.env.GITHUB_TOKEN || '',
+    vercelToken: process.env.VERCEL_TOKEN || '',
+    railwayToken: process.env.RAILWAY_TOKEN || '',
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  };
+  
+  const backgroundAgent = getCADISAgent(agentConfig);
   
   return createCADISTower({
     aiModels,
@@ -120,7 +131,7 @@ export async function GET(request: NextRequest) {
 
     if (action === 'status') {
       // Get comprehensive tower status
-      const tower = getCADISTower();
+      const tower = initializeTower();
       const status = tower.getStatus();
 
       return NextResponse.json({
@@ -136,7 +147,7 @@ export async function GET(request: NextRequest) {
 
     if (action === 'capabilities') {
       // Get detailed capabilities
-      const tower = getCADISTower();
+      const tower = initializeTower();
       const status = tower.getStatus();
 
       return NextResponse.json({

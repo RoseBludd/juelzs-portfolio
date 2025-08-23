@@ -42,6 +42,7 @@ export default function CADISTowerPage() {
   const [layers, setLayers] = useState(3);
   const [result, setResult] = useState<TowerResult | null>(null);
   const [error, setError] = useState('');
+  const [statusExpanded, setStatusExpanded] = useState(false);
 
   useEffect(() => {
     loadTowerStatus();
@@ -144,75 +145,100 @@ export default function CADISTowerPage() {
       {/* Tower Status */}
       <Card className="border-purple-500/30">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-purple-300">Tower Status</h2>
-          <div className={`px-3 py-1 rounded-full text-sm ${
-            towerStatus ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
-          }`}>
-            {towerStatus ? '🟢 Operational' : '🔴 Offline'}
+          <button 
+            onClick={() => setStatusExpanded(!statusExpanded)}
+            className="flex items-center gap-2 text-xl font-semibold text-purple-300 hover:text-purple-200 transition-colors"
+          >
+            <span className={`transform transition-transform ${statusExpanded ? 'rotate-90' : ''}`}>▶</span>
+            Tower Status
+          </button>
+          <div className="flex items-center gap-3">
+            {towerStatus && (
+              <div className="text-sm text-gray-400">
+                {towerStatus.capabilities.activeWorkflows} workflows • {towerStatus.capabilities.intelligenceServices.length} services
+              </div>
+            )}
+            <div className={`px-3 py-1 rounded-full text-sm ${
+              towerStatus ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
+            }`}>
+              {towerStatus ? '🟢 Operational' : '🔴 Offline'}
+            </div>
           </div>
         </div>
 
-        {towerStatus ? (
+        {towerStatus && statusExpanded && (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-gray-800/50 rounded-lg p-4">
                 <div className="text-sm text-gray-400">Architecture</div>
                 <div className="text-lg font-semibold text-white">
-                  {towerStatus.architecture} v{towerStatus.version}
+                  {towerStatus.architecture || 'Tower of Babel'} v{towerStatus.version || '1.0.0'}
                 </div>
               </div>
               <div className="bg-gray-800/50 rounded-lg p-4">
                 <div className="text-sm text-gray-400">Self-Awareness</div>
                 <div className="text-lg font-semibold text-white">
-                  {formatSelfAwareness(towerStatus.capabilities.selfAwarenessLevel)}
+                  {formatSelfAwareness(towerStatus.capabilities?.selfAwarenessLevel || 0)}
                 </div>
               </div>
               <div className="bg-gray-800/50 rounded-lg p-4">
                 <div className="text-sm text-gray-400">Active Workflows</div>
                 <div className="text-lg font-semibold text-white">
-                  {towerStatus.capabilities.activeWorkflows}
+                  {towerStatus.capabilities?.activeWorkflows || 0}
                 </div>
               </div>
               <div className="bg-gray-800/50 rounded-lg p-4">
                 <div className="text-sm text-gray-400">Learning Events</div>
                 <div className="text-lg font-semibold text-white">
-                  {towerStatus.capabilities.learningEvents}
+                  {towerStatus.capabilities?.learningEvents || 0}
                 </div>
               </div>
             </div>
 
             {/* Architecture Layers */}
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-purple-300 mb-3">Architecture Layers</h3>
-              <div className="space-y-2">
-                {Object.entries(towerStatus.layers).map(([layer, description], index) => (
-                  <div key={layer} className="flex items-center gap-3 p-3 bg-gray-800/30 rounded-lg">
-                    <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center text-sm font-bold">
-                      {5 - index}
+            {towerStatus.layers && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold text-purple-300 mb-3">Architecture Layers</h3>
+                <div className="space-y-2">
+                  {Object.entries(towerStatus.layers).map(([layer, description], index) => (
+                    <div key={layer} className="flex items-center gap-3 p-3 bg-gray-800/30 rounded-lg">
+                      <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center text-sm font-bold">
+                        {5 - index}
+                      </div>
+                      <div>
+                        <div className="font-medium text-white capitalize">{layer.replace(/([A-Z])/g, ' $1').trim()}</div>
+                        <div className="text-sm text-gray-400">{description}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="font-medium text-white capitalize">{layer.replace(/([A-Z])/g, ' $1').trim()}</div>
-                      <div className="text-sm text-gray-400">{description}</div>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Intelligence Services */}
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-purple-300 mb-3">Intelligence Services</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {towerStatus.capabilities.intelligenceServices.map((service, index) => (
-                  <div key={index} className="p-3 bg-gray-800/30 rounded-lg">
-                    <div className="font-medium text-white">{service.name}</div>
-                    <div className="text-sm text-gray-400">{service.description}</div>
-                  </div>
-                ))}
+            {towerStatus.capabilities?.intelligenceServices && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold text-purple-300 mb-3">Intelligence Services</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {towerStatus.capabilities.intelligenceServices.map((service, index) => (
+                    <div key={index} className="p-3 bg-gray-800/30 rounded-lg">
+                      <div className="font-medium text-white">{service.name}</div>
+                      <div className="text-sm text-gray-400">{service.description}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
-        ) : (
+        )}
+
+        {towerStatus && !statusExpanded && (
+          <div className="text-gray-400 text-sm">
+            Click to expand full tower details and architecture layers
+          </div>
+        )}
+
+        {!towerStatus && (
           <div className="text-gray-400 text-center py-8">
             Tower not initialized. Send a request to activate the tower.
           </div>

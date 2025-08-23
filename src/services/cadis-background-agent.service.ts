@@ -953,6 +953,6 @@ export const createCADISAgent = (config: CADISAgentConfig) => {
   return CADISBackgroundAgent.getInstance(config);
 };
 
-export const getCADISAgent = () => {
-  return CADISBackgroundAgent.getInstance();
+export const getCADISAgent = (config?: CADISAgentConfig) => {
+  return CADISBackgroundAgent.getInstance(config);
 };
