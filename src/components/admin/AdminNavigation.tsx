@@ -17,6 +17,12 @@ const navigation = [
     description: 'Autonomous coding agent'
   },
   {
+    name: 'CADIS Tower',
+    href: '/admin/cadis-tower',
+    icon: '🗼',
+    description: 'Tower of Babel AI ecosystem'
+  },
+  {
     name: 'Dashboard',
     href: '/admin',
     icon: '📊',

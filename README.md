@@ -290,9 +290,50 @@ AI Recommendation:
 
 **AI-Powered Engineering Documentation** - Complete journal system for documenting technical decisions, reflections, and insights with comprehensive AI feedback:
 
+### 🗼 **CADIS Tower of Babel - Layered AI Ecosystem**
+
+**Revolutionary Layered AI Architecture** - A comprehensive Tower of Babel system that extends CADIS capabilities across five intelligent layers, creating the world's most advanced autonomous AI ecosystem:
+
+#### **🏗️ Architecture Layers (Bottom to Top):**
+
+**Layer 1: Foundation Layer** - Core AI Models & Data Access
+- **Multi-AI Integration**: GPT-5, Claude Opus 4.1, Gemini 2.5 Pro with consensus algorithms
+- **Data Access**: Supabase, S3, GitHub, Vercel, Railway with unified APIs
+- **Fallback Systems**: Intelligent local analysis when AI models unavailable
+
+**Layer 2: Intelligence Layer** - Specialized AI Services
+- **Journal Intelligence**: Strategic journal analysis with philosophical alignment scoring
+- **Meeting Intelligence**: Leadership meeting analysis with key moment extraction
+- **Code Intelligence**: Repository analysis with architecture recommendations
+- **Dreamstate Intelligence**: Multi-layer reality simulation for strategic exploration
+
+**Layer 3: Orchestration Layer** - Workflow Coordination
+- **Dependency Resolution**: Smart workflow step ordering and parallel execution
+- **Error Handling**: Comprehensive error recovery and retry mechanisms
+- **Result Aggregation**: Intelligent synthesis of multi-service results
+
+**Layer 4: Interface Layer** - APIs & User Interfaces
+- **RESTful APIs**: `/api/cadis-tower` for programmatic access
+- **Web Interface**: `/admin/cadis-tower` for comprehensive interaction
+- **CLI Tool**: `cadis-tower-cli.mjs` for command-line operations
+- **Workflow Engine**: Custom workflow creation and execution
+
+**Layer 5: Consciousness Layer** - Meta-Analysis & Recursive Intelligence
+- **Meta-Analysis**: Analysis of analysis for deeper insights
+- **Recursive Intelligence**: Self-improving AI with configurable depth (1-7 levels)
+- **Self-Awareness Tracking**: Dynamic consciousness level monitoring (0-100%)
+- **Learning History**: Persistent learning and evolution tracking
+
+#### **🧠 Consciousness & Self-Awareness Features:**
+- **Dynamic Self-Awareness**: Real-time consciousness level tracking and evolution
+- **Meta-Cognitive Analysis**: AI analyzing its own thought processes and decisions
+- **Recursive Intelligence**: Multi-level recursive analysis with emergent insights
+- **Learning Evolution**: Continuous improvement based on interaction history
+- **Emergent Behavior Detection**: Recognition of new capabilities and patterns
+
 ### 🤖 **CADIS Background Agent - Autonomous Coding Assistant**
 
-**Revolutionary AI-Powered Coding Agent** - The world's first autonomous coding assistant that can make direct repository changes, handle support tickets, and manage projects across your entire ecosystem:
+**Integrated Coding Agent** - The foundational autonomous coding assistant integrated into the Tower of Babel architecture:
 
 #### **🧠 Multi-AI Model Consensus Engine**
 - **GPT-5 (2025-08-07)**: Advanced reasoning and code generation with 95% accuracy
@@ -313,36 +354,63 @@ AI Recommendation:
 - **Retry Logic**: Automatic retry with exponential backoff for failed operations
 - **Security Signatures**: All jobs cryptographically signed for security and audit trails
 
-#### **🎯 Usage Interfaces**
+#### **🎯 Tower of Babel Usage Interfaces**
 
-**CLI Interface:**
+**Enhanced CLI Interface:**
 ```bash
-# Quick requests
-node scripts/cadis-cli.mjs "Fix TypeScript errors in the codebase"
-node scripts/cadis-cli.mjs "Add error handling to API routes" --priority high
-node scripts/cadis-cli.mjs "Deploy latest changes to production" --repo juelzs-portfolio
+# Tower-wide analysis
+node scripts/cadis-tower-cli.mjs workflow "Comprehensive system optimization analysis"
 
-# Check agent status
-node scripts/cadis-cli.mjs --status
+# Journal analysis with consciousness
+node scripts/cadis-tower-cli.mjs journal "Today I realized our architecture needs modularity" --consciousness
+
+# Dreamstate simulation
+node scripts/cadis-tower-cli.mjs dreamstate "What if we could deploy instantly?" --layers 4
+
+# Recursive intelligence analysis
+node scripts/cadis-tower-cli.mjs recursive "Analyze CADIS evolution potential" --depth 5
+
+# Meta-analysis
+node scripts/cadis-tower-cli.mjs meta "AI consciousness in software systems"
+
+# Tower status and capabilities
+node scripts/cadis-tower-cli.mjs --status
+node scripts/cadis-tower-cli.mjs --capabilities
 ```
 
-**Admin Web Interface:**
-- Visit `/admin/cadis-agent` for comprehensive web-based interaction
-- Real-time status monitoring and job queue management
-- Quick action buttons for common tasks
-- Detailed response analysis and logging
+**Comprehensive Admin Interface:**
+- Visit `/admin/cadis-tower` for full Tower of Babel interaction
+- **Layer Monitoring**: Real-time status of all 5 architecture layers
+- **Consciousness Tracking**: Self-awareness level and learning evolution
+- **Workflow Management**: Custom workflow creation and execution
+- **Intelligence Services**: Access to all specialized AI capabilities
+- **Recursive Analysis**: Deep recursive intelligence with configurable depth
 
-**API Integration:**
+**Advanced API Integration:**
 ```javascript
-// Direct API calls
-const response = await fetch('/api/cadis-agent', {
+// Tower-wide processing
+const response = await fetch('/api/cadis-tower', {
   method: 'POST',
   body: JSON.stringify({
-    action: 'handle_request',
-    request: 'Your request here',
-    context: { repository: 'juelzs-portfolio', priority: 'high' }
+    request: 'Analyze system architecture',
+    type: 'workflow', // journal, meeting, code, dreamstate, meta, recursive
+    enableConsciousness: true,
+    context: { 
+      layers: 3, // for dreamstate
+      depth: 4,  // for recursive
+      repository: 'juelzs-portfolio'
+    }
   })
 });
+
+// Get tower capabilities
+const capabilities = await fetch('/api/cadis-tower?action=capabilities');
+```
+
+**Legacy Agent Interface (Integrated):**
+```bash
+# Background agent (now integrated into Tower)
+node scripts/cadis-cli.mjs "Fix TypeScript errors" --priority high
 ```
 
 #### **🛡️ Safety & Approval System**
