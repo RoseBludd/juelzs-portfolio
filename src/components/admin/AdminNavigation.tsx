@@ -23,6 +23,12 @@ const navigation = [
     description: 'Tower of Babel AI ecosystem'
   },
   {
+    name: 'CADIS Evolution',
+    href: '/admin/cadis-evolution',
+    icon: '🧬',
+    description: 'Infinite self-improvement system'
+  },
+  {
     name: 'Dashboard',
     href: '/admin',
     icon: '📊',

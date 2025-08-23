@@ -5,6 +5,7 @@
  */
 
 import { Octokit } from '@octokit/rest';
+import CADISEvolutionService from './cadis-evolution.service';
 
 interface CADISAgentConfig {
   githubToken: string;
@@ -13,6 +14,7 @@ interface CADISAgentConfig {
   openaiApiKey: string;
   claudeApiKey: string;
   geminiApiKey: string;
+  elevenLabsApiKey?: string; // New audio capability
   supabaseUrl: string;
   supabaseKey: string;
   s3Config: {
@@ -60,15 +62,24 @@ export class CADISBackgroundAgent {
   private octokit: Octokit;
   private actionQueue: ActionBusJob[] = [];
   private isProcessing = false;
+  private evolutionService: CADISEvolutionService;
+  private currentEfficiency = 98; // Dynamic efficiency that can increase
+  private repositories = [
+    'juelzs-portfolio',
+    'vibezs-platform',
+    'genius-game'
+  ];
 
   private constructor(config: CADISAgentConfig) {
     this.config = config;
     this.octokit = new Octokit({
       auth: config.githubToken,
     });
+    this.evolutionService = CADISEvolutionService.getInstance();
     
-    console.log('🤖 CADIS Background Agent initialized');
+    console.log('🤖 CADIS Background Agent initialized with evolution capabilities');
     this.startProcessingLoop();
+    this.startEvolutionLoop();
   }
 
   public static getInstance(config?: CADISAgentConfig): CADISBackgroundAgent {
@@ -827,6 +838,114 @@ This PR was automatically created by CADIS Background Agent based on AI analysis
   }
 
   /**
+   * Start evolution loop for continuous self-improvement
+   */
+  private startEvolutionLoop(): void {
+    // Run evolution analysis every hour
+    setInterval(async () => {
+      try {
+        await this.runSelfEvolutionCycle();
+      } catch (error) {
+        console.error('Evolution cycle error:', error);
+      }
+    }, 3600000); // 1 hour
+
+    // Run efficiency check every 30 minutes
+    setInterval(async () => {
+      try {
+        await this.checkAndRaiseEfficiencyCeiling();
+      } catch (error) {
+        console.error('Efficiency check error:', error);
+      }
+    }, 1800000); // 30 minutes
+  }
+
+  /**
+   * Run self-evolution cycle
+   */
+  private async runSelfEvolutionCycle(): Promise<void> {
+    console.log('🧬 CADIS running self-evolution cycle...');
+    
+    try {
+      // Analyze current performance and capabilities
+      const evolutionResults = await this.evolutionService.runEvolutionCycle();
+      
+      // Check if new capabilities were added
+      if (evolutionResults.newCapabilities.length > 0) {
+        console.log('✨ New capabilities acquired:', evolutionResults.newCapabilities);
+        
+        // Request approval for significant changes
+        if (evolutionResults.newCapabilities.some(cap => cap.includes('Audio') || cap.includes('Agent'))) {
+          await this.requestAdminApproval('New capabilities require review', evolutionResults);
+        }
+      }
+
+      // Check if new agents were created
+      if (evolutionResults.agentsCreated.length > 0) {
+        console.log('🤖 New specialized agents created:', evolutionResults.agentsCreated);
+      }
+
+      // Update efficiency based on evolution
+      this.currentEfficiency = Math.min(100, this.currentEfficiency + 0.5);
+      
+    } catch (error) {
+      console.error('Self-evolution cycle failed:', error);
+    }
+  }
+
+  /**
+   * Check and raise efficiency ceiling dynamically
+   */
+  private async checkAndRaiseEfficiencyCeiling(): Promise<void> {
+    try {
+      const analysis = await this.evolutionService.analyzeEfficiencyAndRaiseCeiling();
+      
+      if (analysis.newCeiling > this.currentEfficiency) {
+        console.log(`📈 Efficiency ceiling raised from ${this.currentEfficiency}% to ${analysis.newCeiling}%`);
+        console.log(`🎯 Justification: ${analysis.justification}`);
+        
+        // Set new target efficiency
+        this.currentEfficiency = analysis.currentEfficiency;
+        
+        // Log evolution opportunities
+        console.log('🚀 Evolution opportunities identified:', analysis.evolutionOpportunities);
+      }
+    } catch (error) {
+      console.error('Efficiency ceiling check failed:', error);
+    }
+  }
+
+  /**
+   * Request admin approval for significant changes
+   */
+  private async requestAdminApproval(reason: string, details: any): Promise<void> {
+    console.log('🔐 Requesting admin approval:', reason);
+    
+    try {
+      await this.evolutionService.requestEvolutionApproval({
+        type: 'capability_enhancement',
+        description: reason,
+        justification: 'CADIS autonomous evolution detected significant capability expansion',
+        riskAssessment: 'Medium - New capabilities require human oversight',
+        expectedBenefits: [
+          'Enhanced system capabilities',
+          'Improved efficiency and performance',
+          'Expanded problem-solving abilities'
+        ],
+        requiredApprovals: ['admin_approval'],
+        implementationPlan: [
+          'Review new capabilities',
+          'Test in controlled environment',
+          'Gradual rollout with monitoring',
+          'Full deployment after validation'
+        ]
+      });
+    } catch (error) {
+      console.error('Failed to request admin approval:', error);
+    }
+  }
+
+  /**
    * Process queued actions
    */
   private async processActionQueue(): Promise<void> {
@@ -933,17 +1052,194 @@ This PR was automatically created by CADIS Background Agent based on AI analysis
   }
 
   /**
-   * Get agent status
+   * Generate audio using ELEVEN_LABS_API
+   */
+  public async generateAudio(text: string, voice?: string): Promise<string | null> {
+    if (!this.config.elevenLabsApiKey) {
+      console.log('⚠️ ELEVEN_LABS_API_KEY not configured');
+      return null;
+    }
+
+    try {
+      console.log('🔊 Generating audio with ElevenLabs...');
+      
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice || 'pNInz6obpgDQGcFmaJgB'}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': this.config.elevenLabsApiKey
+        },
+        body: JSON.stringify({
+          text,
+          model_id: 'eleven_monolingual_v1',
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.5
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`ElevenLabs API error: ${response.status}`);
+      }
+
+      // Return audio data or save to file
+      const audioBuffer = await response.arrayBuffer();
+      console.log('✅ Audio generated successfully');
+      
+      // For now, just return success message
+      return `Audio generated successfully (${audioBuffer.byteLength} bytes)`;
+    } catch (error) {
+      console.error('Audio generation error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Analyze cross-repository patterns and suggest improvements
+   */
+  public async analyzeCrossRepositoryPatterns(): Promise<{
+    patterns: any[];
+    suggestions: string[];
+    integrationOpportunities: string[];
+  }> {
+    console.log('🔍 Analyzing patterns across repositories...');
+    
+    try {
+      const analysis = await this.evolutionService.analyzeCrossRepositoryPatterns();
+      
+      const suggestions = [
+        'Standardize service patterns across all repositories',
+        'Create shared utility libraries for common functionality',
+        'Implement unified error handling and logging',
+        'Establish consistent API patterns and middleware',
+        'Create cross-repository testing and deployment pipelines'
+      ];
+
+      const integrationOpportunities = [
+        'Shared authentication system across platforms',
+        'Unified analytics and monitoring dashboard',
+        'Cross-platform user experience consistency',
+        'Shared AI model and analysis capabilities',
+        'Integrated notification and communication system'
+      ];
+
+      return {
+        patterns: analysis,
+        suggestions,
+        integrationOpportunities
+      };
+    } catch (error) {
+      console.error('Cross-repository analysis error:', error);
+      return {
+        patterns: [],
+        suggestions: [],
+        integrationOpportunities: []
+      };
+    }
+  }
+
+  /**
+   * Create specialized developer coaching agent
+   */
+  public async createDeveloperCoachingAgent(developerEmail: string): Promise<string | null> {
+    try {
+      console.log('👨‍💻 Creating developer coaching agent for:', developerEmail);
+      
+      const agentId = await this.evolutionService.createSpecializedAgent({
+        name: `Developer Coach for ${developerEmail}`,
+        type: 'developer_coach',
+        purpose: `Provide personalized coaching and improvement recommendations for ${developerEmail}`,
+        capabilities: [
+          'Performance analysis and tracking',
+          'Personalized learning recommendations',
+          'Code quality assessment',
+          'Skill gap identification',
+          'Email campaign management',
+          'Progress monitoring and reporting'
+        ],
+        targetRepository: 'all',
+        autonomyLevel: 'semi_autonomous',
+        approvalRequired: true,
+        parentAgent: 'cadis_main',
+        status: 'active'
+      });
+
+      // If agent creation requires approval, log it
+      if (agentId.startsWith('evolution_')) {
+        console.log('🔐 Developer coaching agent requires approval:', agentId);
+        return agentId;
+      }
+
+      console.log('✅ Developer coaching agent created:', agentId);
+      return agentId;
+    } catch (error) {
+      console.error('Error creating developer coaching agent:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Create module creation agent for autonomous development
+   */
+  public async createModuleCreationAgent(): Promise<string | null> {
+    try {
+      console.log('🏗️ Creating module creation agent...');
+      
+      const agentId = await this.evolutionService.createSpecializedAgent({
+        name: 'CADIS Module Creator',
+        type: 'module_creator',
+        purpose: 'Autonomously create modules, dashboards, and industry tools based on vibezs patterns',
+        capabilities: [
+          'Module architecture design',
+          'Component generation and testing',
+          'Dashboard creation and optimization',
+          'Industry-specific tool development',
+          'Pattern recognition and replication',
+          'Automated deployment and monitoring'
+        ],
+        targetRepository: 'vibezs-platform',
+        autonomyLevel: 'semi_autonomous',
+        approvalRequired: true,
+        parentAgent: 'cadis_main',
+        status: 'active'
+      });
+
+      console.log('✅ Module creation agent created:', agentId);
+      return agentId;
+    } catch (error) {
+      console.error('Error creating module creation agent:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get enhanced agent status with evolution metrics
    */
   public getStatus(): {
     isProcessing: boolean;
     queueLength: number;
     uptime: number;
+    currentEfficiency: number;
+    repositories: string[];
+    evolutionCapabilities: string[];
+    audioEnabled: boolean;
   } {
     return {
       isProcessing: this.isProcessing,
       queueLength: this.actionQueue.length,
-      uptime: process.uptime()
+      uptime: process.uptime(),
+      currentEfficiency: this.currentEfficiency,
+      repositories: this.repositories,
+      evolutionCapabilities: [
+        'Dynamic efficiency ceiling adjustment',
+        'Cross-repository pattern analysis',
+        'Specialized agent creation',
+        'Autonomous capability expansion',
+        'Admin approval workflow'
+      ],
+      audioEnabled: !!this.config.elevenLabsApiKey
     };
   }
 }

@@ -56,13 +56,20 @@ const initializeTower = () => {
   // Get or create background agent with configuration
   const agentConfig = {
     openaiApiKey: process.env.OPENAI_API_KEY || '',
-    anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
+    claudeApiKey: process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY || '',
     geminiApiKey: process.env.GEMINI_API_KEY || '',
+    elevenLabsApiKey: process.env.ELEVEN_LABS_API_KEY || '',
     githubToken: process.env.GITHUB_TOKEN || '',
     vercelToken: process.env.VERCEL_TOKEN || '',
     railwayToken: process.env.RAILWAY_TOKEN || '',
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+    supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+    s3Config: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+      region: process.env.AWS_REGION || 'us-east-1',
+      bucket: process.env.AWS_S3_BUCKET || ''
+    }
   };
   
   const backgroundAgent = getCADISAgent(agentConfig);

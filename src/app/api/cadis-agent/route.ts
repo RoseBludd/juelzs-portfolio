@@ -10,6 +10,7 @@ const initializeAgent = () => {
     openaiApiKey: process.env.OPENAI_API_KEY || '',
     claudeApiKey: process.env.ANTHROPIC_API_KEY || '',
     geminiApiKey: process.env.GEMINI_API_KEY || '',
+    elevenLabsApiKey: process.env.ELEVEN_LABS_API_KEY || '',
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
     supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
     s3Config: {
@@ -57,8 +58,40 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
           success: true,
           status,
-          message: 'CADIS Agent is running'
+          message: 'CADIS Agent is running with evolution capabilities'
         });
+
+      case 'generate_audio':
+        const { text, voice } = context || {};
+        if (!text) {
+          return NextResponse.json({
+            error: 'Text is required for audio generation'
+          }, { status: 400 });
+        }
+        result = await agent.generateAudio(text, voice) || 'Audio generation failed';
+        break;
+
+      case 'analyze_cross_repo':
+        const crossRepoAnalysis = await agent.analyzeCrossRepositoryPatterns();
+        return NextResponse.json({
+          success: true,
+          analysis: crossRepoAnalysis,
+          message: 'Cross-repository analysis completed'
+        });
+
+      case 'create_developer_agent':
+        const { developerEmail } = context || {};
+        if (!developerEmail) {
+          return NextResponse.json({
+            error: 'Developer email is required'
+          }, { status: 400 });
+        }
+        result = await agent.createDeveloperCoachingAgent(developerEmail) || 'Failed to create developer agent';
+        break;
+
+      case 'create_module_agent':
+        result = await agent.createModuleCreationAgent() || 'Failed to create module agent';
+        break;
       
       default:
         result = await agent.handleRequest(userRequest, context);
@@ -99,7 +132,14 @@ export async function GET(request: NextRequest) {
         'Feature requests',
         'Bug fixes',
         'Automated deployments',
-        'Action bus processing'
+        'Action bus processing',
+        'Audio generation (ElevenLabs)',
+        'Cross-repository pattern analysis',
+        'Specialized agent creation',
+        'Developer coaching agents',
+        'Module creation agents',
+        'Dynamic efficiency ceiling adjustment',
+        'Autonomous capability expansion'
       ],
       models: {
         gpt5: 'gpt-5-2025-08-07',

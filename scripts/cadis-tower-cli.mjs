@@ -44,13 +44,17 @@ function showHelp() {
   console.log('  node scripts/cadis-tower-cli.mjs --help');
   
   console.log('\n🏗️ Request Types:');
-  console.log('  journal      📝 Analyze journal entries for strategic insights');
-  console.log('  meeting      🎥 Analyze meeting transcripts for leadership insights');
-  console.log('  code         💻 Analyze code and repositories for improvements');
-  console.log('  dreamstate   🌀 Multi-layer reality simulation');
-  console.log('  workflow     🔄 Comprehensive multi-service analysis (default)');
-  console.log('  meta         🧠 Meta-analysis and recursive insights');
-  console.log('  recursive    🔄 Deep recursive intelligence analysis');
+  console.log('  journal           📝 Analyze journal entries for strategic insights');
+  console.log('  meeting           🎥 Analyze meeting transcripts for leadership insights');
+  console.log('  code              💻 Analyze code and repositories for improvements');
+  console.log('  dreamstate        🌀 Multi-layer reality simulation');
+  console.log('  workflow          🔄 Comprehensive multi-service analysis (default)');
+  console.log('  meta              🧠 Meta-analysis and recursive insights');
+  console.log('  recursive         🔄 Deep recursive intelligence analysis');
+  console.log('  evolution         🧬 CADIS self-evolution and capability expansion');
+  console.log('  coaching          👨‍💻 Developer performance coaching and improvement');
+  console.log('  module_creation   🏗️ Create modules based on vibezs patterns');
+  console.log('  production_module 💼 Create sellable, tenant-ready modules with business plans');
   
   console.log('\n💡 Examples:');
   console.log('  # Journal analysis');
@@ -61,6 +65,12 @@ function showHelp() {
   
   console.log('\n  # Recursive intelligence');
   console.log('  node scripts/cadis-tower-cli.mjs recursive "Analyze CADIS capabilities" --depth 5');
+  
+  console.log('\n  # Production module creation');
+  console.log('  node scripts/cadis-tower-cli.mjs production_module "E-commerce Inventory Manager"');
+  
+  console.log('\n  # Evolution cycle');
+  console.log('  node scripts/cadis-tower-cli.mjs evolution "Raise efficiency ceiling and create new agents"');
   
   console.log('\n  # Code analysis');
   console.log('  node scripts/cadis-tower-cli.mjs code "Optimize the Tower architecture" --repo juelzs-portfolio');
