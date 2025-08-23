@@ -781,7 +781,7 @@ function generateOverallAnalysis(content: string, segments: Array<{ speaker: 'Us
   
   // Check if this is an auto-analyzed database conversation
   if (metadata?.autoAnalysis && conversationType?.startsWith('db-')) {
-    const autoAnalysis = metadata.autoAnalysis;
+    const autoAnalysis = metadata.autoAnalysis as any;
     return {
       totalCharacters: content.length,
       totalExchanges: Math.max(
@@ -790,7 +790,7 @@ function generateOverallAnalysis(content: string, segments: Array<{ speaker: 'Us
         Math.floor(segments.length / 2)
       ),
       strategicRatio: actualStrategicRatio,
-      philosophicalAlignment: autoAnalysis.alignmentScore,
+      philosophicalAlignment: autoAnalysis?.alignmentScore || avgAlignmentScore,
       strategicPatternCounts,
       principleCounts: {
         execution: execTokens,
@@ -799,10 +799,10 @@ function generateOverallAnalysis(content: string, segments: Array<{ speaker: 'Us
         teachability: teachableTokens,
         progressiveEnhancement: progressiveTokens
       },
-      keyMoments: autoAnalysis.keyMoments,
-      evolutionPhases: autoAnalysis.evolutionPhases,
-      conversationType: autoAnalysis.conversationType,
-      focusArea: autoAnalysis.focusArea
+      keyMoments: autoAnalysis?.keyMoments || [],
+      evolutionPhases: autoAnalysis?.evolutionPhases || [],
+      conversationType: autoAnalysis?.conversationType || conversationType,
+      focusArea: autoAnalysis?.focusArea || 'Strategic conversation'
     };
   }
 

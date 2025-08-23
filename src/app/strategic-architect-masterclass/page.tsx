@@ -71,6 +71,8 @@ interface ConversationAnalysis {
     teachability: number;
     progressiveEnhancement: number;
   };
+  focusArea?: string;
+  conversationType?: string;
 }
 
 // Principle View Components

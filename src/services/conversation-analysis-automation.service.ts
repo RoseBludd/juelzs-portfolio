@@ -99,7 +99,7 @@ export class ConversationAnalysisAutomationService {
     
     // If we didn't find enough strategic moments, extract from user messages
     if (keyMoments.length < 3) {
-      const userMessages = content.match(/\*\*User\*\*\s*\n(.*?)(?=\*\*Cursor\*\*|\*\*User\*\*|$)/gs) || [];
+      const userMessages = content.match(/\*\*User\*\*[\s\S]*?(?=\*\*Cursor\*\*|\*\*User\*\*|$)/g) || [];
       
       for (const message of userMessages.slice(0, 6)) {
         const cleanMessage = message
