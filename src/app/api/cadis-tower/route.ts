@@ -210,6 +210,18 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    if (action === 'knowledge') {
+      // Get comprehensive knowledge base
+      const tower = initializeTower();
+      const knowledgeBase = await tower.getKnowledgeBase();
+
+      return NextResponse.json({
+        success: true,
+        ...knowledgeBase,
+        timestamp: new Date().toISOString()
+      });
+    }
+
     // Default: return basic info
     return NextResponse.json({
       success: true,

@@ -43,6 +43,8 @@ export default function CADISTowerPage() {
   const [result, setResult] = useState<TowerResult | null>(null);
   const [error, setError] = useState('');
   const [statusExpanded, setStatusExpanded] = useState(false);
+  const [knowledgeBaseExpanded, setKnowledgeBaseExpanded] = useState(false);
+  const [knowledgeBase, setKnowledgeBase] = useState<any>(null);
 
   useEffect(() => {
     loadTowerStatus();
@@ -62,6 +64,19 @@ export default function CADISTowerPage() {
       }
     } catch (error) {
       console.error('Error loading tower status:', error);
+    }
+  };
+
+  const loadKnowledgeBase = async () => {
+    try {
+      const response = await fetch('/api/cadis-tower?action=knowledge');
+      const data = await response.json();
+      
+      if (data.success) {
+        setKnowledgeBase(data);
+      }
+    } catch (error) {
+      console.error('Error loading knowledge base:', error);
     }
   };
 
@@ -245,6 +260,307 @@ export default function CADISTowerPage() {
         )}
       </Card>
 
+      {/* Knowledge Base */}
+      <Card className="border-amber-500/30">
+        <div className="flex items-center justify-between mb-4">
+          <button 
+            onClick={() => {
+              setKnowledgeBaseExpanded(!knowledgeBaseExpanded);
+              if (!knowledgeBaseExpanded && !knowledgeBase) {
+                loadKnowledgeBase();
+              }
+            }}
+            className="flex items-center gap-2 text-xl font-semibold text-amber-300 hover:text-amber-200 transition-colors"
+          >
+            <span className={`transform transition-transform ${knowledgeBaseExpanded ? 'rotate-90' : ''}`}>▶</span>
+            CADIS Knowledge Base
+          </button>
+          <div className="flex items-center gap-3">
+            <div className="text-sm text-gray-400">
+              Principles • Developers • Modules • Insights
+            </div>
+            <Button 
+              onClick={loadKnowledgeBase}
+              className="bg-amber-600 hover:bg-amber-700 text-sm px-3 py-1"
+            >
+              🔄 Refresh
+            </Button>
+          </div>
+        </div>
+
+        {knowledgeBaseExpanded && (
+          <div className="space-y-6">
+            {knowledgeBase ? (
+              <>
+                {/* Core Principles & Philosophy */}
+                <div>
+                  <h3 className="text-lg font-semibold text-amber-300 mb-3">🎯 Core Principles & Philosophy</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="bg-amber-500/10 rounded-lg p-3 border border-amber-500/30">
+                      <div className="font-medium text-amber-200">Execution-Led Refinement</div>
+                      <div className="text-sm text-gray-300 mt-1">
+                        "If it needs to be done, do it" - Direct action over endless planning
+                      </div>
+                      <div className="text-xs text-amber-400 mt-2">
+                        Adherence: {knowledgeBase.principles?.executionLed || 'N/A'}%
+                      </div>
+                    </div>
+                    <div className="bg-amber-500/10 rounded-lg p-3 border border-amber-500/30">
+                      <div className="font-medium text-amber-200">Modularity</div>
+                      <div className="text-sm text-gray-300 mt-1">
+                        Make it modular - Component-based, reusable architecture
+                      </div>
+                      <div className="text-xs text-amber-400 mt-2">
+                        Adherence: {knowledgeBase.principles?.modularity || 'N/A'}%
+                      </div>
+                    </div>
+                    <div className="bg-amber-500/10 rounded-lg p-3 border border-amber-500/30">
+                      <div className="font-medium text-amber-200">Reusability</div>
+                      <div className="text-sm text-gray-300 mt-1">
+                        Make it reusable - Pattern for similar future use cases
+                      </div>
+                      <div className="text-xs text-amber-400 mt-2">
+                        Adherence: {knowledgeBase.principles?.reusability || 'N/A'}%
+                      </div>
+                    </div>
+                    <div className="bg-amber-500/10 rounded-lg p-3 border border-amber-500/30">
+                      <div className="font-medium text-amber-200">Progressive Enhancement</div>
+                      <div className="text-sm text-gray-300 mt-1">
+                        Build on existing foundation, iterate and improve
+                      </div>
+                      <div className="text-xs text-amber-400 mt-2">
+                        Adherence: {knowledgeBase.principles?.progressiveEnhancement || 'N/A'}%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Developer Intelligence */}
+                <div>
+                  <h3 className="text-lg font-semibold text-amber-300 mb-3">👥 Developer Intelligence</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {knowledgeBase.developers?.map((dev: any, index: number) => (
+                      <div key={index} className="bg-gray-800/50 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="font-medium text-white">{dev.name}</div>
+                          <div className={`px-2 py-1 rounded text-xs ${
+                            dev.role === 'strategic_architect' ? 'bg-purple-500/20 text-purple-300' :
+                            dev.role === 'technical_implementer' ? 'bg-blue-500/20 text-blue-300' :
+                            'bg-gray-500/20 text-gray-300'
+                          }`}>
+                            {dev.role?.replace('_', ' ') || 'Developer'}
+                          </div>
+                        </div>
+                        <div className="text-sm text-gray-400 mb-2">{dev.email}</div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="text-gray-400">Code Quality:</span>
+                            <span className="text-green-400 ml-1">{dev.codeQuality || 'N/A'}%</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">Alignment:</span>
+                            <span className="text-amber-400 ml-1">{dev.principleAlignment || 'N/A'}%</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">Modules:</span>
+                            <span className="text-blue-400 ml-1">{dev.moduleContributions || 0}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">Sessions:</span>
+                            <span className="text-purple-400 ml-1">{dev.workSessions || 0}</span>
+                          </div>
+                        </div>
+                        {dev.learningPatterns && (
+                          <div className="mt-2 text-xs text-gray-300">
+                            <span className="text-gray-400">Learning:</span> {dev.learningPatterns}
+                          </div>
+                        )}
+                      </div>
+                    )) || (
+                      <div className="text-gray-400 col-span-3 text-center py-4">
+                        No developer intelligence data available
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Module Registry Intelligence */}
+                <div>
+                  <h3 className="text-lg font-semibold text-amber-300 mb-3">📦 Module Registry Intelligence</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="text-sm text-gray-400">Total Modules</div>
+                      <div className="text-2xl font-bold text-white">{knowledgeBase.modules?.total || 0}</div>
+                      <div className="text-xs text-green-400">+{knowledgeBase.modules?.recentlyAdded || 0} this week</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="text-sm text-gray-400">Active Projects</div>
+                      <div className="text-2xl font-bold text-white">{knowledgeBase.modules?.activeProjects || 0}</div>
+                      <div className="text-xs text-blue-400">{knowledgeBase.modules?.projectTypes || 0} types</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="text-sm text-gray-400">Code Quality</div>
+                      <div className="text-2xl font-bold text-white">{knowledgeBase.modules?.averageQuality || 0}%</div>
+                      <div className="text-xs text-amber-400">Avg across modules</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="text-sm text-gray-400">Architecture Score</div>
+                      <div className="text-2xl font-bold text-white">{knowledgeBase.modules?.architectureScore || 0}%</div>
+                      <div className="text-xs text-purple-400">Modularity rating</div>
+                    </div>
+                  </div>
+                  {knowledgeBase.modules?.topModules && (
+                    <div className="mt-3">
+                      <div className="text-sm font-medium text-gray-300 mb-2">Top Performing Modules:</div>
+                      <div className="flex flex-wrap gap-2">
+                        {knowledgeBase.modules.topModules.map((module: string, index: number) => (
+                          <span key={index} className="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-xs">
+                            {module}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Strategic Conversations & Learning */}
+                <div>
+                  <h3 className="text-lg font-semibold text-amber-300 mb-3">💬 Strategic Conversations & Learning</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <div className="font-medium text-white mb-2">Conversation Analysis</div>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Total Conversations:</span>
+                          <span className="text-white">{knowledgeBase.conversations?.total || 0}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Strategic Score Avg:</span>
+                          <span className="text-green-400">{knowledgeBase.conversations?.avgStrategicScore || 0}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Alignment Score Avg:</span>
+                          <span className="text-amber-400">{knowledgeBase.conversations?.avgAlignmentScore || 0}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Key Moments:</span>
+                          <span className="text-purple-400">{knowledgeBase.conversations?.keyMoments || 0}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <div className="font-medium text-white mb-2">Learning Patterns</div>
+                      <div className="space-y-2 text-sm">
+                        {knowledgeBase.learning?.patterns?.map((pattern: string, index: number) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                            <span className="text-gray-300">{pattern}</span>
+                          </div>
+                        )) || (
+                          <div className="text-gray-400">No learning patterns identified yet</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CADIS Journal Insights Integration */}
+                <div>
+                  <h3 className="text-lg font-semibold text-amber-300 mb-3">🧠 CADIS Journal Insights Integration</h3>
+                  <div className="bg-gradient-to-r from-purple-500/10 to-amber-500/10 rounded-lg p-4 border border-purple-500/30">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="font-medium text-white">Live Intelligence Feed</div>
+                      <div className="text-xs text-purple-400">
+                        Same source as CADIS Journal "Generate Insights"
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-300">{knowledgeBase.insights?.ecosystemInsights || 0}</div>
+                        <div className="text-sm text-gray-400">Ecosystem Insights</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-amber-300">{knowledgeBase.insights?.dreamStatePredictions || 0}</div>
+                        <div className="text-sm text-gray-400">Dreamstate Predictions</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-300">{knowledgeBase.insights?.creativeIntelligence || 0}</div>
+                        <div className="text-sm text-gray-400">Creative Intelligence</div>
+                      </div>
+                    </div>
+                    <div className="mt-3 text-xs text-gray-400">
+                      ✅ Accesses: Module Registry • Developer Ecosystem • Journal Analysis • Genius Game Intelligence • Creative Intelligence • Dreamstate Predictions
+                    </div>
+                  </div>
+                </div>
+
+                {/* Decision Making & Coding Patterns */}
+                <div>
+                  <h3 className="text-lg font-semibold text-amber-300 mb-3">⚡ Decision Making & Coding Patterns</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <div className="font-medium text-white mb-3">Coding Decision Patterns</div>
+                      <div className="space-y-2">
+                        {knowledgeBase.patterns?.coding?.map((pattern: any, index: number) => (
+                          <div key={index} className="flex items-center justify-between">
+                            <span className="text-gray-300 text-sm">{pattern.name}</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 bg-gray-700 rounded-full h-2">
+                                <div 
+                                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
+                                  style={{ width: `${pattern.frequency}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-xs text-gray-400">{pattern.frequency}%</span>
+                            </div>
+                          </div>
+                        )) || (
+                          <div className="text-gray-400 text-sm">Learning coding patterns...</div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <div className="font-medium text-white mb-3">Strategic Decision Making</div>
+                      <div className="space-y-2">
+                        {knowledgeBase.patterns?.strategic?.map((pattern: any, index: number) => (
+                          <div key={index} className="flex items-center justify-between">
+                            <span className="text-gray-300 text-sm">{pattern.name}</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 bg-gray-700 rounded-full h-2">
+                                <div 
+                                  className="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full"
+                                  style={{ width: `${pattern.confidence}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-xs text-gray-400">{pattern.confidence}%</span>
+                            </div>
+                          </div>
+                        )) || (
+                          <div className="text-gray-400 text-sm">Analyzing strategic patterns...</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-gray-400 mb-4">Loading CADIS knowledge base...</div>
+                <Button onClick={loadKnowledgeBase} className="bg-amber-600 hover:bg-amber-700">
+                  Load Knowledge Base
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!knowledgeBaseExpanded && (
+          <div className="text-gray-400 text-sm">
+            Click to explore CADIS knowledge base: principles, developers, modules, conversations, and learning patterns
+          </div>
+        )}
+      </Card>
+
       {/* Request Interface */}
       <Card className="border-blue-500/30">
         <h2 className="text-xl font-semibold text-blue-300 mb-4">Send Request to CADIS Tower</h2>
@@ -405,6 +721,107 @@ Examples:
           </div>
         </Card>
       )}
+
+      {/* Real Workflow Orchestration Capabilities */}
+      <Card className="border-green-500/30">
+        <h2 className="text-xl font-semibold text-green-300 mb-4">🔄 Real Workflow Orchestration Capabilities</h2>
+        <div className="space-y-4">
+          <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/30">
+            <h3 className="font-semibold text-green-300 mb-3">🤖 Background Agent Real Use Cases</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="bg-gray-800/50 rounded-lg p-3">
+                  <div className="font-medium text-white mb-1">📋 Support Ticket Automation</div>
+                  <div className="text-sm text-gray-300 mb-2">
+                    "Fix the login issue on the portfolio site" → Automatically analyzes logs, identifies root cause, creates PR with fix
+                  </div>
+                  <div className="text-xs text-green-400">✅ Creates GitHub PR • Deploys to Vercel • Updates ticket</div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-3">
+                  <div className="font-medium text-white mb-1">🏗️ Project Scaffolding</div>
+                  <div className="text-sm text-gray-300 mb-2">
+                    "Create a new React component library" → Generates repo, sets up CI/CD, creates initial components
+                  </div>
+                  <div className="text-xs text-green-400">✅ GitHub repo • Vercel deployment • Railway services</div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-3">
+                  <div className="font-medium text-white mb-1">📊 Performance Monitoring</div>
+                  <div className="text-sm text-gray-300 mb-2">
+                    Continuously monitors deployments, runs smoke tests, updates performance metrics
+                  </div>
+                  <div className="text-xs text-green-400">✅ Real-time monitoring • Auto-rollback • Notifications</div>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="bg-gray-800/50 rounded-lg p-3">
+                  <div className="font-medium text-white mb-1">🔧 Code Optimization</div>
+                  <div className="text-sm text-gray-300 mb-2">
+                    "Optimize the CADIS Tower for better performance" → Analyzes code, suggests improvements, implements changes
+                  </div>
+                  <div className="text-xs text-green-400">✅ Code analysis • Performance improvements • Testing</div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-3">
+                  <div className="font-medium text-white mb-1">🚀 Feature Development</div>
+                  <div className="text-sm text-gray-300 mb-2">
+                    "Add dark mode to the portfolio" → Plans implementation, creates components, integrates with existing system
+                  </div>
+                  <div className="text-xs text-green-400">✅ Feature planning • Component creation • Integration testing</div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-3">
+                  <div className="font-medium text-white mb-1">📈 Analytics Integration</div>
+                  <div className="text-sm text-gray-300 mb-2">
+                    Connects to databases, analyzes user behavior, generates insights and recommendations
+                  </div>
+                  <div className="text-xs text-green-400">✅ Database queries • Insight generation • Report creation</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/30">
+            <h3 className="font-semibold text-blue-300 mb-3">⚡ Multi-Service Orchestration</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center">
+                <div className="text-2xl mb-2">🔄</div>
+                <div className="font-medium text-white">Parallel Execution</div>
+                <div className="text-sm text-gray-400">Runs multiple AI models simultaneously for comprehensive analysis</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl mb-2">🎯</div>
+                <div className="font-medium text-white">Dependency Resolution</div>
+                <div className="text-sm text-gray-400">Automatically handles task dependencies and execution order</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl mb-2">🛡️</div>
+                <div className="font-medium text-white">Error Recovery</div>
+                <div className="text-sm text-gray-400">Intelligent fallbacks and retry mechanisms for robust operation</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-purple-500/10 rounded-lg p-4 border border-purple-500/30">
+            <h3 className="font-semibold text-purple-300 mb-3">🧠 Intelligence Services Integration</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                <span className="text-gray-300"><strong>Journal Analysis:</strong> Processes your strategic thoughts and generates actionable insights</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <span className="text-gray-300"><strong>Meeting Analysis:</strong> Extracts key decisions and action items from meeting transcripts</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span className="text-gray-300"><strong>Code Analysis:</strong> Reviews architecture and suggests improvements aligned with your principles</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-amber-400 rounded-full"></div>
+                <span className="text-gray-300"><strong>Dreamstate Simulation:</strong> Explores alternative scenarios and strategic possibilities</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       {/* Quick Examples */}
       <Card className="border-indigo-500/30">
