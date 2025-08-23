@@ -494,6 +494,123 @@ export default function CADISTowerPage() {
                   </div>
                 </div>
 
+                {/* CADIS Coding Improvement System */}
+                <div>
+                  <h3 className="text-lg font-semibold text-amber-300 mb-3">🚀 CADIS Coding Improvement System</h3>
+                  <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg p-4 border border-blue-500/30">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <div className="font-medium text-white">Dreamstate-Driven Coding Scenarios</div>
+                        <div className="text-sm text-gray-400">
+                          {knowledgeBase.codingImprovement?.status || 'Ready to Start'} • {knowledgeBase.codingImprovement?.nextSession || 'Every 6 hours (4x daily)'}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-blue-300">{knowledgeBase.codingImprovement?.overallScore || 0}%</div>
+                        <div className="text-sm text-gray-400">Overall Score</div>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <div className="font-medium text-white mb-2">Principle Adherence Scores</div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-300 text-sm">Execution-Led</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 bg-gray-700 rounded-full h-2">
+                                <div 
+                                  className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full"
+                                  style={{ width: `${knowledgeBase.codingImprovement?.principleScores?.executionLed || 0}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-xs text-gray-400">{knowledgeBase.codingImprovement?.principleScores?.executionLed || 0}%</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-300 text-sm">Modularity</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 bg-gray-700 rounded-full h-2">
+                                <div 
+                                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
+                                  style={{ width: `${knowledgeBase.codingImprovement?.principleScores?.modularity || 0}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-xs text-gray-400">{knowledgeBase.codingImprovement?.principleScores?.modularity || 0}%</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-300 text-sm">Reusability</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 bg-gray-700 rounded-full h-2">
+                                <div 
+                                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
+                                  style={{ width: `${knowledgeBase.codingImprovement?.principleScores?.reusability || 0}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-xs text-gray-400">{knowledgeBase.codingImprovement?.principleScores?.reusability || 0}%</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-300 text-sm">Progressive Enhancement</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 bg-gray-700 rounded-full h-2">
+                                <div 
+                                  className="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full"
+                                  style={{ width: `${knowledgeBase.codingImprovement?.principleScores?.progressiveEnhancement || 0}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-xs text-gray-400">{knowledgeBase.codingImprovement?.principleScores?.progressiveEnhancement || 0}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="font-medium text-white mb-2">Category Performance</div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-300 text-sm">Architecture</span>
+                            <span className="text-blue-400 text-sm">{knowledgeBase.codingImprovement?.categoryScores?.architecture || 0}%</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-300 text-sm">Optimization</span>
+                            <span className="text-green-400 text-sm">{knowledgeBase.codingImprovement?.categoryScores?.optimization || 0}%</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-300 text-sm">Debugging</span>
+                            <span className="text-red-400 text-sm">{knowledgeBase.codingImprovement?.categoryScores?.debugging || 0}%</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-300 text-sm">Feature Development</span>
+                            <span className="text-purple-400 text-sm">{knowledgeBase.codingImprovement?.categoryScores?.feature_development || 0}%</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-300 text-sm">Refactoring</span>
+                            <span className="text-amber-400 text-sm">{knowledgeBase.codingImprovement?.categoryScores?.refactoring || 0}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="text-gray-400">
+                        Total Attempts: {knowledgeBase.codingImprovement?.totalAttempts || 0} • 
+                        Recent Improvement: +{knowledgeBase.codingImprovement?.recentImprovement || 0}%
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setRequestType('workflow');
+                          setRequest('Run a coding improvement session with dreamstate scenarios to enhance my coding abilities');
+                        }}
+                        className="bg-blue-600 hover:bg-blue-700 text-xs px-3 py-1"
+                      >
+                        🎯 Run Session Now
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Decision Making & Coding Patterns */}
                 <div>
                   <h3 className="text-lg font-semibold text-amber-300 mb-3">⚡ Decision Making & Coding Patterns</h3>
