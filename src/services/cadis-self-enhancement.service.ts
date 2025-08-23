@@ -100,8 +100,7 @@ class CADISSelfEnhancementService {
   }
 
   async runSelfEnhancementCycle(): Promise<void> {
-    console.log('🔄 CADIS running self-enhancement cycle...
-');
+    console.log('🔄 CADIS running self-enhancement cycle...');
     
     const capabilities = await this.analyzeCurrentCapabilities();
     console.log('📋 Current Capabilities:');
@@ -110,12 +109,10 @@ class CADISSelfEnhancementService {
     });
     
     const opportunities = await this.identifyEnhancementOpportunities();
-    console.log(`
-💡 Enhancement Opportunities Found: ${opportunities.length}`);
+    console.log(`💡 Enhancement Opportunities Found: ${opportunities.length}`);
     
     for (const opportunity of opportunities) {
-      console.log(`
-🎯 Processing: ${opportunity.name}`);
+      console.log(`🎯 Processing: ${opportunity.name}`);
       console.log(`   Description: ${opportunity.description}`);
       console.log(`   Score: ${opportunity.testResults.score}%`);
       
@@ -125,8 +122,7 @@ class CADISSelfEnhancementService {
       }
     }
     
-    console.log('
-🚀 Self-enhancement cycle completed!');
+    console.log('🚀 Self-enhancement cycle completed!');
   }
 }
 

@@ -67,7 +67,9 @@ class CADISCodingImprovementService {
 
   private async ensureTablesExist(): Promise<void> {
     const DatabaseService = (await import('./database.service')).default;
-    const client = await DatabaseService.getClient();
+    const dbService = DatabaseService.getInstance();
+    await dbService.initialize();
+    const client = await dbService.getPoolClient();
     
     try {
       // Create coding_scenarios table
@@ -193,7 +195,9 @@ class CADISCodingImprovementService {
 
     // Store scenarios in database
     const DatabaseService = (await import('./database.service')).default;
-    const client = await DatabaseService.getClient();
+    const dbService = DatabaseService.getInstance();
+    await dbService.initialize();
+    const client = await dbService.getPoolClient();
     try {
       for (const scenario of scenarios) {
         await client.query(`
@@ -222,7 +226,9 @@ class CADISCodingImprovementService {
     console.log(`🚀 Running coding scenario: ${scenarioId}`);
     
     const DatabaseService = (await import('./database.service')).default;
-    const client = await DatabaseService.getClient();
+    const dbService = DatabaseService.getInstance();
+    await dbService.initialize();
+    const client = await dbService.getPoolClient();
     let scenario: CodingScenario;
     
     try {
@@ -358,7 +364,9 @@ class CADISCodingImprovementService {
 
   private async storeCodingAttempt(attempt: CodingAttempt): Promise<void> {
     const DatabaseService = (await import('./database.service')).default;
-    const client = await DatabaseService.getClient();
+    const dbService = DatabaseService.getInstance();
+    await dbService.initialize();
+    const client = await dbService.getPoolClient();
     
     try {
       await client.query(`
@@ -385,7 +393,9 @@ class CADISCodingImprovementService {
 
   private async updateCodingProgress(): Promise<void> {
     const DatabaseService = (await import('./database.service')).default;
-    const client = await DatabaseService.getClient();
+    const dbService = DatabaseService.getInstance();
+    await dbService.initialize();
+    const client = await dbService.getPoolClient();
     
     try {
       // Calculate overall progress from recent attempts
@@ -460,7 +470,9 @@ class CADISCodingImprovementService {
 
   async getCodingProgress(): Promise<CodingProgress | null> {
     const DatabaseService = (await import('./database.service')).default;
-    const client = await DatabaseService.getClient();
+    const dbService = DatabaseService.getInstance();
+    await dbService.initialize();
+    const client = await dbService.getPoolClient();
     
     try {
       const result = await client.query(`
