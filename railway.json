@@ -1,0 +1,42 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "sleepApplication": false,
+    "restartPolicyType": "ON_FAILURE"
+  },
+  "environments": {
+    "production": {
+      "variables": {
+        "NODE_ENV": "production",
+        "PORT": "3000"
+      }
+    }
+  },
+  "services": [
+    {
+      "name": "cadis-agent",
+      "source": {
+        "type": "image",
+        "image": "node:18-alpine"
+      },
+      "variables": {
+        "GITHUB_TOKEN": "${{GITHUB_TOKEN}}",
+        "VERCEL_TOKEN": "${{VERCEL_TOKEN}}",
+        "RAILWAY_TOKEN": "${{RAILWAY_TOKEN}}",
+        "OPENAI_API_KEY": "${{OPENAI_API_KEY}}",
+        "ANTHROPIC_API_KEY": "${{ANTHROPIC_API_KEY}}",
+        "GEMINI_API_KEY": "${{GEMINI_API_KEY}}",
+        "NEXT_PUBLIC_SUPABASE_URL": "${{NEXT_PUBLIC_SUPABASE_URL}}",
+        "SUPABASE_SERVICE_ROLE_KEY": "${{SUPABASE_SERVICE_ROLE_KEY}}",
+        "AWS_ACCESS_KEY_ID": "${{AWS_ACCESS_KEY_ID}}",
+        "AWS_SECRET_ACCESS_KEY": "${{AWS_SECRET_ACCESS_KEY}}",
+        "AWS_REGION": "${{AWS_REGION}}",
+        "AWS_S3_BUCKET": "${{AWS_S3_BUCKET}}"
+      }
+    }
+  ]
+}

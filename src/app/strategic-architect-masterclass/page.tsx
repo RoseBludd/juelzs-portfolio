@@ -77,7 +77,7 @@ interface ConversationAnalysis {
 
 // Principle View Components
 function ExecutionPrincipleView({ segments }: { segments: ConversationSegment[] }) {
-    const executionSegments = segments.filter(segment =>
+  const executionSegments = segments.filter(segment => 
     (segment.speaker === 'User' || segment.speaker === 'Cursor') && 
     segment.content.toLowerCase().match(/\b(proceed|implement|build|create|fix|solve|execute|action|do it|make sure|ensure|verify|confirm|analyze)\b/g)
   );
@@ -145,7 +145,7 @@ function ModularityPrincipleView({ segments }: { segments: ConversationSegment[]
 }
 
 function ReusabilityPrincipleView({ segments }: { segments: ConversationSegment[] }) {
-    const reusabilitySegments = segments.filter(segment =>
+  const reusabilitySegments = segments.filter(segment => 
     (segment.speaker === 'User' || segment.speaker === 'Cursor') && 
     segment.content.toLowerCase().match(/\b(reusable|framework|pattern|template|systematic|scale|optimize|comprehensive|standard|consistent)\b/g)
   );
@@ -179,7 +179,7 @@ function ReusabilityPrincipleView({ segments }: { segments: ConversationSegment[
 }
 
 function TeachabilityPrincipleView({ segments }: { segments: ConversationSegment[] }) {
-    const teachabilitySegments = segments.filter(segment =>
+  const teachabilitySegments = segments.filter(segment => 
     (segment.speaker === 'User' || segment.speaker === 'Cursor') && 
     segment.content.toLowerCase().match(/\b(document|explain|understand|framework|define|teach|learn|analyze|styles|difference|investigate|study)\b/g)
   );
@@ -945,7 +945,7 @@ export default function StrategicArchitectMasterclass() {
   const loadConversationData = async () => {
     try {
       setLoading(true);
-
+      
       // Fetch available conversations and current conversation data in parallel
       const conversationsReq = fetch('/api/strategic-architect-masterclass/conversations');
       const dataReq = fetch(`/api/strategic-architect-masterclass?conversation=${selectedConversation}`);

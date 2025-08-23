@@ -11,6 +11,12 @@ const navigation = [
     description: 'Comprehensive system overview'
   },
   {
+    name: 'CADIS Agent',
+    href: '/admin/cadis-agent',
+    icon: '🤖',
+    description: 'Autonomous coding agent'
+  },
+  {
     name: 'Dashboard',
     href: '/admin',
     icon: '📊',

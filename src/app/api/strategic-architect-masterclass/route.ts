@@ -302,29 +302,29 @@ This demonstrates the highest level of strategic architecture thinking - creatin
     } else {
       // Get the conversation from cursor_chats database (default: CADIS)
       const { client, release } = await getDbClient();
-      try {
-        // Get the Strategic Architect conversation
-        const conversationQuery = await client.query(`
-          SELECT 
-            cc.id, cc.title, cc.content, cc.metadata, cc.created_at,
-            d.name as developer_name, d.role
-          FROM cursor_chats cc
-          JOIN developers d ON cc.developer_id = d.id
-          WHERE d.role = 'strategic_architect'
-          AND cc.title LIKE '%CADIS Developer Intelligence Enhancement%'
-          ORDER BY cc.created_at DESC
-          LIMIT 1
-        `);
+    try {
+      // Get the Strategic Architect conversation
+      const conversationQuery = await client.query(`
+        SELECT 
+          cc.id, cc.title, cc.content, cc.metadata, cc.created_at,
+          d.name as developer_name, d.role
+        FROM cursor_chats cc
+        JOIN developers d ON cc.developer_id = d.id
+        WHERE d.role = 'strategic_architect'
+        AND cc.title LIKE '%CADIS Developer Intelligence Enhancement%'
+        ORDER BY cc.created_at DESC
+        LIMIT 1
+      `);
       
-        if (conversationQuery.rows.length === 0) {
-          return NextResponse.json({
-            error: 'Strategic Architect conversation not found',
-            segments: [],
-            analysis: null
-          });
-        }
-        
-        const conversation = conversationQuery.rows[0];
+      if (conversationQuery.rows.length === 0) {
+        return NextResponse.json({
+          error: 'Strategic Architect conversation not found',
+          segments: [],
+          analysis: null
+        });
+      }
+      
+      const conversation = conversationQuery.rows[0];
         content = conversation.content;
         metadata = {
           conversationId: conversation.id,
@@ -343,23 +343,23 @@ This demonstrates the highest level of strategic architecture thinking - creatin
     }
     
     // Parse conversation into segments (works for both sources)
-    const segments = parseConversationSegments(content);
-    
-    // Generate overall analysis
+      const segments = parseConversationSegments(content);
+      
+      // Generate overall analysis
     const analysis = generateOverallAnalysis(content, segments, conversationType, metadata);
-    
-    console.log(`✅ Processed ${segments.length} segments`);
-    
-    return NextResponse.json({
-      success: true,
+      
+      console.log(`✅ Processed ${segments.length} segments`);
+      
+      return NextResponse.json({
+        success: true,
       segments: segments,
-      analysis,
-      metadata: {
+        analysis,
+        metadata: {
         ...metadata,
-        totalSegments: segments.length,
+          totalSegments: segments.length,
         conversationType
-      }
-    });
+        }
+      });
     
   } catch (error) {
     console.error('❌ Strategic Architect Masterclass API error:', error);
@@ -482,8 +482,8 @@ ${cursorContent}`;
       // Orphaned cursor response - still create segment
       const cursorContent = part
         .replace(/^\*\*Cursor\*\*/, '')
-        .trim();
-      
+      .trim();
+    
       if (cursorContent.length < 50) continue;
       
       const fullConversation = `**CURSOR RESPONSE:**
@@ -614,10 +614,10 @@ function calculateStrategicScore(patterns: Record<string, number>, speaker: stri
     if (patterns.directionGiving > 0 || patterns.systemThinking > 0) {
       score = Math.max(65, score); // Minimum 65 for strategic content
     }
-    
-    return Math.min(100, Math.round(score));
-  }
   
+  return Math.min(100, Math.round(score));
+}
+
   // Cursor-only segments get lower strategic scores
   return Math.min(35, total * 2.5);
 }
@@ -768,7 +768,7 @@ function generateOverallAnalysis(content: string, segments: Array<{ speaker: 'Us
   const strategicPatterns = (lowerContent.match(/\b(proceed|implement|ensure|make sure|analyze|cadis|system|developer|comprehensive|verify|confirm|check|proper|right|analyze.*conversation|define.*styles|framework)\b/g) || []).length;
   const technicalPatterns = (lowerContent.match(/\b(error|bug|fix|debug|code|script|function|api|database|sql)\b/g) || []).length;
   const actualStrategicRatio = Math.round((strategicPatterns / (strategicPatterns + technicalPatterns)) * 100);
-
+  
   // Aggregate strategic pattern counts across full content
   const strategicPatternCounts = analyzeStrategicPatterns(content);
 
@@ -782,14 +782,14 @@ function generateOverallAnalysis(content: string, segments: Array<{ speaker: 'Us
   // Check if this is an auto-analyzed database conversation
   if (metadata?.autoAnalysis && conversationType?.startsWith('db-')) {
     const autoAnalysis = metadata.autoAnalysis as any;
-    return {
-      totalCharacters: content.length,
+  return {
+    totalCharacters: content.length,
       totalExchanges: Math.max(
         segments.filter(s => s.speaker === 'User').length,
         segments.filter(s => s.speaker === 'Exchange').length,
         Math.floor(segments.length / 2)
       ),
-      strategicRatio: actualStrategicRatio,
+    strategicRatio: actualStrategicRatio,
       philosophicalAlignment: autoAnalysis?.alignmentScore || avgAlignmentScore,
       strategicPatternCounts,
       principleCounts: {
